@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verifikasi OTP</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        table {
+            border-spacing: 0;
+        }
+
+        .container {
+            background-color: #f3f4f6;
+            padding: 20px;
+        }
+
+        .card {
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #ffffff;
+            font-size: 28px;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .body {
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .body p {
+            color: #374151;
+            font-size: 16px;
+            line-height: 24px;
+            margin: 0 0 20px;
+        }
+
+        .otp-box {
+            background-color: #f3f4f6;
+            display: inline-block;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .otp-box span {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+            letter-spacing: 4px;
+        }
+
+        .body .note {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 22px;
+            margin: 0 0 20px;
+        }
+
+        .footer {
+            background-color: #f9fafb;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer p {
+            color: #6b7280;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .footer a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .footer p.copyright {
+            margin: 10px 0 0;
+        }
+    </style>
+</head>
+
+<body>
+    <table role="presentation" width="100%" class="container">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="100%" class="card">
+                    <!-- Header -->
+                    <tr>
+                        <td class="header">
+                            <h1>Verifikasi OTP Anda</h1>
+                        </td>
+                    </tr>
+                    <!-- Body -->
+                    <tr>
+                        <td class="body">
+                            <p>Terima kasih telah menggunakan layanan kami. Gunakan kode OTP berikut untuk menyelesaikan
+                                verifikasi:</p>
+                            <div class="otp-box">
+                                <span th:text="${otp}"></span>
+                            </div>
+                            <p class="note">Kode ini berlaku selama <b>5 menit</b>. Jangan bagikan kode ini
+                                kepada siapa pun.</p>
+                            
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td class="footer">
+                            <p>Jika Anda tidak meminta kode ini, abaikan email ini atau hubungi <a
+                                    href="mailto:ajengazzahara04@gmail.com">dukungan kami</a>.</p>
+                            <p class="copyright">&copy; 2025 Pemberdayaan Umat Berkelanjutan. Semua hak dilindungi.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

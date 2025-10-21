@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Input OTP</title>
+    <link rel="stylesheet" th:href="@{/css/form-otp.css}">
+</head>
+
+<body>
+    <div class="form-container">
+        <h2 class="form-title">Masukkan Kode OTP</h2>
+        <p class="form-subtitle">Kode telah dikirim ke email Anda</p>
+
+        <!-- Form kirim ke controller -->
+        <form id="otp-form" method="post" th:action="@{/auth/verifikasi-otp}">
+            <!-- Hidden input untuk userId -->
+            <input type="hidden" name="userId" th:value="${userId}" />
+
+            <!-- Hidden input untuk alir data -->
+            <input type="hidden" name="nama" th:value="${nama}" id="inputNama" />
+            <input type="hidden" name="angkatan" th:value="${angkatan}" id="inputAngkatan" />
+
+            <!-- Input OTP per digit -->
+            <div class="otp-inputs">
+                <input type="text" maxlength="1" oninput="moveToNext(this)" class="otp-input" required>
+                <input type="text" maxlength="1" oninput="moveToNext(this)" class="otp-input" required>
+                <input type="text" maxlength="1" oninput="moveToNext(this)" class="otp-input" required>
+                <input type="text" maxlength="1" oninput="moveToNext(this)" class="otp-input" required>
+                <input type="text" maxlength="1" oninput="moveToNext(this)" class="otp-input" required>
+                <input type="text" maxlength="1" oninput="moveToNext(this)" class="otp-input" required>
+            </div>
+
+            <!-- Hidden input untuk gabungan OTP -->
+            <input type="hidden" name="otp" id="otp-hidden" />
+
+            <!-- Submit button -->
+            <button type="submit" class="form-button">Verifikasi</button>
+        </form>
+
+
+        <p th:if="${error}" th:text="${error}" style="color:red;"></p>
+        <p class="form-resend">Belum menerima kode? <a href="javascript:void(0);" id="resendOtpLink"
+                onclick="resendOtp()" class="resend-link">Kirim ulang</a></p>
+    </div>
+
+    <script src="/js/auth.js"></script>
+</body>
+
+</html>

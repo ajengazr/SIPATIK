@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/form.css}">
+</head>
+
+<body>
+       <button class="theme-toggle" aria-label="toggle theme">
+        <i class="fas fa-adjust"></i>
+    </button>
+
+    <div class="form-container">
+        <h2 class="form-title">Ayo daftar! untuk melengkapi data infakmu.</h2>
+        <p class="form-subtitle">Isi data berikut dan dapatkan akun login ke SIPATIK.</p>
+
+        <form id="pendaftaranForm" th:action="@{/auth/pendaftaran}" method="post" th:object="${user}">
+            <input type="hidden" name="id" th:value="${userId}" />
+            <div class="overlay">
+                <div class="form-group">
+                    <label for="email">Email*</label>
+                    <input type="email" id="email" th:field="*{email}" placeholder="Masukkan Email Anda">
+                    <i class="login__icon ri-mail-fill" id="loginEmail"></i>
+                </div>
+                <!-- <p th:if="${#fields.hasErrors('email')}" th:text="${#fields.errors('email')[0]}" class="error-message"></p> -->
+                <p th:if="${fieldErrors != null and fieldErrors.containsKey('email')}"
+                    th:text="${fieldErrors.get('email')}" class="error-message"></p>
+            </div>
+
+            <div class="overlay">
+                <div class="form-group">
+                    <label for="password">Password*</label>
+                    <input type="password" id="password" th:field="*{password}" placeholder="Masukkan Password Anda">
+                    <i class="login__icon cursor-password ri-eye-off-fill" id="loginPassword"></i>
+                </div>
+                <!-- <p th:if="${#fields.hasErrors('password')}" th:text="${#fields.errors('password')[0]}"
+                    class="error-message"></p> -->
+                <p th:if="${fieldErrors != null and fieldErrors.containsKey('password')}"
+                    th:text="${fieldErrors.get('password')}" class="error-message"></p>
+            </div>
+
+            <div class="overlay">
+                <div class="form-group">
+                    <label for="nomorHp">No WhatsApp*</label>
+                    <input type="tel" id="nomorHp" th:field="*{nomorHp}" placeholder="Masukkan Nomor WhatsApp Anda">
+                    <i class="login__icon ri-phone-fill"></i>
+                </div>
+                <!-- <p th:if="${#fields.hasErrors('nomorHp')}" th:text="${#fields.errors('nomorHp')[0]}"
+                    class="error-message"></p> -->
+                <p th:if="${fieldErrors != null and fieldErrors.containsKey('nomorHp')}"
+                    th:text="${fieldErrors.get('nomorHp')}" class="error-message"></p>
+            </div>
+
+            <div class="overlay">
+                <div class="form-group">
+                    <label for="jenjang">Pilih Jenjang Saat di PUB*</label>
+                    <select id="jenjang" th:field="*{jenjang}">
+                        <option value="" disabled selected>Pilih Jenjang</option>
+                        <option value="S1">S1</option>
+                        <option value="D3">D3</option>
+                    </select>
+                    <i class="login__icon ri-graduation-cap-fill"></i>
+                </div>
+                <p th:if="${fieldErrors != null and fieldErrors.containsKey('jenjang')}"
+                    th:text="${fieldErrors.get('jenjang')}" class="error-message"></p>
+            </div>
+
+            <button type="submit">Daftar</button>
+        </form>
+    </div>
+    <script src="/js/theme.js"></script>
+    <script src="/js/auth.js"></script>
+</body>
+
+</html>

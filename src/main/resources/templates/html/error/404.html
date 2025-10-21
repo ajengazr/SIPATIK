@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Halaman Tidak Ditemukan | SIPATIK</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .error-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        .error-icon {
+            font-size: 5rem;
+            color: #2196f3;
+            margin-bottom: 1.5rem;
+        }
+        .error-title {
+            color: #1976d2;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .error-message {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #2196f3, #1976d2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h1 class="error-title">404</h1>
+            <p class="error-message" th:text="${errorMessage ?: 'Halaman tidak ditemukan'}">
+                Halaman yang Anda cari tidak ditemukan.
+            </p>
+            <a href="/auth/" class="btn btn-primary">
+                <i class="fas fa-home me-2"></i>
+                Kembali ke Beranda
+            </a>
+        </div>
+    </div>
+</body>
+</html>
+```
+
+```html:src/main/resources/templates/html/error/401.html
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>401 - Tidak Diizinkan | SIPATIK</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .error-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        .error-icon {
+            font-size: 5rem;
+            color: #ff9800;
+            margin-bottom: 1.5rem;
+        }
+        .error-title {
+            color: #f57c00;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .error-message {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+        .btn-secondary {
+            background: linear-gradient(45deg, #2196f3, #1976d2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover, .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h1 class="error-title">401</h1>
+            <p class="error-message" th:text="${errorMessage ?: 'Anda perlu login untuk mengakses halaman ini'}">
+                Anda perlu login untuk mengakses halaman ini.
+            </p>
+            <div>
+                <a href="/auth/login" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Login
+                </a>
+                <a href="/auth/" class="btn btn-secondary">
+                    <i class="fas fa-home me-2"></i>
+                    Beranda
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+```
+
+```html:src/main/resources/templates/html/error/403.html
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Akses Ditolak | SIPATIK</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .error-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        .error-icon {
+            font-size: 5rem;
+            color: #f44336;
+            margin-bottom: 1.5rem;
+        }
+        .error-title {
+            color: #d32f2f;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .error-message {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+        .btn-secondary {
+            background: linear-gradient(45deg, #2196f3, #1976d2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover, .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-icon">
+                <i class="fas fa-ban"></i>
+            </div>
+            <h1 class="error-title">403</h1>
+            <p class="error-message" th:text="${errorMessage ?: 'Anda tidak memiliki akses ke halaman ini'}">
+                Anda tidak memiliki akses ke halaman ini.
+            </p>
+            <div>
+                <a href="javascript:history.back()" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Kembali
+                </a>
+                <a href="/auth/" class="btn btn-secondary">
+                    <i class="fas fa-home me-2"></i>
+                    Beranda
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+```
+
+```html:src/main/resources/templates/html/error/500.html
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Kesalahan Server | SIPATIK</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .error-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        .error-icon {
+            font-size: 5rem;
+            color: #9c27b0;
+            margin-bottom: 1.5rem;
+        }
+        .error-title {
+            color: #7b1fa2;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .error-message {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #9c27b0, #7b1fa2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+        .btn-secondary {
+            background: linear-gradient(45deg, #2196f3, #1976d2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover, .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <h1 class="error-title">500</h1>
+            <p class="error-message" th:text="${errorMessage ?: 'Terjadi kesalahan pada server, silakan coba lagi'}">
+                Terjadi kesalahan pada server, silakan coba lagi.
+            </p>
+            <div>
+                <button onclick="location.reload()" class="btn btn-primary">
+                    <i class="fas fa-redo me-2"></i>
+                    Coba Lagi
+                </button>
+                <a href="/auth/" class="btn btn-secondary">
+                    <i class="fas fa-home me-2"></i>
+                    Beranda
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+```
+
+### Membuat JavaScript untuk Error Handling API
+
+```javascript:src/main/resources/static/js/error-handler.js
+// Global Error Handler untuk API calls
+class ErrorHandler {
+    constructor() {
+        this.setupGlobalErrorHandling();
+    }
+
+    setupGlobalErrorHandling() {
+        // Override fetch untuk menangkap error secara global
+        const originalFetch = window.fetch;
+        window.fetch = async (...args) => {
+            try {
+                const response = await originalFetch(...args);
+                
+                // Jika response tidak ok, handle error
+                if (!response.ok) {
+                    await this.handleHttpError(response, args[0]);
+                }
+                
+                return response;
+            } catch (error) {
+                this.handleNetworkError(error);
+                throw error;
+            }
+        };
+    }
+
+    async handleHttpError(response, request) {
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch (e) {
+            errorData = {
+                message: 'Terjadi kesalahan pada server',
+                status: response.status
+            };
+        }
+
+        const status = response.status;
+        const message = errorData.message || this.getDefaultErrorMessage(status);
+
+        switch (status) {
+            case 400:
+                this.showErrorNotification(message, 'warning');
+                break;
+            case 401:
+                this.showErrorNotification('Sesi Anda telah berakhir, silakan login kembali', 'error');
+                setTimeout(() => {
+                    window.location.href = '/auth/login';
+                }, 2000);
+                break;
+            case 403:
+                this.showErrorNotification('Anda tidak memiliki akses untuk melakukan aksi ini', 'error');
+                break;
+            case 404:
+                this.showErrorNotification('Data tidak ditemukan', 'error');
+                break;
+            case 500:
+                this.showErrorNotification('Terjadi kesalahan pada server, silakan coba lagi', 'error');
+                break;
+            default:
+                this.showErrorNotification(message, 'error');
+        }
+    }
+
+    handleNetworkError(error) {
+        console.error('Network error:', error);
+        this.showErrorNotification('Koneksi internet bermasalah, silakan coba lagi', 'error');
+    }
+
+    getDefaultErrorMessage(status) {
+        const messages = {
+            400: 'Permintaan tidak valid',
+            401: 'Anda perlu login untuk mengakses halaman ini',
+            403: 'Anda tidak memiliki akses ke halaman ini',
+            404: 'Halaman tidak ditemukan',
+            500: 'Terjadi kesalahan pada server'
+        };
+        return messages[status] || 'Terjadi kesalahan yang tidak diketahui';
+    }
+
+    showErrorNotification(message, type = 'error') {
+        // Hapus notifikasi sebelumnya jika ada
+        const existingNotification = document.querySelector('.error-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Buat elemen notifikasi
+        const notification = document.createElement('div');
+        notification.className = `error-notification alert alert-${type === 'error' ? 'danger' : 'warning'} alert-dismissible fade show`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            max-width: 500px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'exclamation-circle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto remove setelah 5 detik
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+
+    // Method untuk validasi form
+    validateForm(formElement) {
+        const inputs = formElement.querySelectorAll('input[required], select[required], textarea[required]');
+        let isValid = true;
+        const errors = {};
+
+        inputs.forEach(input => {
+            const value = input.value.trim();
+            const fieldName = input.name || input.id;
+
+            if (!value) {
+                errors[fieldName] = `${this.getFieldLabel(fieldName)} tidak boleh kosong`;
+                isValid = false;
+                this.highlightError(input);
+            } else {
+                this.clearError(input);
+            }
+        });
+
+        if (!isValid) {
+            this.showValidationErrors(errors);
+        }
+
+        return isValid;
+    }
+
+    getFieldLabel(fieldName) {
+        const labels = {
+            'email': 'Email',
+            'password': 'Password',
+            'nama': 'Nama',
+            'angkatan': 'Angkatan',
+            'nomorHp': 'Nomor HP',
+            'jenjang': 'Jenjang',
+            'jumlah': 'Jumlah',
+            'keterangan': 'Keterangan'
+        };
+        return labels[fieldName] || fieldName;
+    }
+
+    highlightError(input) {
+        input.classList.add('is-invalid');
+        input.style.borderColor = '#dc3545';
+    }
+
+    clearError(input) {
+        input.classList.remove('is-invalid');
+        input.style.borderColor = '';
+    }
+
+    showValidationErrors(errors) {
+        const errorMessages = Object.values(errors).join('<br>');
+        this.showErrorNotification(errorMessages, 'warning');
+    }
+}
+
+// Inisialisasi error handler
+const errorHandler = new ErrorHandler();
+
+// Export untuk penggunaan global
+window.ErrorHandler = errorHandler;
+```
+
+### Memperbarui Form Setor Infak dengan Error Handling
+
+```html:src/main/resources/templates/html/user/setor-infak.html
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setor Infak | SIPATIK</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/setor-infak.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/user/dash">
+                <i class="fas fa-mosque me-2"></i>SIPATIK
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-donate me-2"></i>Setor Infak
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Error Notification Area -->
+                        <div id="errorNotification" class="alert alert-danger d-none" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span id="errorMessage"></span>
+                        </div>
+
+                        <!-- Success Notification Area -->
+                        <div id="successNotification" class="alert alert-success d-none" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span id="successMessage"></span>
+                        </div>
+
+                        <form id="setorInfakForm" th:action="@{/user/setor-infak}" method="post">
+                            <div class="mb-3">
+                                <label for="jumlah" class="form-label">Jumlah Infak <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="jumlah" 
+                                           name="jumlah" 
+                                           required 
+                                           min="1000"
+                                           step="1000"
+                                           placeholder="Masukkan jumlah infak">
+                                </div>
+                                <div class="invalid-feedback" id="jumlahError"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="keterangan" class="form-label">Keterangan <span class="text-danger">*</span></label>
+                                <textarea class="form-control" 
+                                          id="keterangan" 
+                                          name="keterangan" 
+                                          rows="3" 
+                                          required
+                                          placeholder="Masukkan keterangan infak"></textarea>
+                                <div class="invalid-feedback" id="keteranganError"></div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <i class="fas fa-paper-plane me-2"></i>Setor Infak
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Memproses setor infak...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/error-handler.js}"></script>
+    <script th:src="@{/js/rupiah-no-prefix.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('setorInfakForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+
+            // Format input rupiah
+            const jumlahInput = document.getElementById('jumlah');
+            jumlahInput.addEventListener('input', function() {
+                // Format ke rupiah tanpa prefix
+                const value = this.value.replace(/\D/g, '');
+                if (value) {
+                    this.value = new Intl.NumberFormat('id-ID').format(value);
+                }
+            });
+
+            // Handle form submission
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Validasi form
+                if (!errorHandler.validateForm(form)) {
+                    return;
+                }
+
+                // Show loading
+                loadingModal.show();
+                submitBtn.disabled = true;
+
+                try {
+                    // Prepare form data
+                    const formData = new FormData(form);
+                    const data = {
+                        jumlah: parseInt(formData.get('jumlah').replace(/\D/g, '')),
+                        keterangan: formData.get('keterangan')
+                    };
+
+                    // Get token from localStorage or cookie
+                    const token = localStorage.getItem('jwt_token') || getCookie('jwt_token');
+
+                    // Send API request
+                    const response = await fetch('/api/setor-infak', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        showSuccessNotification('Infak berhasil disetor!');
+                        form.reset();
+                    } else {
+                        // Error akan ditangani oleh ErrorHandler
+                        const errorData = await response.json();
+                        showErrorNotification(errorData.message || 'Terjadi kesalahan saat menyimpan data');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showErrorNotification('Terjadi kesalahan pada koneksi, silakan coba lagi');
+                } finally {
+                    loadingModal.hide();
+                    submitBtn.disabled = false;
+                }
+            });
+
+            function showErrorNotification(message) {
+                const errorDiv = document.getElementById('errorNotification');
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = message;
+                errorDiv.classList.remove('d-none');
+                
+                // Hide success notification if visible
+                document.getElementById('successNotification').classList.add('d-none');
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    errorDiv.classList.add('d-none');
+                }, 5000);
+            }
+
+            function showSuccessNotification(message) {
+                const successDiv = document.getElementById('successNotification');
+                const successMessage = document.getElementById('successMessage');
+                successMessage.textContent = message;
+                successDiv.classList.remove('d-none');
+                
+                // Hide error notification if visible
+                document.getElementById('errorNotification').classList.add('d-none');
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    successDiv.classList.add('d-none');
+                }, 5000);
+            }
+
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+            }
+        });
+    </script>
+</body>
+</html>
+```
+
+### Memperbarui SecurityConfig untuk Error Handling
+
+```java:src/main/java/com/projek/sipatik/config/SecurityConfig.java
+// ... existing code ...
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+public class SecurityConfig {
+
+    // ... existing code ...
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/auth/**", "/", "/css/**", "/js/**", "/assets/**", "/uploads/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/user/**").hasAnyRole("USER",)
+                .requestMatchers("/api/**").hasAnyRole("USER", "ADMIN")
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    if (request.getRequestURI().startsWith("/api/")) {
+                        // API endpoint - return JSON error
+                        response.setContentType("application/json");
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getWriter().write("{\"timestamp\":\"" + LocalDateTime.now() + 
+                            "\",\"status\":401,\"error\":\"Unauthorized\",\"message\":\"Token tidak valid atau tidak ditemukan\",\"path\":\"" + 
+                            request.getRequestURI() + "\"}");
+                    } else {
+                        // Web endpoint - redirect to login
+                        response.sendRedirect("/auth/login");
+                    }
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    if (request.getRequestURI().startsWith("/api/")) {
+                        // API endpoint - return JSON error
+                        response.setContentType("application/json");
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.getWriter().write("{\"timestamp\":\"" + LocalDateTime.now() + 
+                            "\",\"status\":403,\"error\":\"Forbidden\",\"message\":\"Anda tidak memiliki akses ke halaman ini\",\"path\":\"" + 
+                            request.getRequestURI() + "\"}");
+                    } else {
+                        // Web endpoint - redirect to error page
+                        response.sendRedirect("/error/403");
+                    }
+                })
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    // ... existing code ...
+}
+```
+
+## Ringkasan Implementasi
+
+### Backend (Spring Boot):
+1. **ErrorResponse DTO** - Format JSON standar untuk error response
+2. **Exception Classes** - Custom exceptions untuk berbagai jenis error
+3. **GlobalExceptionHandler** - Menangani semua error dengan @ControllerAdvice
+4. **API Controller** - Contoh implementasi dengan validasi request body
+5. **SecurityConfig** - Error handling untuk authentication/authorization
+
+### Frontend (HTML + CSS + JS):
+1. **Error Pages** - Halaman khusus untuk 404, 401, 403, 500
+2. **Error Handler JS** - JavaScript untuk menangani error dari API
+3. **Form Validation** - Validasi form dengan error handling
+4. **Notification System** - Notifikasi error/success yang responsif
+
+### Fitur Utama:
+- ✅ Error handling global untuk semua jenis error
+- ✅ Response JSON standar untuk API
+- ✅ Halaman error yang responsif dengan tema biru pastel
+- ✅ Validasi request body dengan error handling
+- ✅ JavaScript untuk menangani error dari backend
+- ✅ Notifikasi error yang user-friendly
+
+Implementasi ini memberikan error handling yang komprehensif untuk sistem SIPATIK, baik untuk API endpoints maupun halaman web, dengan desain yang konsisten dan user-friendly.
+
+
+

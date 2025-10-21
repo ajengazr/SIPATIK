@@ -1,0 +1,181 @@
+:root {
+    /* Light theme colors */
+    --color-text-primary: #1F2936;
+    --color-text-placeholder: #798EAE;
+    --color-bg-primary: #f9fafb;
+    --color-bg-secondary: #ECECFD;
+    --color-bg-sidebar: #FFFFFF;
+    --color-border-hr: #E2E8F0;
+    --color-hover-primary: #695CFE;
+    --color-hover-secondary: #e2e2fb;
+    --color-shadow: rgba(0, 0, 0, 0.05);
+}
+
+body.dark-theme {
+    /* Dark theme colors */
+    --color-text-primary: #F1F5F9;
+    --color-text-placeholder: #A6B7D2;
+    --color-bg-primary: #111827;
+    --color-bg-secondary: #3D4859;
+    --color-bg-sidebar: #1f2937;
+    --color-border-hr: #3B475C;
+    --color-hover-secondary: #48566a;
+    --color-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* ========== SETOR INFAK ========== */
+.main-content {
+    margin: 0;
+    display: grid;
+    place-items: center;
+    height: 100vh;
+}
+
+.form-container {
+    background-color: var(--color-bg-sidebar);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px var(--color-shadow);
+    width: 100%;
+    max-width: 400px;
+}
+
+h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    color: var(--color-text-primary);
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group input {
+    width: 100%;
+    margin-bottom: 0;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border-hr);
+    border-radius: 0.75rem;
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #87CEEB;
+    box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.5);
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--color-text-primary);
+}
+
+.login__icon {
+    position: absolute;
+    right: 1.5rem;
+    font-weight: 600;
+    top: 50%;
+}
+
+.overlay {
+    margin-bottom: 1.5rem;
+}
+
+select,
+input[type="number"],
+input[type="file"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--color-border-hr);
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+select:focus,
+input[type="number"]:focus,
+input[type="file"]:focus {
+    outline: none;
+    border-color: var(--color-hover-primary);
+    background-color: var(--color-hover-secondary);
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+}
+
+input[type="file"] {
+    padding: 0.5rem;
+}
+
+button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--color-hover-primary);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #5848d8;
+}
+
+
+.material-symbols-outlined {
+    font-variation-settings:
+        'FILL' 1,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+    font-size: 20px;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* Tombol bulat */
+.btn-circle {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    /* ========== REKAP INFAK ========== */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    th,
+    td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: center;
+    }
+
+    th {
+        background-color: var(--color-bg-sidebar);
+    }
+
+    @media (max-width: 600px) {
+        .form-container {
+            padding: 1.5rem;
+        }
+    }

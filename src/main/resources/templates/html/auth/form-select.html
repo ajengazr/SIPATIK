@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Pilihan Angkatan dan Nama</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/form.css}">
+</head>
+
+<body>
+    <button class="theme-toggle" aria-label="toggle theme">
+        <i class="fas fa-adjust"></i>
+    </button>
+
+    <div class="form-container">
+        <h2 class="form-title text-2xl">Pilih Angkatan dan Nama</h2>
+        <form th:action="@{/auth/cek-user}" method="post" th:object="${user}">
+            <div class="overlay">
+                <div class="form-group form-select">
+                    <select th:field="*{angkatan}" id="angkatan" onchange="loadNama()" required>
+                        <option value="">Pilih Angkatan</option>
+                        <option th:each="angkatan : ${angkatanList}" th:value="${angkatan}" th:text="${angkatan}">
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overlay">
+                <div class="form-group form-select">
+                    <select th:field="*{nama}" id="nama" required>
+                        <option value="" disabled selected>Pilih Nama</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit">Kirim</button>
+        </form>
+    </div>
+
+    <script src="/js/theme.js"></script>
+    <script src="/js/auth.js"></script>
+</body>
+
+</html>

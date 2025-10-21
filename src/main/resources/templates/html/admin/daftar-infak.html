@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${pageTitle} ?: 'Sidebar Menu'">Sidebar Menu</title>
+
+    <link rel="stylesheet" th:href="@{/css/dash.css}">
+    <link rel="stylesheet" th:href="@{/css/setor-infak.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        .tambah-infak-section {
+            margin-bottom: 20px;
+        }
+
+        .btn-toggle {
+            background: var(--color-hover-primary);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .btn-toggle:hover {
+            opacity: 0.9;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons button {
+            padding: 6px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .btn-edit {
+            background: #2563eb;
+            color: white;
+            width: min-content;
+        }
+
+
+        .btn-edit:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-delete {
+            background: #dc2626;
+            color: white;
+            width: min-content;
+        }
+
+        .btn-delete:hover {
+            background: #b91c1c;
+        }
+
+        .btn-confirm {
+            background: #059669;
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background: #047857;
+        }
+
+        .btn-reject {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #d97706;
+        }
+
+        .btn-delete-confirm {
+            background: #dc2626;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-delete-confirm:hover {
+            background: #b91c1c;
+        }
+
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background: var(--color-bg-sidebar);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+        }
+
+        .close:hover {
+            color: var(--color-text);
+        }
+
+        .modal-error-container {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        .modal-error-message {
+            color: #dc2626;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .delete-confirm-content {
+            text-align: center;
+        }
+
+        .delete-confirm-content p {
+            font-size: 16px;
+            margin-bottom: 30px;
+            color: var(--color-text);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            background: var(--color-bg);
+            color: var(--color-text);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--color-hover-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-cancel:hover {
+            background: #4b5563;
+        }
+
+        .btn-confirm {
+            background: #059669;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-confirm:hover {
+            background: #047857;
+        }
+
+        .error-message {
+            display: none;
+        }
+    </style>
+
+
+
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="site-nav">
+        <button class="sidebar-toggle">
+            <span class="material-symbols-rounded">menu</span>
+        </button>
+    </nav>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar collapsed">
+            <div class="sidebar-header">
+                <a href="/admin/dash-admin" class="header-logo">
+                    <i class="fas fa-mosque"></i> SIPATIK
+                </a>
+                <!-- <img th:src="@{/images/logo.png}" alt="SIPATIK" class="header-logo" /> -->
+                <button class="sidebar-toggle">
+                    <span class="material-symbols-rounded">chevron_left</span>
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Search Form -->
+                <form th:action="@{/admin/daftar-infak}" method="get" class="search-form">
+                    <span class="material-symbols-rounded">search</span>
+                    <input type="search" name="search" th:value="${searchTerm}" placeholder="Cari nama alumni..." />
+                    <!-- Preserve other filter parameters -->
+                    <input type="hidden" name="bulan" th:value="${selectedBulan}" />
+                    <input type="hidden" name="tahun" th:value="${selectedTahun}" />
+                    <input type="hidden" name="status" th:value="${selectedStatus}" />
+                </form>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a th:href="@{/admin/dash-admin}" class="menu-link"
+                            th:classappend="${activePage == 'dashboard'} ? 'active'">
+                            <span class="material-symbols-rounded">dashboard</span>
+                            <span class="menu-label">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/admin/alumni}" class="menu-link"
+                            th:classappend="${activePage == 'alumni'} ? 'active'">
+                            <span class="material-symbols-rounded">inbox_text_person</span>
+                            <span class="menu-label">Alumni</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/admin/show-pengeluaran}" class="menu-link"
+                            th:classappend="${activePage == 'pengeluaran'} ? ' active' : ''">
+                            <span class="material-symbols-rounded">payment_arrow_down</span>
+                            <span class="menu-label">Pengeluaran</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item">
+                        <a th:href="@{/admin/daftar-infak}" class="menu-link"
+                            th:classappend="${activePage == 'infak'} ? 'active'">
+                            <span class="material-symbols-rounded">list_alt_add</span>
+                            <span class="menu-label">Daftar Infak</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/admin/laporan-kas}" class="menu-link"
+                            th:classappend="${activePage == 'kas'} ? 'active'">
+                            <span class="material-symbols-rounded">add_chart</span>
+                            <span class="menu-label">Laporan Keuangan</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/auth/logout}" class="menu-link">
+                            <span class="material-symbols-rounded">logout</span>
+                            <span class="menu-label">Keluar</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="theme-toggle">
+                    <div class="theme-label">
+                        <span class="theme-icon material-symbols-rounded">dark_mode</span>
+                        <span class="theme-text">Dark Mode</span>
+                    </div>
+                    <div class="theme-toggle-track">
+                        <div class="theme-toggle-indicator"></div>
+                    </div>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Konten Utama -->
+        <div class="main-content">
+            <h2 class="page-title">Daftar Infak Alumni</h2>
+
+            <!-- Tambah Infak Button - positioned below title -->
+            <div class="tambah-infak-section">
+                <button onclick="openTambahInfakModal()" class="btn-toggle">+ Tambah Infak</button>
+            </div>
+
+            <form method="get" th:action="@{/admin/daftar-infak}" style="margin-bottom: 16px;">
+                <select name="bulan">
+                    <option th:value="''" th:selected="${selectedBulan == null}">Semua Bulan</option>
+                    <option th:each="b : ${#numbers.sequence(1,12)}" th:value="${b}" th:selected="${selectedBulan == b}"
+                        th:text="${#dates.create(2024,b,1)?.month}">1</option>
+                </select>
+
+                <select name="tahun">
+                    <option th:value="''" th:selected="${selectedTahun == null}">Semua Tahun</option>
+                    <option th:each="t : ${tahunList}" th:value="${t}" th:selected="${selectedTahun == t}"
+                        th:text="${t}">2025</option>
+                </select>
+
+                <select name="status">
+                    <option th:value="''" th:selected="${selectedStatus == null}">Semua Status</option>
+                    <option value="confirmed" th:selected="${selectedStatus == 'confirmed'}">Dikonfirmasi</option>
+                    <option value="pending" th:selected="${selectedStatus == 'pending'}">Menunggu</option>
+                </select>
+
+                <!-- Preserve search term -->
+                <input type="hidden" name="search" th:value="${searchTerm}" />
+
+                <button type="submit" class="btn btn-sm btn-secondary">Filter</button>
+                <a th:href="@{/admin/daftar-infak}" class="btn btn-sm btn-info">Reset</a>
+            </form>
+
+            <div class="card">
+                <div class="table-container">
+                    <table class="card">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Nama</th>
+                                <th>Nominal Infaq</th>
+                                <th>Bukti Transfer</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="setor : ${setoranList}">
+                                <td th:text="${setor.user.nama}"></td>
+                                <td class="format-rupiah" th:text="${setor.nominal}"></td>
+                                <td>
+                                    <a th:if="${setor.buktiTransfer != 'admin-manual-entry'}"
+                                        th:href="@{'/admin/infak/bukti/' + ${setor.buktiTransfer}}" target="_blank"
+                                        class="btn btn-sm btn-info">Lihat</a>
+                                    <a th:if="${setor.buktiTransfer != 'admin-manual-entry'}"
+                                        th:href="@{'/admin/infak/bukti/download/' + ${setor.buktiTransfer}}"
+                                        class="btn btn-sm btn-secondary">Download</a>
+                                    <span th:if="${setor.buktiTransfer == 'admin-manual-entry'}"
+                                        style="color: #6b7280; font-style: italic;">Input Manual Admin</span>
+                                </td>
+                                <td>
+                                    <span th:text="${setor.dikonfirmasi ? 'Dikonfirmasi' : 'Menunggu'}"
+                                        th:classappend="${setor.dikonfirmasi} ? 'text-success fw-bold' : 'text-warning fw-bold'">
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-edit" th:data-id="${setor.id}" th:data-nama="${setor.user.nama}"
+                                            th:data-nominal="${setor.nominal}" th:data-angkatan="${setor.user.angkatan}"
+                                            th:data-jenjang="${setor.user.jenjang}" onclick="openEditModal(this)"
+                                            title="Edit">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+    
+                                        <button class="btn-delete" th:data-id="${setor.id}"
+                                            th:data-nama="${setor.user.nama}" th:data-nominal="${setor.nominal}"
+                                            onclick="openDeleteModal(this)" title="Hapus">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+    
+                                        <form th:action="@{'/admin/infak/konfirmasi/' + ${setor.id}}" method="post"
+                                            style="display:inline">
+                                            <button class="btn-confirm" type="submit" th:disabled="${setor.dikonfirmasi}"
+                                                title="Konfirmasi">
+                                                <span class="material-symbols-outlined">check_circle</span>
+                                            </button>
+                                        </form>
+    
+                                        <form th:action="@{'/admin/infak/tolak/' + ${setor.id}}" method="post"
+                                            style="display:inline">
+                                            <button class="btn-reject" type="submit" th:disabled="${!setor.dikonfirmasi}"
+                                                title="Tolak">
+                                                <span class="material-symbols-outlined">cancel</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Modal Tambah Infak -->
+            <div id="tambahInfakModal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close" onclick="closeTambahInfakModal()">&times;</span>
+                    <h2 class="page-title">Tambah Infak Manual</h2>
+
+                    <!-- Error messages container - only inside modal -->
+                    <div id="modal-error-container" class="modal-error-container" style="display: none;">
+                        <div class="modal-error-message" id="modal-error-message"></div>
+                    </div>
+
+                    <form id="tambahInfakForm" th:action="@{/admin/infak/tambah}" method="post">
+                        <div class="form-group">
+                            <label for="angkatan">Angkatan *</label>
+                            <select id="angkatan" name="angkatan" required onchange="loadNamaByAngkatan()">
+                                <option value="">Pilih Angkatan</option>
+                            </select>
+                            <div class="error-message" id="angkatan-error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="userId">Nama Alumni *</label>
+                            <select id="userId" name="userId" required disabled>
+                                <option value="">Pilih angkatan terlebih dahulu</option>
+                            </select>
+                            <div class="error-message" id="userId-error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bank">Bank *</label>
+                            <select id="bank" name="bank" required>
+                                <option value="">Pilih Bank</option>
+                                <option value="BCA">BCA</option>
+                                <option value="MANDIRI">MANDIRI</option>
+                            </select>
+                            <div class="error-message" id="bank-error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nominal">Nominal Infak *</label>
+                            <input type="number" id="nominal" name="nominal" required min="1"
+                                placeholder="Masukkan nominal infak" />
+                            <div class="error-message" id="nominal-error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tanggalInfak">Tanggal Infak *</label>
+                            <input type="date" id="tanggalInfak" name="tanggalInfak" required />
+                            <div class="error-message" id="tanggalInfak-error"></div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" onclick="closeTambahInfakModal()" class="btn-cancel">Batal</button>
+                            <button type="submit" class="btn-confirm">Simpan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal Edit Infak -->
+            <div id="editInfakModal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close" onclick="closeEditModal()">&times;</span>
+                    <h2 class="page-title">Edit Nominal Infak</h2>
+
+                    <!-- Error messages container - only inside modal -->
+                    <div id="edit-modal-error-container" class="modal-error-container" style="display: none;">
+                        <div class="modal-error-message" id="edit-modal-error-message"></div>
+                    </div>
+
+                    <form id="editInfakForm">
+                        <input type="hidden" id="edit-infak-id" />
+
+                        <div class="form-group">
+                            <label>Nama Alumni</label>
+                            <input type="text" id="edit-nama" readonly style="background-color: #f3f4f6;" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Angkatan & Jenjang</label>
+                            <input type="text" id="edit-angkatan-jenjang" readonly style="background-color: #f3f4f6;" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-nominal">Nominal Infak *</label>
+                            <input type="number" id="edit-nominal" required min="1"
+                                placeholder="Masukkan nominal infak" />
+                            <div class="error-message" id="edit-nominal-error"></div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" onclick="closeEditModal()" class="btn-cancel">Batal</button>
+                            <button type="submit" class="btn-confirm">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal Konfirmasi Hapus -->
+            <div id="deleteConfirmModal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close" onclick="closeDeleteModal()">&times;</span>
+                    <h2 class="page-title">Konfirmasi Hapus</h2>
+
+                    <div class="delete-confirm-content">
+                        <p id="delete-confirm-text"></p>
+
+                        <div class="form-actions">
+                            <button type="button" onclick="closeDeleteModal()" class="btn-cancel">Batal</button>
+                            <button type="button" onclick="confirmDelete()" class="btn-delete-confirm">Hapus</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                &copy; 2025 SIPATIK - Pemberdayaan Umat Berkelanjutan.
+            </footer>
+        </div>
+    </div>
+
+    <script th:src="@{/js/dash.js}"></script>
+
+    <script>
+        let currentEditId = null;
+        let currentDeleteId = null;
+
+        // Load angkatan list on page load
+        window.addEventListener('DOMContentLoaded', function () {
+            loadAngkatanList();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            const errorField = urlParams.get('errorField');
+            if (error) {
+                const decodedError = decodeURIComponent(error);
+                openTambahInfakModal();
+                showModalError(decodedError);
+                if (errorField) {
+                    showFieldError(errorField, decodedError);
+                }
+            }
+        });
+
+        // Load angkatan list from API
+        function loadAngkatanList() {
+            fetch('/admin/api/angkatan-list', {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Loaded angkatan data:', data);
+                    const angkatanSelect = document.getElementById('angkatan');
+                    const userSelect = document.getElementById('userId');
+                    angkatanSelect.innerHTML = '<option value="">Pilih Angkatan</option>';
+                    userSelect.innerHTML = '<option value="">Pilih angkatan terlebih dahulu</option>';
+                    userSelect.disabled = true;
+                    
+                    if (data && data.length > 0) {
+                        data.forEach(angkatan => {
+                            const option = document.createElement('option');
+                            option.value = angkatan;
+                            option.textContent = 'Angkatan ' + angkatan;
+                            angkatanSelect.appendChild(option);
+                        });
+                    } else {
+                        angkatanSelect.innerHTML = '<option value="">Tidak ada data angkatan</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading angkatan list:', error);
+                    const angkatanSelect = document.getElementById('angkatan');
+                    angkatanSelect.innerHTML = '<option value="">Error loading data</option>';
+                });
+        }
+
+        // Load nama list based on selected angkatan
+        function loadNamaByAngkatan() {
+            const angkatan = document.getElementById('angkatan').value;
+            const userSelect = document.getElementById('userId');
+            
+            if (!angkatan) {
+                userSelect.innerHTML = '<option value="">Pilih angkatan terlebih dahulu</option>';
+                userSelect.disabled = true;
+                return;
+            }
+
+            userSelect.disabled = true;
+            userSelect.innerHTML = '<option value="">Loading...</option>';
+
+            fetch('/admin/api/nama-by-angkatan?angkatan=' + angkatan, {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Loaded alumni data:', data);
+                    userSelect.innerHTML = '<option value="">Pilih Nama</option>';
+                    
+                    if (data && data.length > 0) {
+                        data.forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item.id;
+                            option.textContent = item.nama + (item.jenjang ? ' - ' + item.jenjang : '');
+                            userSelect.appendChild(option);
+                        });
+                        userSelect.disabled = false;
+                    } else {
+                        userSelect.innerHTML = '<option value="">Tidak ada alumni di angkatan ini</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading nama list:', error);
+                    userSelect.innerHTML = '<option value="">Error loading data</option>';
+                    userSelect.disabled = true;
+                });
+        }
+
+        // Tambah Infak Modal
+        function openTambahInfakModal() {
+            document.getElementById('tambahInfakModal').classList.remove('hidden');
+            document.getElementById('tanggalInfak').value = new Date().toISOString().split('T')[0];
+            clearAllErrors();
+            
+            // Reload angkatan list when modal opens
+            loadAngkatanList();
+        }
+
+        function closeTambahInfakModal() {
+            document.getElementById('tambahInfakModal').classList.add('hidden');
+            clearAllErrors();
+            // Clear error from URL when closing modal
+            const url = new URL(window.location);
+            url.searchParams.delete('error');
+            url.searchParams.delete('errorField');
+            window.history.replaceState({}, '', url);
+        }
+
+        // Edit Infak Modal
+        function openEditModal(button) {
+            currentEditId = button.getAttribute('data-id');
+            const nama = button.getAttribute('data-nama');
+            const nominal = button.getAttribute('data-nominal');
+            const angkatan = button.getAttribute('data-angkatan');
+            const jenjang = button.getAttribute('data-jenjang');
+
+            document.getElementById('edit-infak-id').value = currentEditId;
+            document.getElementById('edit-nama').value = nama;
+            document.getElementById('edit-angkatan-jenjang').value = 'Angkatan ' + angkatan + ' - ' + jenjang;
+            document.getElementById('edit-nominal').value = nominal;
+
+            document.getElementById('editInfakModal').classList.remove('hidden');
+            clearEditErrors();
+        }
+
+        function closeEditModal() {
+            document.getElementById('editInfakModal').classList.add('hidden');
+            clearEditErrors();
+        }
+
+        // Delete Modal
+        function openDeleteModal(button) {
+            currentDeleteId = button.getAttribute('data-id');
+            const nama = button.getAttribute('data-nama');
+            const nominal = button.getAttribute('data-nominal');
+
+            document.getElementById('delete-confirm-text').textContent =
+                'Apakah yakin ingin menghapus infak ' + nama + ' dengan nominal Rp ' + formatNumber(nominal) + '?';
+
+            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteConfirmModal').classList.add('hidden');
+            currentDeleteId = null;
+        }
+
+        function confirmDelete() {
+            if (currentDeleteId) {
+                fetch('/admin/infak/hapus/' + currentDeleteId, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat menghapus infak.');
+                    });
+            }
+        }
+
+        function clearAllErrors() {
+            const errorElements = document.querySelectorAll('.error-message');
+            errorElements.forEach(element => {
+                element.textContent = '';
+                element.style.display = 'none';
+            });
+
+            const modalErrorContainer = document.getElementById('modal-error-container');
+            modalErrorContainer.style.display = 'none';
+        }
+
+        function clearEditErrors() {
+            const editErrorElements = document.querySelectorAll('#editInfakModal .error-message');
+            editErrorElements.forEach(element => {
+                element.textContent = '';
+                element.style.display = 'none';
+            });
+
+            const editModalErrorContainer = document.getElementById('edit-modal-error-container');
+            editModalErrorContainer.style.display = 'none';
+        }
+
+        function showFieldError(fieldId, message) {
+            const errorElement = document.getElementById(fieldId + '-error');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                errorElement.style.color = '#dc2626';
+                errorElement.style.fontSize = '12px';
+                errorElement.style.marginTop = '4px';
+            }
+        }
+
+        function showModalError(message) {
+            const modalErrorContainer = document.getElementById('modal-error-container');
+            const modalErrorMessage = document.getElementById('modal-error-message');
+
+            modalErrorMessage.textContent = message;
+            modalErrorContainer.style.display = 'block';
+        }
+
+        function showEditModalError(message) {
+            const modalErrorContainer = document.getElementById('edit-modal-error-container');
+            const modalErrorMessage = document.getElementById('edit-modal-error-message');
+
+            modalErrorMessage.textContent = message;
+            modalErrorContainer.style.display = 'block';
+        }
+
+        function formatNumber(number) {
+            return new Intl.NumberFormat('id-ID').format(number);
+        }
+
+        // Form validation for tambah infak
+        document.getElementById('tambahInfakForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            clearAllErrors();
+
+            const angkatan = document.getElementById('angkatan').value;
+            const userId = document.getElementById('userId').value;
+            const bank = document.getElementById('bank').value;
+            const nominal = document.getElementById('nominal').value;
+            const tanggalInfak = document.getElementById('tanggalInfak').value;
+
+            let hasError = false;
+
+            // Validate angkatan
+            if (!angkatan) {
+                showFieldError('angkatan', 'Angkatan harus dipilih');
+                hasError = true;
+            }
+
+            // Validate nama
+            if (!userId) {
+                showFieldError('userId', 'Nama harus dipilih');
+                hasError = true;
+            }
+
+            // Validate bank
+            if (!bank) {
+                showFieldError('bank', 'Bank tidak boleh kosong');
+                hasError = true;
+            }
+
+            // Validate nominal
+            if (!nominal) {
+                showFieldError('nominal', 'Nominal tidak boleh kosong');
+                hasError = true;
+            } else if (isNaN(nominal) || parseInt(nominal) < 1) {
+                showFieldError('nominal', 'Nominal harus lebih dari 0');
+                hasError = true;
+            }
+
+            // Validate tanggal
+            if (!tanggalInfak) {
+                showFieldError('tanggalInfak', 'Tanggal infak tidak boleh kosong');
+                hasError = true;
+            } else {
+                const selectedDate = new Date(tanggalInfak);
+                const today = new Date();
+                today.setHours(23, 59, 59, 999); // Set to end of today
+                if (selectedDate > today) {
+                    showFieldError('tanggalInfak', 'Tanggal infak tidak boleh lebih dari hari ini');
+                    hasError = true;
+                }
+            }
+
+            if (!hasError) {
+                this.submit();
+            }
+        });
+
+        // Form validation for edit infak
+        document.getElementById('editInfakForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            clearEditErrors();
+
+            const nominal = document.getElementById('edit-nominal').value;
+
+            if (!nominal) {
+                showFieldError('edit-nominal', 'Nominal tidak boleh kosong');
+                return;
+            }
+
+            if (isNaN(nominal) || parseInt(nominal) < 1) {
+                showFieldError('edit-nominal', 'Nominal harus lebih dari 0');
+                return;
+            }
+
+            // Submit edit
+            fetch('/admin/infak/edit/' + currentEditId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'nominal=' + encodeURIComponent(nominal)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        showEditModalError(data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showEditModalError('Terjadi kesalahan saat mengupdate infak.');
+                });
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function (event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.add('hidden');
+                clearAllErrors();
+                clearEditErrors();
+            }
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Alumni</title>
+    <link rel="stylesheet" th:href="@{/css/dash.css}">
+    <link rel="stylesheet" th:href="@{/css/setor-infak.css}">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<style>
+    .error-message {
+        color: #dc2626;
+        font-size: 12px;
+        margin-top: 4px;
+        display: none;
+    }
+
+    .sidebar-logo {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #1565c0, #0d47a1, #1976d2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-decoration: none;
+        letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sidebar-logo i {
+        font-size: 1.8rem;
+        color: #1565c0;
+    }
+
+    .sidebar-logo:hover {
+        opacity: 0.8;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .btn-icon {
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .btn-icon.danger {
+        background: #dc2626;
+    }
+
+    .btn-icon:hover {
+        opacity: .9;
+    }
+
+    .alert {
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .filters {
+        background: var(--color-bg-sidebar);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-cancel {
+        background: #6b7280;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .btn-cancel:hover {
+        background: #4b5563;
+    }
+
+    .btn-confirm {
+        background: #dc2626;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .btn-confirm:hover {
+        background: #b91c1c;
+    }
+
+    .btn-toggle {
+        background: var(--color-hover-primary);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-toggle:hover {
+        opacity: 0.9;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .sort-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-sort {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 16px;
+        border: 2px solid var(--color-hover-primary);
+        border-radius: 6px;
+        text-decoration: none;
+        color: var(--color-hover-primary);
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-sort:hover {
+        background: var(--color-hover-primary);
+        color: white;
+    }
+
+    .btn-sort.active {
+        background: var(--color-hover-primary);
+        color: white;
+    }
+
+    .angkatan-header {
+        background: var(--color-bg-sidebar);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .angkatan-header h2 {
+        margin: 0 0 10px 0;
+        color: var(--color-text);
+        font-size: 24px;
+    }
+
+    .angkatan-header p {
+        margin: 0;
+        color: var(--color-text-secondary);
+        font-size: 16px;
+    }
+
+    /* Add styles for pagination */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding: 15px;
+        gap: 1rem;
+        background: var(--color-bg-sidebar);
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination-info {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .pagination-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-pagination {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: var(--color-hover-primary);
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-pagination:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    .btn-pagination .material-symbols-rounded {
+        font-size: 18px;
+    }
+
+    .btn-lihat {
+        background: #059669;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 5px;
+        font-size: 12px;
+    }
+
+    .btn-lihat:hover {
+        background: #047857;
+    }
+
+    .btn-edit {
+        background: #2563eb;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 5px;
+        font-size: 12px;
+    }
+
+    .btn-edit:hover {
+        background: #1d4ed8;
+    }
+
+    .btn-delete {
+        background: #dc2626;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .btn-delete:hover {
+        background: #b91c1c;
+    }
+</style>
+
+<body>
+    <!-- Navbar -->
+    <nav class="site-nav">
+        <button class="sidebar-toggle">
+            <span class="material-symbols-rounded">menu</span>
+        </button>
+    </nav>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar collapsed">
+            <div class="sidebar-header">
+                <a href="/admin/dash-admin" class="header-logo">
+                    <i class="fas fa-mosque"></i> SIPATIK
+                </a>
+                <button class="sidebar-toggle">
+                    <span class="material-symbols-rounded">chevron_left</span>
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a th:href="@{/admin/dash-admin}" class="menu-link"
+                            th:classappend="${activePage == 'dashboard'} ? ' active' : ''">
+                            <span class="material-symbols-rounded">dashboard</span>
+                            <span class="menu-label">Dashboard</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item">
+                        <a th:href="@{/admin/alumni}" class="menu-link"
+                            th:classappend="${activePage == 'alumni'} ? ' active' : ''">
+                            <span class="material-symbols-rounded">inbox_text_person</span>
+                            <span class="menu-label">Alumni</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item">
+                        <a th:href="@{/admin/show-pengeluaran}" class="menu-link"
+                            th:classappend="${activePage == 'pengeluaran'} ? ' active' : ''">
+                            <span class="material-symbols-rounded">payment_arrow_down</span>
+                            <span class="menu-label">Pengeluaran</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item">
+                        <a th:href="@{/admin/daftar-infak}" class="menu-link"
+                            th:classappend="${activePage == 'infak'} ? ' active' : ''">
+                            <span class="material-symbols-rounded">list_alt_add</span>
+                            <span class="menu-label">Daftar Infak</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item">
+                        <a th:href="@{/admin/laporan-kas}" class="menu-link"
+                            th:classappend="${activePage == 'kas'} ? ' active' : ''">
+                            <span class="material-symbols-rounded">add_chart</span>
+                            <span class="menu-label">Laporan Keuangan</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item">
+                        <a th:href="@{/auth/logout}" class="menu-link">
+                            <span class="material-symbols-rounded">logout</span>
+                            <span class="menu-label">Keluar</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="theme-toggle">
+                    <div class="theme-label">
+                        <span class="theme-icon material-symbols-rounded">dark_mode</span>
+                        <span class="theme-text">Dark Mode</span>
+                    </div>
+                    <div class="theme-toggle-track">
+                        <div class="theme-toggle-indicator"></div>
+                    </div>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Konten Utama -->
+        <div class="main-content">
+            <!-- Header dengan Tombol Sort dan Filter -->
+            <div class="header">
+                <h1 class="page-title">Daftar Alumni</h1>
+                <div class="header-actions">
+                    <!-- Tombol Sort ASC/DESC -->
+                    <div class="sort-buttons">
+                        <a th:href="@{/admin/alumni(sort='asc', angkatan=${angkatan})}" class="btn-sort"
+                            th:classappend="${sort == 'asc'} ? ' active' : ''">
+                            <span class="material-symbols-rounded">arrow_upward</span>
+                            ASC
+                        </a>
+                        <a th:href="@{/admin/alumni(sort='desc', angkatan=${angkatan})}" class="btn-sort"
+                            th:classappend="${sort == 'desc'} ? ' active' : ''">
+                            <span class="material-symbols-rounded">arrow_downward</span>
+                            DESC
+                        </a>
+                    </div>
+
+                    <button onclick="openTambahModal()" class="btn-toggle">+ Tambah Alumni</button>
+                </div>
+            </div> <br>
+
+            <!-- Flash Messages -->
+            <div th:if="${success}" class="alert alert-success" id="successMessage">
+                <span th:text="${success}"></span>
+            </div>
+
+            <div th:if="${error}" class="alert alert-error" id="errorMessage">
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Filter Angkatan -->
+            <div class="filters" style="margin-bottom: 20px;">
+                <form method="get" style="display: flex; gap: 10px; align-items: center;">
+                    <input type="hidden" name="sort" th:value="${sort}" />
+                    <select name="angkatan" style="padding: 8px; border-radius: 6px; border: 1px solid #d1d5db;">
+                        <option value="">Semua Angkatan</option>
+                        <option th:each="angk : ${availableAngkatan}" th:value="${angk}" th:text="${angk}"
+                            th:selected="${angkatan != null && angkatan == angk}"></option>
+                    </select>
+                    <button type="submit" class="btn-toggle"
+                        style="background: #2563eb; color: white; padding: 8px 16px;">Filter</button>
+                    <a th:href="@{/admin/alumni(sort=${sort})}" class="btn-toggle"
+                        style="background: #6b7280; color: white; padding: 8px 16px; text-decoration: none;">Reset</a>
+                </form>
+            </div>
+
+            <!-- Tabel Data Alumni -->
+            <div class="table-container">
+                <!-- Header untuk angkatan spesifik -->
+                <div th:if="${angkatan != null}" class="angkatan-header">
+                    <h2>Angkatan <span th:text="${angkatan}"></span></h2>
+                    <p>Total: <strong th:text="${#lists.size(alumniList)}"></strong> Alumni</p>
+                </div>
+
+                <!-- Header untuk semua angkatan (saat reset) -->
+                <div th:if="${angkatan == null}" class="angkatan-header">
+                    <h2>Semua Alumni</h2>
+                    <p>Total: <strong th:text="${#lists.size(alumniList)}"></strong> Alumni</p>
+                </div>
+
+                <div class="card">
+                    <table class="card">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama</th>
+                                <th>Jenjang</th>
+                                <th>Angkatan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="alumni, iter : ${alumniList}">
+                                <td th:text="${iter.index + 1}"></td>
+                                <td th:text="${alumni.nama}"></td>
+                                <td th:text="${alumni.jenjang}"></td>
+                                <td th:text="${alumni.angkatan}"></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn-icon" title="Lihat" th:data-id="${alumni.id}"
+                                            th:data-nama="${alumni.nama}" onclick="openLihatModalFromButton(this)">
+                                            <span class="material-symbols-rounded">visibility</span>
+                                        </button>
+                                        <button type="button" class="btn-icon" title="Edit" th:data-id="${alumni.id}"
+                                            th:data-nama="${alumni.nama}" th:data-jenjang="${alumni.jenjang}"
+                                            th:data-angkatan="${alumni.angkatan}" onclick="openEditModalFromButton(this)">
+                                            <span class="material-symbols-rounded">edit</span>
+                                        </button>
+                                        <button type="button" class="btn-icon danger" title="Hapus"
+                                            th:data-id="${alumni.id}" th:data-nama="${alumni.nama}"
+                                            onclick="openDeleteModalFromButton(this)">
+                                            <span class="material-symbols-rounded">delete</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination Angkatan dengan Tombol < > - FIXED -->
+            <div class="pagination-container" th:if="${angkatan != null}">
+                <div class="pagination-info">
+                    <span class="current-angkatan">Angkatan: <strong th:text="${angkatan}"></strong></span>
+                    <span class="total-alumni">Total: <strong th:text="${#lists.size(alumniList)}"></strong>
+                        Alumni</span>
+                </div>
+
+                <div class="pagination-buttons">
+                    <!-- Previous Button - using prevAngkatan from controller -->
+                    <a class="btn-pagination btn-prev" th:if="${prevAngkatan != null}"
+                        th:href="@{/admin/alumni(angkatan=${prevAngkatan}, sort=${sort})}">
+                        <span class="material-symbols-rounded">chevron_left</span>
+                        Angkatan <span th:text="${prevAngkatan}"></span>
+                    </a>
+
+                    <!-- Next Button - using nextAngkatan from controller -->
+                    <a class="btn-pagination btn-next" th:if="${nextAngkatan != null}"
+                        th:href="@{/admin/alumni(angkatan=${nextAngkatan}, sort=${sort})}">
+                        Angkatan <span th:text="${nextAngkatan}"></span>
+                        <span class="material-symbols-rounded">chevron_right</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Modal Tambah Alumni -->
+            <div id="tambahModal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close" onclick="closeTambahModal()">&times;</span>
+                    <h2 class="page-title">Tambah Alumni</h2>
+                    <form id="tambahForm" th:action="@{/admin/alumni/add}" method="post">
+                        <input type="hidden" name="filterAngkatan" th:value="${angkatan}" />
+                        <input type="hidden" name="sort" th:value="${sort}" />
+
+                        <label for="nama">Nama</label>
+                        <input type="text" id="tambah-nama" name="nama"
+                            th:value="${alumniFormData != null ? alumniFormData.nama : ''}" />
+                        <div class="error-message" id="tambah-nama-error"
+                            th:if="${alumniErrors != null and alumniErrors.containsKey('nama')}"
+                            th:text="${alumniErrors.get('nama')}"
+                            th:style="'display: ' + (${alumniErrors != null and alumniErrors.containsKey('nama')} ? 'block' : 'none')">
+                        </div>
+
+                        <label>Jenjang</label>
+                        <select id="tambah-jenjang" name="jenjang">
+                            <option value="">Pilih Jenjang</option>
+                            <option value="D3"
+                                th:selected="${alumniFormData != null and alumniFormData.jenjang == 'D3'}">D3</option>
+                            <option value="S1"
+                                th:selected="${alumniFormData != null and alumniFormData.jenjang == 'S1'}">S1</option>
+                        </select>
+                        <div class="error-message" id="tambah-jenjang-error"
+                            th:if="${alumniErrors != null and alumniErrors.containsKey('jenjang')}"
+                            th:text="${alumniErrors.get('jenjang')}"
+                            th:style="'display: ' + (${alumniErrors != null and alumniErrors.containsKey('jenjang')} ? 'block' : 'none')">
+                        </div>
+
+                        <label>Angkatan</label>
+                        <input type="number" id="tambah-angkatan" name="angkatan" min="1" max="100"
+                            th:value="${alumniFormData != null ? alumniFormData.angkatan : ''}" />
+                        <div class="error-message" id="tambah-angkatan-error"
+                            th:if="${alumniErrors != null and alumniErrors.containsKey('angkatan')}"
+                            th:text="${alumniErrors.get('angkatan')}"
+                            th:style="'display: ' + (${alumniErrors != null and alumniErrors.containsKey('angkatan')} ? 'block' : 'none')">
+                        </div>
+
+                        <button type="submit">Simpan</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal Edit Alumni -->
+            <div id="editModal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close" onclick="closeEditModal()">&times;</span>
+                    <h2 class="page-title">Edit Alumni</h2>
+                    <form id="editForm" method="post">
+                        <input type="hidden" id="editId" name="id" />
+                        <input type="hidden" name="filterAngkatan" th:value="${angkatan}" />
+                        <input type="hidden" name="sort" th:value="${sort}" />
+
+                        <label>Nama</label>
+                        <input type="text" id="editNama" name="nama"
+                            th:value="${editFormData != null ? editFormData.nama : ''}" />
+                        <div class="error-message" id="edit-nama-error"
+                            th:if="${editErrors != null and editErrors.containsKey('nama')}"
+                            th:text="${editErrors.get('nama')}"
+                            th:style="'display: ' + (${editErrors != null and editErrors.containsKey('nama')} ? 'block' : 'none')">
+                        </div>
+
+                        <label>Jenjang</label>
+                        <select id="editJenjang" name="jenjang">
+                            <option value="">Pilih Jenjang</option>
+                            <option value="D3" th:selected="${editFormData != null and editFormData.jenjang == 'D3'}">D3
+                            </option>
+                            <option value="S1" th:selected="${editFormData != null and editFormData.jenjang == 'S1'}">S1
+                            </option>
+                        </select>
+                        <div class="error-message" id="edit-jenjang-error"
+                            th:if="${editErrors != null and editErrors.containsKey('jenjang')}"
+                            th:text="${editErrors.get('jenjang')}"
+                            th:style="'display: ' + (${editErrors != null and editErrors.containsKey('jenjang')} ? 'block' : 'none')">
+                        </div>
+
+                        <label>Angkatan</label>
+                        <input type="number" id="editAngkatan" name="angkatan" min="1" max="100"
+                            th:value="${editFormData != null ? editFormData.angkatan : ''}" readonly />
+                        <div class="error-message" id="edit-angkatan-error"
+                            th:if="${editErrors != null and editErrors.containsKey('angkatan')}"
+                            th:text="${editErrors.get('angkatan')}"
+                            th:style="'display: ' + (${editErrors != null and editErrors.containsKey('angkatan')} ? 'block' : 'none')">
+                        </div>
+
+                        <button type="submit">Update</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal Konfirmasi Hapus -->
+            <div id="confirmDeleteModal" class="modal hidden">
+                <div class="modal-content">
+                    <h3 style="margin:0 0 .5rem 0;" class="page-title">Konfirmasi Hapus</h3>
+                    <p id="confirmDeleteText" style="margin:0 0 1rem 0;">Yakin ingin menghapus data ini?</p>
+                    <div style="display:flex; gap:8px; justify-content:flex-end;">
+                        <button id="cancelDeleteBtn" type="button" class="btn-cancel"
+                            onclick="closeDeleteModal()">Batal</button>
+                        <button id="confirmDeleteBtn" type="button" class="btn-confirm">Hapus</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Lihat Infak Alumni -->
+            <div id="lihatModal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close" onclick="closeLihatModal()">&times;</span>
+                    <h2 class="page-title">Detail Infak Alumni</h2>
+                    <div id="alumniInfo"
+                        style="margin-bottom: 20px; padding: 15px; background: var(--color-bg-sidebar); border-radius: 8px;">
+                        <h3 id="alumniName" style="margin: 0 0 10px 0; color: var(--color-text);"></h3>
+                        <p id="alumniDetails" style="margin: 0; color: var(--color-text-secondary);"></p>
+                    </div>
+
+                    <div id="infakTableContainer">
+                        <table id="infakTable" class="card" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Infak ke</th>
+                                    <th>Tanggal Infak</th>
+                                    <th>Nominal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="infakTableBody">
+                                <!-- Data akan diisi via JavaScript -->
+                            </tbody>
+                            <tfoot id="infakTableFooter" style="display: none;">
+                                <tr>
+                                    <th colspan="2" style="text-align: right;">Total Infak</th>
+                                    <th id="infakTotalValue">Rp 0</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div id="noInfakMessage" class="hidden"
+                        style="text-align: center; padding: 40px; color: var(--color-text-secondary);">
+                        <span class="material-symbols-rounded"
+                            style="font-size: 48px; margin-bottom: 10px; display: block;">money_off</span>
+                        <p>Belum ada catatan infak yang dikonfirmasi</p>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                &copy; 2025 SIPATIK - Pemberdayaan Umat Berkelanjutan.
+            </footer>
+        </div>
+    </div>
+
+    <script th:src="@{/js/dash.js}"></script>
+
+    <script>
+        // Tambah Alumni Modal
+        function openTambahModal() {
+            document.getElementById('tambahModal').classList.remove('hidden');
+        }
+
+        function closeTambahModal() {
+            document.getElementById('tambahModal').classList.add('hidden');
+        }
+
+        // Edit Alumni Modal - menggunakan data attributes
+        function openEditModalFromButton(button) {
+            const id = button.getAttribute('data-id');
+            const nama = button.getAttribute('data-nama') || '';
+            const jenjang = button.getAttribute('data-jenjang') || '';
+            const angkatan = button.getAttribute('data-angkatan') || '';
+
+            document.getElementById('editId').value = id;
+            document.getElementById('editNama').value = nama;
+            document.getElementById('editJenjang').value = jenjang;
+            document.getElementById('editAngkatan').value = angkatan;
+
+            // Set form action untuk edit
+            document.getElementById('editForm').action = '/admin/alumni/edit/' + id;
+
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        // Delete Modal - menggunakan data attributes
+        let deleteId = null;
+
+        function openDeleteModalFromButton(button) {
+            deleteId = button.getAttribute('data-id');
+            const nama = button.getAttribute('data-nama') || 'ini';
+            document.getElementById('confirmDeleteText').textContent = 'Yakin ingin menghapus alumni "' + nama + '"?';
+            document.getElementById('confirmDeleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('confirmDeleteModal').classList.add('hidden');
+            deleteId = null;
+        }
+
+        // Confirm delete - FIXED to include current filter and sort
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+            if (deleteId) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/alumni/hapus/' + deleteId;
+
+                // Add hidden field to preserve current angkatan filter
+                const currentAngkatan = '[[${angkatan}]]';
+                if (currentAngkatan && currentAngkatan !== 'null') {
+                    const hiddenField = document.createElement('input');
+                    hiddenField.type = 'hidden';
+                    hiddenField.name = 'angkatan';
+                    hiddenField.value = currentAngkatan;
+                    form.appendChild(hiddenField);
+                }
+
+                // Add hidden field to preserve current sort
+                const currentSort = '[[${sort}]]';
+                if (currentSort) {
+                    const sortField = document.createElement('input');
+                    sortField.type = 'hidden';
+                    sortField.name = 'sort';
+                    sortField.value = currentSort;
+                    form.appendChild(sortField);
+                }
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function (event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.add('hidden');
+            }
+        });
+
+        // Lihat Infak Modal
+        function openLihatModalFromButton(button) {
+            const alumniId = button.getAttribute('data-id');
+            const alumniName = button.getAttribute('data-nama');
+
+            // Set alumni info
+            document.getElementById('alumniName').textContent = alumniName;
+            document.getElementById('alumniDetails').textContent = 'Detail catatan infak yang telah dikonfirmasi';
+
+            // Show loading state
+            document.getElementById('infakTableContainer').classList.add('hidden');
+            document.getElementById('noInfakMessage').classList.add('hidden');
+            const tfoot = document.getElementById('infakTableFooter');
+            if (tfoot) {
+                tfoot.style.display = 'none';
+            }
+
+            // Fetch infak data
+            fetch(`/admin/alumni/${alumniId}/infak`)
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('infakTableBody');
+                    const tfoot = document.getElementById('infakTableFooter');
+                    const totalValueCell = document.getElementById('infakTotalValue');
+                    tbody.innerHTML = '';
+
+                    if (data && data.length > 0) {
+                        let totalNominal = 0;
+                        data.forEach((infak, index) => {
+                            const row = document.createElement('tr');
+                            const nominal = Number(infak.nominal) || 0;
+                            totalNominal += nominal;
+                            row.innerHTML = `
+                                <td>${index + 1}</td>
+                                <td>${formatDate(infak.tanggalInfak)}</td>
+                                <td>Rp ${formatNumber(nominal)}</td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                        if (tfoot && totalValueCell) {
+                            totalValueCell.textContent = 'Rp ' + formatNumber(totalNominal);
+                            tfoot.style.display = '';
+                        }
+                        document.getElementById('infakTableContainer').classList.remove('hidden');
+                    } else {
+                        if (tfoot) {
+                            tfoot.style.display = 'none';
+                        }
+                        document.getElementById('noInfakMessage').classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching infak data:', error);
+                    const tfoot = document.getElementById('infakTableFooter');
+                    if (tfoot) {
+                        tfoot.style.display = 'none';
+                    }
+                    document.getElementById('noInfakMessage').classList.remove('hidden');
+                });
+
+            document.getElementById('lihatModal').classList.remove('hidden');
+        }
+
+        function closeLihatModal() {
+            document.getElementById('lihatModal').classList.add('hidden');
+        }
+
+        // Helper functions for formatting
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            };
+            return date.toLocaleDateString('id-ID', options);
+        }
+
+        function formatNumber(number) {
+            return new Intl.NumberFormat('id-ID').format(number);
+        }
+
+        function setError(id, msg) {
+            const el = document.getElementById(id);
+            if (el) { el.textContent = msg || ''; el.style.display = msg ? 'block' : 'none'; }
+        }
+
+        // Validasi Tambah
+        document.getElementById('tambahForm').addEventListener('submit', function (e) {
+            let hasErr = false;
+            const nama = document.getElementById('tambah-nama').value.trim();
+            const jenjang = document.getElementById('tambah-jenjang').value.trim().toUpperCase();
+            const angkatan = document.getElementById('tambah-angkatan').value.trim();
+
+            setError('tambah-nama-error', '');
+            setError('tambah-jenjang-error', '');
+            setError('tambah-angkatan-error', '');
+
+            if (!nama) { setError('tambah-nama-error', 'Nama tidak boleh kosong'); hasErr = true; }
+            else if (nama.length < 2) { setError('tambah-nama-error', 'Nama minimal 2 karakter'); hasErr = true; }
+
+            if (!jenjang) { setError('tambah-jenjang-error', 'Jenjang harus dipilih'); hasErr = true; }
+            else if (jenjang !== 'D3' && jenjang !== 'S1') { setError('tambah-jenjang-error', 'Jenjang harus D3 atau S1'); hasErr = true; }
+
+            if (!angkatan) { setError('tambah-angkatan-error', 'Angkatan tidak boleh kosong'); hasErr = true; }
+            else {
+                const a = parseInt(angkatan, 10);
+                if (isNaN(a) || a < 1 || a > 100) { setError('tambah-angkatan-error', 'Angkatan harus antara 1 - 100'); hasErr = true; }
+            }
+
+            if (hasErr) { e.preventDefault(); }
+        });
+
+        // Validasi Edit
+        document.getElementById('editForm').addEventListener('submit', function (e) {
+            let hasErr = false;
+            const nama = document.getElementById('editNama').value.trim();
+            const jenjang = document.getElementById('editJenjang').value.trim().toUpperCase();
+
+            // Clear all errors first
+            setError('edit-nama-error', '');
+            setError('edit-jenjang-error', '');
+
+            // Validate nama
+            if (!nama) {
+                setError('edit-nama-error', 'Nama tidak boleh kosong');
+                hasErr = true;
+            } else if (nama.length < 2) {
+                setError('edit-nama-error', 'Nama minimal 2 karakter');
+                hasErr = true;
+            }
+
+            // Validate jenjang
+            if (!jenjang) {
+                setError('edit-jenjang-error', 'Jenjang harus dipilih');
+                hasErr = true;
+            } else if (jenjang !== 'D3' && jenjang !== 'S1') {
+                setError('edit-jenjang-error', 'Jenjang harus D3 atau S1');
+                hasErr = true;
+            }
+
+            if (hasErr) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Real-time validation for edit form
+        document.getElementById('editNama').addEventListener('input', function () {
+            const nama = this.value.trim();
+            if (!nama) {
+                setError('edit-nama-error', 'Nama tidak boleh kosong');
+            } else if (nama.length < 2) {
+                setError('edit-nama-error', 'Nama minimal 2 karakter');
+            } else {
+                setError('edit-nama-error', '');
+            }
+        });
+
+        document.getElementById('editJenjang').addEventListener('change', function () {
+            const jenjang = this.value.trim().toUpperCase();
+            if (!jenjang) {
+                setError('edit-jenjang-error', 'Jenjang harus dipilih');
+            } else if (jenjang !== 'D3' && jenjang !== 'S1') {
+                setError('edit-jenjang-error', 'Jenjang harus D3 atau S1');
+            } else {
+                setError('edit-jenjang-error', '');
+            }
+        });
+    </script>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            // Buka otomatis modal Tambah jika BE kirim error
+            const openTambah = /*[[${openTambahModal}]]*/ false;
+            if (openTambah) {
+                const m = document.getElementById('tambahModal');
+                if (m) m.classList.remove('hidden');
+            }
+
+            // Buka otomatis modal Edit jika BE kirim error (id baris)
+            const openEditId = /*[[${openEditModalId}]]*/ null;
+            if (openEditId) {
+                const editId = document.getElementById('editId');
+                const editForm = document.getElementById('editForm');
+                const m = document.getElementById('editModal');
+                if (editId) editId.value = openEditId;
+                if (editForm) editForm.action = '/admin/alumni/edit/' + openEditId;
+                if (m) m.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

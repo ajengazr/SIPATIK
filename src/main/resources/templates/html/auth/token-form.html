@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/form.css}">
+    <link rel="stylesheet" th:href="@{/css/form-otp.css}">
+</head>
+
+<body>
+    <button class="theme-toggle" aria-label="toggle theme">
+        <i class="fas fa-adjust"></i>
+    </button>
+
+    <div class="form-container">
+
+        <form th:action="@{/auth-adm/verify-token}" method="post">
+
+            <input type="hidden" name="email" th:value="${email}" />
+            <div class="overlay">
+                <div class="form-group">
+                    <input type="text" name="token" placeholder="Masukkan token" required />
+                </div>
+                <div th:if="${error}" class="error-message">
+                    <p th:if="${error}" class="error" th:text="${error}"></p>
+                </div>
+                <p th:if="${success}" class="success" th:text="${success}"></p>
+            </div>
+
+            <button type="submit">Verifikasi</button>
+
+        </form>
+
+        <!-- <form id="resendForm" th:action="@{/admin/api/resend-token}" method="post" style="display:none;">
+            <input type="hidden" name="email" value="${email}" />
+        </form> -->
+
+        <p class="form-resend">
+            Belum menerima token?
+            <a href="javascript:void(0);" class="resend-link text-blue-500 font-semibold" id="resendOtpLink">Kirim
+                ulang</a>
+            <span id="countdown" class="ml-2 text-red-500 font-semibold"></span>
+        </p>
+
+    </div>
+
+    <!-- POPUP SUCCESS -->
+    <div id="popupOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden 
+            flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-2xl shadow-lg text-center max-w-sm w-full mx-4">
+            <div class="text-4xl mb-2">✅</div>
+            <h2 class="text-xl font-semibold mb-2">Sukses!</h2>
+            <p class="mb-4" th:text="${message}">Link konfirmasi sudah dikirim ke email Anda.</p>
+            <button onclick="closePopup()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full">
+                Tutup
+            </button>
+        </div>
+    </div>
+    <script src="/js/theme.js"></script>
+    <script src="/js/auth.js"></script>
+    <script th:inline="javascript">
+        // tampilkan popup jika ada message dari backend
+        const message = /*[[${message}]]*/ "";
+        if (message && message !== "") {
+            document.getElementById("popupOverlay").classList.remove("hidden");
+        }
+
+        function closePopup() {
+            document.getElementById("popupOverlay").classList.add("hidden");
+        }
+
+        let resendCount = 0;
+        let cooldown = false;
+        let countdownTimer;
+
+        const link = document.getElementById("resendOtpLink");
+        const countdownEl = document.getElementById("countdown");
+
+        
+        link.addEventListener("click", function (e) {
+            e.preventDefault(); // cegah reload halaman
+            const params = new URLSearchParams(window.location.search);
+            const email = params.get("email");
+            console.log("Resend clicked for email:", email);
+
+            if (cooldown) return;
+
+            resendCount++;
+
+
+            fetch("/admin/api/resend-token?email=" + encodeURIComponent(email), {
+                method: "POST"
+            })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(err => console.error(err));
+
+            if (resendCount >= 3) {
+                startCooldown(5 * 60);
+            }
+        });
+
+        function startCooldown(seconds) {
+            cooldown = true;
+
+            link.style.pointerEvents = "none"; // disable klik
+            link.style.opacity = "0.5"; // biar kelihatan nonaktif
+
+            let remaining = seconds;
+            updateCountdown(remaining);
+
+            countdownTimer = setInterval(() => {
+                remaining--;
+                updateCountdown(remaining);
+
+                if (remaining <= 0) {
+                    clearInterval(countdownTimer);
+                    cooldown = false;
+                    resendCount = 0; // reset hitungan klik
+                    link.style.pointerEvents = "auto";
+                    link.style.opacity = "1";
+                    link.textContent = "Kirim ulang"; // kembalikan teks
+                    countdownEl.textContent = "";
+                }
+            }, 1000);
+        }
+
+        function updateCountdown(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            countdownEl.textContent = `Coba lagi dalam ${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+        }
+
+
+
+    </script>
+</body>
+
+</html>

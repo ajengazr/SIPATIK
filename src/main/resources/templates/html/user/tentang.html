@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${pageTitle} ?: 'Tentang Kami - SIPATIK'">Tentang Kami - SIPATIK</title>
+
+    <link rel="stylesheet" th:href="@{/css/dash.css}" />
+    <link rel="stylesheet" th:href="@{/css/setor-infak.css}" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+</head>
+
+<body>
+    <nav class="site-nav">
+        <button class="sidebar-toggle">
+            <span class="material-symbols-rounded">menu</span>
+        </button>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar collapsed">
+            <div class="sidebar-header">
+                <a href="/user/dash-user" class="header-logo">
+                    <i class="fas fa-mosque"></i> SIPATIK
+                </a>
+                <!-- <img th:src="@{/images/logo.png}" alt="SIPATIK" class="header-logo" /> -->
+                <button class="sidebar-toggle">
+                    <span class="material-symbols-rounded">chevron_left</span>
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a th:href="@{/user/dash-user}" class="menu-link"
+                            th:classappend="${activePage == 'dashboard'} ? 'active'">
+                            <span class="material-symbols-rounded">dashboard</span>
+                            <span class="menu-label">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/user/form-setor-infak}" class="menu-link"
+                            th:classappend="${activePage == 'setor'} ? 'active'">
+                            <span class="material-symbols-rounded">money</span>
+                            <span class="menu-label">Setor Infak</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/user/rekap-infak}" class="menu-link"
+                            th:classappend="${activePage == 'rekap'} ? 'active'">
+                            <span class="material-symbols-rounded">description</span>
+                            <span class="menu-label">Rekap Infak</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/user/profil}" class="menu-link"
+                            th:classappend="${activePage == 'profil'} ? 'active'">
+                            <span class="material-symbols-rounded">account_circle</span>
+                            <span class="menu-label">Profil</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/user/tentang}" class="menu-link"
+                            th:classappend="${activePage == 'tentang'} ? 'active'">
+                            <span class="material-symbols-rounded">info</span>
+                            <span class="menu-label">Tentang Kami</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/auth/logout}" class="menu-link">
+                            <span class="material-symbols-rounded">logout</span>
+                            <span class="menu-label">Keluar</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="theme-toggle">
+                    <div class="theme-label">
+                        <span class="theme-icon material-symbols-rounded">dark_mode</span>
+                        <span class="theme-text">Dark Mode</span>
+                    </div>
+                    <div class="theme-toggle-track">
+                        <div class="theme-toggle-indicator"></div>
+                    </div>
+                </button>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="page-title">
+                <h2>Tentang Kami</h2>
+            </div>
+
+            <div class="card" style="padding: 20px; line-height: 1.7;">
+                <h3 style="margin-top: 0;">SIPATIK (Sistem Informasi Pencatatan Infak Terintegrasi Komunitas)</h3>
+                <p>
+                    SIPATIK merupakan platform digital yang kami kembangkan untuk mendukung pencatatan infak alumni
+                    program
+                    beasiswa secara modern, transparan, dan efisien.
+                </p>
+                <p>
+                    Sebelumnya, proses pencatatan infak masih dilakukan secara manual melalui konfirmasi via WhatsApp,
+                    pencatatan di buku, lalu dipindahkan ke Excel. Hal ini sering menimbulkan keterlambatan, risiko
+                    human
+                    error, dan kesulitan dalam penyusunan laporan.
+                </p>
+                <p>
+                    Melalui SIPATIK, alumni dapat langsung login, menginput jumlah infak, mengunggah bukti transfer,
+                    serta melihat riwayat kontribusinya. Sementara itu, admin dapat dengan mudah mengelola data alumni,
+                    mencatat pemasukan dan pengeluaran, hingga mengekspor laporan kas bulanan ke dalam format Excel
+                    sesuai kebutuhan organisasi.
+                </p>
+                <p style="margin-bottom: 0;">
+                    Dengan adanya SIPATIK, pencatatan infak alumni menjadi lebih terstruktur, cepat, dan transparan,
+                    sehingga dapat mendukung tata kelola dana komunitas yang lebih profesional.
+                </p>
+
+                <div style="margin-top: 20px; display: grid; gap: 10px;">
+                    <div class="card" style="padding: 14px;">
+                        <strong>Keunggulan Utama:</strong>
+                        <ul style="margin: 8px 0 0 18px;">
+                            <li>Login pengguna dan pengelolaan data alumni</li>
+                            <li>Setor infak dengan unggah bukti transfer</li>
+                            <li>Rekap kontribusi dan histori transaksi</li>
+                            <li>Pencatatan pengeluaran per kategori</li>
+                            <li>Export laporan kas ke Excel dan PDF</li>
+                            <li>Antarmuka ringan dan mudah digunakan</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                &copy; 2025 SIPATIK - Pemberdayaan Umat Berkelanjutan.
+            </footer>
+        </div>
+    </div>
+
+    <script th:src="@{/js/dash.js}"></script>
+</body>
+
+</html>

@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Laporan Kas - SIPATIK</title>
+
+    <link rel="stylesheet" th:href="@{/css/dash.css}">
+    <link rel="stylesheet" th:href="@{/css/setor-infak.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table td:first-child,
+        table th:first-child {
+            text-align: left;
+            padding-left: 5px;
+        }
+
+        table td,
+        table th {
+            border: 1px solid #ccc;
+            padding: 8px;
+        }
+
+        table td:nth-child(3),
+        table th:nth-child(3) {
+            text-align: right;
+            padding-right: 6px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 0;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            max-height: 85vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+         .page-title {
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title h3 {
+            margin: 0;
+            color: #333;
+        } 
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-section {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-section h4 {
+            margin: 0 0 15px 0;
+            color: #555;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-group label {
+            width: 150px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        .form-input.error {
+            border-color: #dc2626;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .btn {
+            margin: 5px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .filter-form .reset-btn {
+            display: inline-block;
+            background: #dc2626;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-left: 8px;
+        }
+
+        .filter-form .reset-btn:hover {
+            background: #b91c1c;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .btn-export-excel, .btn-export-pdf {
+            background: var(--color-hover-primary);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+        .btn-export-excel { background: #16a34a; }
+        .btn-export-excel:hover { background: #15803d; }
+
+        .btn-export-pdf { background: #ef4444; }
+        .btn-export-pdf:hover { background: #dc2626; }
+
+        .sidebar-logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1565c0, #0d47a1, #1976d2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-logo i {
+            font-size: 1.8rem;
+            color: #1565c0;
+        }
+
+        .sidebar-logo:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="site-nav">
+        <button class="sidebar-toggle">
+            <span class="material-symbols-rounded">menu</span>
+        </button>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar collapsed">
+            <div class="sidebar-header">
+                <a href="/admin/dash-admin" class="header-logo">
+                    <i class="fas fa-mosque"></i> SIPATIK
+                </a>
+                <button class="sidebar-toggle">
+                    <span class="material-symbols-rounded">chevron_left</span>
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a th:href="@{/admin/dash-admin}" class="menu-link"
+                            th:classappend="${activePage == 'dashboard'} ? 'active'">
+                            <span class="material-symbols-rounded">dashboard</span>
+                            <span class="menu-label">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/admin/alumni}" class="menu-link"
+                            th:classappend="${activePage == 'alumni'} ? 'active'">
+                            <span class="material-symbols-rounded">inbox_text_person</span>
+                            <span class="menu-label">Alumni</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/admin/show-pengeluaran}" class="menu-link"
+                            th:classappend="${activePage == 'pengeluaran'} ? ' active' : ''">
+                            <span class="material-symbols-rounded">payment_arrow_down</span>
+                            <span class="menu-label">Pengeluaran</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/admin/daftar-infak}" class="menu-link"
+                            th:classappend="${activePage == 'infak'} ? 'active'">
+                            <span class="material-symbols-rounded">list_alt_add</span>
+                            <span class="menu-label">Daftar Infak</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/admin/laporan-kas}" class="menu-link"
+                            th:classappend="${activePage == 'kas'} ? 'active'">
+                            <span class="material-symbols-rounded">add_chart</span>
+                            <span class="menu-label">Laporan Keuangan</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a th:href="@{/auth/logout}" class="menu-link">
+                            <span class="material-symbols-rounded">logout</span>
+                            <span class="menu-label">Keluar</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="theme-toggle">
+                    <div class="theme-label">
+                        <span class="theme-icon material-symbols-rounded">dark_mode</span>
+                        <span class="theme-text">Dark Mode</span>
+                    </div>
+                    <div class="theme-toggle-track">
+                        <div class="theme-toggle-indicator"></div>
+                    </div>
+                </button>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="header">
+                <h2>LAPORAN KAS PUB</h2>
+                <h2 th:text="'PERIODE ' + ${namaBulan} + ' ' + ${tahun}"> </h2>
+                <div class="header-actions">
+                    <button class="btn-toggle" onclick="openModal()">
+                        <span class="material-symbols-rounded">add</span>
+                        Input Kas
+                    </button>
+                    <button class="btn-toggle" onclick="openEditModal()" th:if="${kasData != null}">
+                        <span class="material-symbols-rounded">edit</span>
+                        Edit Kas
+                    </button>
+                </div>
+                <div class="export-actions">
+                    <a class="btn-export-excel"
+                       th:href="@{/admin/laporan-kas/export/excel(bulan=${selectedBulan},tahun=${selectedTahun})}">
+                        <span class="material-symbols-rounded">table</span>
+                        Export Excel
+                    </a>
+                    <a class="btn-export-pdf"
+                       th:href="@{/admin/laporan-kas/export/pdf(bulan=${selectedBulan},tahun=${selectedTahun})}">
+                        <span class="material-symbols-rounded">picture_as_pdf</span>
+                        Export PDF
+                    </a>
+                </div>
+            </div> <br>
+
+            <!-- Flash Messages -->
+            <div th:if="${success}" class="alert alert-success">
+                <span th:text="${success}"></span>
+            </div>
+
+            <div th:if="${error}" class="alert alert-error">
+                <span th:text="${error}"></span>
+            </div>
+
+            <div class="filters" style="margin-bottom: 20px;">
+                <form method="get" th:action="@{/admin/laporan-kas}" id="filterForm" class="filter-form">
+                    <select name="bulan">
+                        <option value="" th:selected="${selectedBulan == null}">Semua Bulan</option>
+                        <option th:value="1" th:selected="${selectedBulan == 1}">JANUARI</option>
+                        <option th:value="2" th:selected="${selectedBulan == 2}">FEBRUARI</option>
+                        <option th:value="3" th:selected="${selectedBulan == 3}">MARET</option>
+                        <option th:value="4" th:selected="${selectedBulan == 4}">APRIL</option>
+                        <option th:value="5" th:selected="${selectedBulan == 5}">MEI</option>
+                        <option th:value="6" th:selected="${selectedBulan == 6}">JUNI</option>
+                        <option th:value="7" th:selected="${selectedBulan == 7}">JULI</option>
+                        <option th:value="8" th:selected="${selectedBulan == 8}">AGUSTUS</option>
+                        <option th:value="9" th:selected="${selectedBulan == 9}">SEPTEMBER</option>
+                        <option th:value="10" th:selected="${selectedBulan == 10}">OKTOBER</option>
+                        <option th:value="11" th:selected="${selectedBulan == 11}">NOVEMBER</option>
+                        <option th:value="12" th:selected="${selectedBulan == 12}">DESEMBER</option>
+                    </select>
+                    <select name="tahun">
+                        <option value="">Semua Tahun</option>
+                        <option th:each="t : ${tahunList}" th:value="${t}" th:text="${t}"
+                            th:selected="${t == selectedTahun}"></option>
+                    </select>
+                    <button type="submit">Filter</button>
+                    <a th:href="@{/admin/laporan-kas}" class="reset-btn">Reset</a>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="table-container">
+                    <table class="card">
+                        <tr>
+                            <td class="judul-section" colspan="3" style="font-weight: bold;">PEMASUKAN</td>
+                        </tr>
+                        <tr>
+                            <td>Total Infak Alumni melalui BCA</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pemasukan.bca}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Total Infak Alumni melalui Mandiri</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pemasukan.mandiri}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Infak lain-lain</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pemasukan.lainLain}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Pendapatan lain-lain</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pemasukan.pendapatanLain}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Zakat, infak, sedekah</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pemasukan.zis}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Pendapatan bunga bank</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pemasukan.bungaBank}">0</td>
+                        </tr>
+                        <tr>
+                            <td class="total" style="font-weight: 600;">TOTAL PEMASUKAN</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pemasukan.total}" style="font-weight: 600;">0</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="judul-section" colspan="3" style="font-weight: bold;">PENGELUARAN</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Ketua/Keamanan</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.ketuaKeamanan}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Bendahara</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.bendahara}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Sekretaris</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.sekretaris}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban PPMB PUB</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.ppmb}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Divisi Pendidikan</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.pendidikan}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Divisi Keasramaan</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.keasramaan}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Divisi Kesejahteraan</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.kesejahteraan}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Divisi Kesehatan</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.kesehatan}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Divisi Kebersihan</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.kebersihan}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Divisi Magang</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.magang}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Divisi Kerohanian</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.kerohanian}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Pendidikan Manajemen</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.pendidikanManajemen}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Bank</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.bank}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Kantor PUB</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.kantor}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Beban Lain-lain</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.lainLain}">0</td>
+                        </tr>
+                        <tr>
+                            <td class="total" style="font-weight: 600;">TOTAL PENGELUARAN</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.total}" style="font-weight: 600;">0</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="judul-section" style="font-weight: 600;">Kenaikan/Penurunan</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${kenaikanKas}" style="font-weight: 600;">0</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="judul-section" colspan="3" style="font-weight: bold;">Saldo Awal Kas</td>
+                        </tr>
+                        <tr>
+                            <td>BCA</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAwal.bca}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Mandiri</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAwal.mandiri}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Tunai</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAwal.tunai}">0</td>
+                        </tr>
+                        <tr>
+                            <td>BNI</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAwal.bni}">0</td>
+                        </tr>
+                        <tr>
+                            <td class="total" style="font-weight: 600;">Total Awal Kas</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAwal.total}" style="font-weight: 600;">0</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="judul-section" colspan="3" style="font-weight: bold;">Saldo Akhir Kas</td>
+                        </tr>
+                        <tr>
+                            <td>BCA</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAkhir.bca}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Mandiri</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAkhir.mandiri}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Tunai</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAkhir.tunai}">0</td>
+                        </tr>
+                        <tr>
+                            <td>BNI</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAkhir.bni}">0</td>
+                        </tr>
+                        <tr>
+                            <td class="total" style="font-weight: 600;">Total Kas Akhir</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAkhir.total}" style="font-weight: 600;">0</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <footer>
+                &copy; 2025 SIPATIK - Pemberdayaan Umat Berkelanjutan.
+            </footer>
+        </div>
+    </div>
+
+    <!-- Modal Input Kas -->
+    <div id="kasModal" class="modal">
+        <div class="modal-content">
+            <div class="page-title">
+                <h3>Input Kas - Periode <span th:text="${namaBulan + ' ' + selectedTahun}"></span></h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form method="post" th:action="@{/admin/laporan-kas}" id="inputForm">
+                <input type="hidden" name="bulan" th:value="${selectedBulan}">
+                <input type="hidden" name="tahun" th:value="${selectedTahun}">
+
+                <div class="form-section">
+                    <h4>Pemasukan Tambahan</h4>
+                    <div class="form-group">
+                        <label>Infak Lain-lain:</label>
+                        <div style="flex: 1;">
+                        <input type="text" inputmode="decimal" name="infakLainLain" placeholder="0"
+                            class="form-input decimal-input"
+                            th:value="${kasData != null and kasData.infakLainLain != null ? kasData.infakLainLain : ''}">
+                            <div class="error-message" id="infakLainLain-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Pendapatan Lain-lain:</label>
+                        <div style="flex: 1;">
+                        <input type="text" inputmode="decimal" name="pendapatanLainLain" placeholder="0"
+                            class="form-input decimal-input"
+                            th:value="${kasData != null and kasData.pendapatanLainLain != null ? kasData.pendapatanLainLain : ''}">
+                            <div class="error-message" id="pendapatanLainLain-error"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Saldo Awal Kas</h4>
+                    <div class="form-group">
+                        <label>BCA:</label>
+                        <div style="flex: 1;">
+                        <input type="text" inputmode="decimal" name="awalBca" placeholder="0"
+                            class="form-input decimal-input"
+                            th:value="${kasData != null and kasData.kasAwalBca != null ? kasData.kasAwalBca : ''}">
+                            <div class="error-message" id="awalBca-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Mandiri:</label>
+                        <div style="flex: 1;">
+                        <input type="text" inputmode="decimal" name="awalMandiri" placeholder="0"
+                            class="form-input decimal-input"
+                            th:value="${kasData != null and kasData.kasAwalMandiri != null ? kasData.kasAwalMandiri : ''}">
+                            <div class="error-message" id="awalMandiri-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Tunai:</label>
+                        <div style="flex: 1;">
+                        <input type="text" inputmode="decimal" name="awalTunai" placeholder="0"
+                            class="form-input decimal-input"
+                            th:value="${kasData != null and kasData.kasAwalTunai != null ? kasData.kasAwalTunai : ''}">
+                            <div class="error-message" id="awalTunai-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>BNI:</label>
+                        <div style="flex: 1;">
+                        <input type="text" inputmode="decimal" name="awalBni" placeholder="0"
+                            class="form-input decimal-input"
+                            th:value="${kasData != null and kasData.kasAwalBni != null ? kasData.kasAwalBni : ''}">
+                            <div class="error-message" id="awalBni-error"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Saldo Akhir Kas</h4>
+                    <div class="form-group">
+                        <label>BCA:</label>
+                        <div style="flex: 1;">
+                        <input type="text" inputmode="decimal" name="akhirBca" placeholder="0"
+                            class="form-input decimal-input"
+                            th:value="${kasData != null and kasData.kasAkhirBca != null ? kasData.kasAkhirBca : ''}">
+                            <div class="error-message" id="akhirBca-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Mandiri:</label>
+                        <div style="flex: 1;">
+                        <input type="text" inputmode="decimal" name="akhirMandiri" placeholder="0"
+                            class="form-input decimal-input"
+                            th:value="${kasData != null and kasData.kasAkhirMandiri != null ? kasData.kasAkhirMandiri : ''}">
+                            <div class="error-message" id="akhirMandiri-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Tunai:</label>
+                        <div style="flex: 1;">
+                        <input type="text" inputmode="decimal" name="akhirTunai" placeholder="0"
+                            class="form-input decimal-input"
+                            th:value="${kasData != null and kasData.kasAkhirTunai != null ? kasData.kasAkhirTunai : ''}">
+                            <div class="error-message" id="akhirTunai-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>BNI:</label>
+                        <div style="flex: 1;">
+                        <input type="text" inputmode="decimal" name="akhirBni" placeholder="0"
+                            class="form-input decimal-input"
+                            th:value="${kasData != null and kasData.kasAkhirBni != null ? kasData.kasAkhirBni : ''}">
+                            <div class="error-message" id="akhirBni-error"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding: 20px; text-align: right;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Edit Kas -->
+    <div id="editKasModal" class="modal">
+        <div class="modal-content">
+            <div class="page-title">
+                <h3>Edit Kas - Periode <span th:text="${namaBulan + ' ' + selectedTahun}"></span></h3>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form method="post" th:action="@{/admin/laporan-kas/edit}" id="editForm">
+                <input type="hidden" name="bulan" th:value="${selectedBulan}">
+                <input type="hidden" name="tahun" th:value="${selectedTahun}">
+
+                <div class="form-section">
+                    <h4>Pemasukan Tambahan</h4>
+                    <div class="form-group">
+                        <label>Infak Lain-lain:</label>
+                        <div style="flex: 1;">
+                            <input type="text" inputmode="decimal" name="infakLainLain" placeholder="0"
+                                class="form-input decimal-input"
+                                th:value="${kasData != null and kasData.infakLainLain != null ? kasData.infakLainLain : ''}">
+                            <div class="error-message" id="edit-infakLainLain-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Pendapatan Lain-lain:</label>
+                        <div style="flex: 1;">
+                            <input type="text" inputmode="decimal" name="pendapatanLainLain" placeholder="0"
+                                class="form-input decimal-input"
+                                th:value="${kasData != null and kasData.pendapatanLainLain != null ? kasData.pendapatanLainLain : ''}">
+                            <div class="error-message" id="edit-pendapatanLainLain-error"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Saldo Awal Kas</h4>
+                    <div class="form-group">
+                        <label>BCA:</label>
+                        <div style="flex: 1;">
+                            <input type="text" inputmode="decimal" name="awalBca" placeholder="0"
+                                class="form-input decimal-input"
+                                th:value="${kasData != null and kasData.kasAwalBca != null ? kasData.kasAwalBca : ''}">
+                            <div class="error-message" id="edit-awalBca-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Mandiri:</label>
+                        <div style="flex: 1;">
+                            <input type="text" inputmode="decimal" name="awalMandiri" placeholder="0"
+                                class="form-input decimal-input"
+                                th:value="${kasData != null and kasData.kasAwalMandiri != null ? kasData.kasAwalMandiri : ''}">
+                            <div class="error-message" id="edit-awalMandiri-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Tunai:</label>
+                        <div style="flex: 1;">
+                            <input type="text" inputmode="decimal" name="awalTunai" placeholder="0"
+                                class="form-input decimal-input"
+                                th:value="${kasData != null and kasData.kasAwalTunai != null ? kasData.kasAwalTunai : ''}">
+                            <div class="error-message" id="edit-awalTunai-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>BNI:</label>
+                        <div style="flex: 1;">
+                            <input type="text" inputmode="decimal" name="awalBni" placeholder="0"
+                                class="form-input decimal-input"
+                                th:value="${kasData != null and kasData.kasAwalBni != null ? kasData.kasAwalBni : ''}">
+                            <div class="error-message" id="edit-awalBni-error"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Saldo Akhir Kas</h4>
+                    <div class="form-group">
+                        <label>BCA:</label>
+                        <div style="flex: 1;">
+                            <input type="text" inputmode="decimal" name="akhirBca" placeholder="0"
+                                class="form-input decimal-input"
+                                th:value="${kasData != null and kasData.kasAkhirBca != null ? kasData.kasAkhirBca : ''}">
+                            <div class="error-message" id="edit-akhirBca-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Mandiri:</label>
+                        <div style="flex: 1;">
+                            <input type="text" inputmode="decimal" name="akhirMandiri" placeholder="0"
+                                class="form-input decimal-input"
+                                th:value="${kasData != null and kasData.kasAkhirMandiri != null ? kasData.kasAkhirMandiri : ''}">
+                            <div class="error-message" id="edit-akhirMandiri-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Tunai:</label>
+                        <div style="flex: 1;">
+                            <input type="text" inputmode="decimal" name="akhirTunai" placeholder="0"
+                                class="form-input decimal-input"
+                                th:value="${kasData != null and kasData.kasAkhirTunai != null ? kasData.kasAkhirTunai : ''}">
+                            <div class="error-message" id="edit-akhirTunai-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>BNI:</label>
+                        <div style="flex: 1;">
+                            <input type="text" inputmode="decimal" name="akhirBni" placeholder="0"
+                                class="form-input decimal-input"
+                                th:value="${kasData != null and kasData.kasAkhirBni != null ? kasData.kasAkhirBni : ''}">
+                            <div class="error-message" id="edit-akhirBni-error"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding: 20px; text-align: right;">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:src="@{/js/dash.js}"></script>
+    <script th:src="@{/js/rupiah-no-prefix.js}"></script>
+    <script th:src="@{/js/decimal-input.js}"></script>
+    <script>
+        function openModal() {
+            var modal = document.getElementById('kasModal');
+            if (modal) {
+                modal.style.display = 'block';
+                clearAllErrors();
+            }
+        }
+
+        function closeModal() {
+            var modal = document.getElementById('kasModal');
+            if (modal) {
+                modal.style.display = 'none';
+                clearAllErrors();
+            }
+        }
+
+        function openEditModal() {
+            var modal = document.getElementById('editKasModal');
+            if (modal) {
+                modal.style.display = 'block';
+                clearAllEditErrors();
+            }
+        }
+
+        function closeEditModal() {
+            var modal = document.getElementById('editKasModal');
+            if (modal) {
+                modal.style.display = 'none';
+                clearAllEditErrors();
+            }
+        }
+
+        window.onclick = function (event) {
+            var inputModal = document.getElementById('kasModal');
+            var editModal = document.getElementById('editKasModal');
+            if (event.target == inputModal) {
+                closeModal();
+            }
+            if (event.target == editModal) {
+                closeEditModal();
+            }
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeModal();
+                closeEditModal();
+            }
+        });
+
+        function clearAllErrors() {
+            const errorElements = document.querySelectorAll('#kasModal .error-message');
+            errorElements.forEach(element => {
+                element.textContent = '';
+                element.classList.remove('show');
+            });
+
+            const inputElements = document.querySelectorAll('#kasModal .form-input');
+            inputElements.forEach(element => {
+                element.classList.remove('error');
+            });
+        }
+
+        function clearAllEditErrors() {
+            const errorElements = document.querySelectorAll('#editKasModal .error-message');
+            errorElements.forEach(element => {
+                element.textContent = '';
+                element.classList.remove('show');
+            });
+
+            const inputElements = document.querySelectorAll('#editKasModal .form-input');
+            inputElements.forEach(element => {
+                element.classList.remove('error');
+            });
+        }
+
+        function showError(fieldId, message) {
+            const errorElement = document.getElementById(fieldId + '-error');
+            const inputElement = document.querySelector(`[name="${fieldId}"]`);
+            
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+            }
+            
+            if (inputElement) {
+                inputElement.classList.add('error');
+            }
+        }
+
+        function showEditError(fieldId, message) {
+            const errorElement = document.getElementById('edit-' + fieldId + '-error');
+            const inputElement = document.querySelector(`#editForm [name="${fieldId}"]`);
+            
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+            }
+            
+            if (inputElement) {
+                inputElement.classList.add('error');
+            }
+        }
+
+        function validateNumber(value, fieldName) {
+            if (value === '' || value === null || value === undefined) {
+                return null; // Allow empty values
+            }
+            
+            const numValue = parseFloat(value.replace(/[^\d.-]/g, ''));
+            if (isNaN(numValue)) {
+                return fieldName + ' harus berupa angka yang valid';
+            }
+            
+            if (numValue < 0) {
+                return fieldName + ' tidak boleh negatif';
+            }
+            
+            return null;
+        }
+
+        // Input form validation
+        document.getElementById('inputForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearAllErrors();
+            
+            let hasError = false;
+            const fields = [
+                'infakLainLain', 'pendapatanLainLain', 
+                'awalBca', 'awalMandiri', 'awalTunai', 'awalBni',
+                'akhirBca', 'akhirMandiri', 'akhirTunai', 'akhirBni'
+            ];
+            
+            fields.forEach(field => {
+                const input = document.querySelector(`[name="${field}"]`);
+                const value = input.value.trim();
+                const error = validateNumber(value, field.replace(/([A-Z])/g, ' $1').toLowerCase());
+                
+                if (error) {
+                    showError(field, error);
+                    hasError = true;
+                }
+            });
+            
+            if (!hasError) {
+                this.submit();
+            }
+        });
+
+        // Edit form validation
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearAllEditErrors();
+            
+            let hasError = false;
+            const fields = [
+                'infakLainLain', 'pendapatanLainLain', 
+                'awalBca', 'awalMandiri', 'awalTunai', 'awalBni',
+                'akhirBca', 'akhirMandiri', 'akhirTunai', 'akhirBni'
+            ];
+            
+            fields.forEach(field => {
+                const input = document.querySelector(`#editForm [name="${field}"]`);
+                const value = input.value.trim();
+                const error = validateNumber(value, field.replace(/([A-Z])/g, ' $1').toLowerCase());
+                
+                if (error) {
+                    showEditError(field, error);
+                    hasError = true;
+                }
+            });
+            
+            if (!hasError) {
+                this.submit();
+            }
+        });
+
+        // Real-time validation for input form
+        document.querySelectorAll('#kasModal .form-input').forEach(input => {
+            input.addEventListener('blur', function() {
+                const fieldName = this.name;
+                const value = this.value.trim();
+                const error = validateNumber(value, fieldName.replace(/([A-Z])/g, ' $1').toLowerCase());
+                
+                if (error) {
+                    showError(fieldName, error);
+                } else {
+                    const errorElement = document.getElementById(fieldName + '-error');
+                    if (errorElement) {
+                        errorElement.textContent = '';
+                        errorElement.classList.remove('show');
+                    }
+                    this.classList.remove('error');
+                }
+            });
+        });
+
+        // Real-time validation for edit form
+        document.querySelectorAll('#editKasModal .form-input').forEach(input => {
+            input.addEventListener('blur', function() {
+                const fieldName = this.name;
+                const value = this.value.trim();
+                const error = validateNumber(value, fieldName.replace(/([A-Z])/g, ' $1').toLowerCase());
+                
+                if (error) {
+                    showEditError(fieldName, error);
+                } else {
+                    const errorElement = document.getElementById('edit-' + fieldName + '-error');
+                    if (errorElement) {
+                        errorElement.textContent = '';
+                        errorElement.classList.remove('show');
+                    }
+                    this.classList.remove('error');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

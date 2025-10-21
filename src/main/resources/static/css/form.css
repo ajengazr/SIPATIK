@@ -1,0 +1,235 @@
+       :root {
+           --bg-gradient-1: #87CEEB;
+           --bg-gradient-2: #E0F6FF;
+           --card-bg: rgba(255, 255, 255, 0.8);
+           --text-color: #1A2E44;
+           --select-bg: rgba(255, 255, 255, 0.95);
+           --select-text: #1A2E44;
+           --button-bg: #87CEEB;
+           --button-text: #FFFFFF;
+
+           --color-text-primary: #1F2936;
+           --color-bg-primary: #f9fafb;
+           --color-bg-secondary: #ECECFD;
+           --color-shadow: rgba(0, 0, 0, 0.05);
+       }
+
+       * {
+           margin: 0;
+           padding: 0;
+           box-sizing: border-box;
+           font-family: "Poppins", sans-serif;
+       }
+
+
+
+       body {
+           font-family: 'Poppins', sans-serif;
+           background: linear-gradient(180deg, var(--bg-gradient-1), var(--bg-gradient-2));
+           height: 100vh;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           overflow: hidden;
+           /* transition: all 0.3s; */
+           margin: 0;
+           color: var(--color-text-primary);
+           background-color: var(--color-bg-primary);
+           /* fallback jika gradient diabaikan */
+           transition: background-color .25s ease, color .25s ease;
+       }
+
+       body.dark-theme {
+           --bg-gradient-1: #0b1220;
+           --bg-gradient-2: #111827;
+           --card-bg: rgba(20, 25, 35, 0.85);
+           --text-color: #E6EEF8;
+           --select-bg: rgba(30, 41, 59, 0.85);
+           --select-text: #E6EEF8;
+           --button-bg: #374151;
+           --button-text: #E6EEF8;
+
+           --color-text-primary: #E6EEF8;
+           --color-bg-primary: #0b1220;
+           --color-bg-secondary: #1f2937;
+           --color-shadow: rgba(0, 0, 0, 0.45);
+       }
+
+       .form-container {
+           background: var(--card-bg);
+           backdrop-filter: blur(5px);
+           border-radius: 12px;
+           padding: 1.25rem;
+           border: 1px solid rgba(135, 206, 235, 0.3);
+           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+           color: var(--text-color);
+           width: 90%;
+           max-width: 475px;
+           /* transition: transform 0.3s; */
+       }
+
+       .form-title {
+           color: var(--text-color);
+           text-align: center;
+           font-weight: 600;
+           margin-bottom: 1.5rem;
+           text-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+       }
+
+       .form-subtitle {
+           text-align: center;
+           color: var(--text-color);
+           margin-bottom: 1.5rem;
+           opacity: 0.8;
+       }
+
+       .overlay {
+           margin-bottom: 1.5rem;
+       }
+
+       .form-group {
+           /* margin-bottom: 1.5rem; */
+           position: relative;
+       }
+
+       select {
+           width: 100%;
+           padding: 0.75rem 1rem;
+           border: none;
+           border-radius: 0.75rem;
+           background: var(--select-bg);
+           color: var(--select-text);
+           font-size: 1rem;
+           appearance: none;
+           transition: all 0.3s;
+       }
+
+       select:hover {
+           background: color-mix(in srgb, var(--select-bg), #FFF 10%);
+       }
+
+       select:focus {
+           outline: none;
+           box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.5);
+       }
+
+       .form-select::after {
+           content: '\f078';
+           font-family: "Font Awesome 5 Free";
+           font-weight: 900;
+           position: absolute;
+           right: 1rem;
+           top: 50%;
+           transform: translateY(-50%);
+           color: #1A2E44;
+           pointer-events: none;
+       }
+
+       .form-group label {
+           display: block;
+           color: var(--text-color);
+           font-size: 0.875rem;
+           margin-bottom: 0.25rem;
+       }
+
+       .form-group input {
+           width: 100%;
+           margin-bottom: 0;
+           padding: 0.75rem 1rem;
+           border: 1px solid rgba(135, 206, 235, 0.5);
+           border-radius: 0.75rem;
+           background: rgba(255, 255, 255, 0.95);
+           color: var(--text-color2);
+           font-size: 1rem;
+           transition: all 0.3s;
+       }
+
+       .form-group input:focus {
+           outline: none;
+           border-color: #87CEEB;
+           box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.5);
+       }
+
+       .login__icon {
+           position: absolute;
+           right: 1.5rem;
+           font-weight: 600;
+           top: 50%;
+       }
+
+       .error-message {
+           margin-bottom: 0.7rem;
+           padding-left: 0.7rem;
+           font-size: 0.875rem;
+           color: #dc3545;
+       }
+
+       .cursor-password {
+           cursor: pointer;
+       }
+
+       button {
+           width: 100%;
+           padding: 0.75rem;
+           border: none;
+           border-radius: 0.75rem;
+           background: var(--button-bg);
+           color: var(--button-text);
+           font-weight: 600;
+           cursor: pointer;
+           transition: all 0.3s;
+           box-shadow: 0 4px 15px rgba(135, 206, 235, 0.3);
+       }
+
+       button:hover {
+           background: color-mix(in srgb, var(--button-bg), #000 10%);
+           box-shadow: 0 6px 20px rgba(135, 206, 235, 0.4);
+           transform: translateY(-2px);
+       }
+
+       .theme-toggle {
+           position: absolute;
+           top: 1rem;
+           right: 1rem;
+           background: var(--card-bg);
+           border: none;
+           border-radius: 50%;
+           width: 40px;
+           height: 40px;
+           cursor: pointer;
+           color: var(--text-color);
+           font-size: 1.2rem;
+           transition: all 0.3s;
+       }
+
+       .theme-toggle:hover {
+           background: color-mix(in srgb, var(--card-bg), #FFF 10%);
+       }
+
+       @media (max-width: 640px) {
+           .form-container {
+               padding: 1.5rem;
+               width: 95%;
+           }
+
+           .form-title {
+               font-size: 1.25rem;
+           }
+
+           .form-group input {
+               font-size: 0.9rem;
+               padding: 0.5rem;
+           }
+
+           button {
+               font-size: 0.9rem;
+               padding: 0.5rem;
+           }
+       }
+
+       @media (min-width: 641px) and (max-width: 1024px) {
+           .form-container {
+               padding: 1.5rem;
+               max-width: 500px;
+           }
+       }

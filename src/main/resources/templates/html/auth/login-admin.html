@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/form.css}">
+</head>
+
+<body>
+    <button class="theme-toggle" aria-label="toggle theme">
+        <i class="fas fa-adjust"></i>
+    </button>
+
+    <div class="form-container">
+        <h2 class="form-title">Selamat Datang</h2>
+        <p class="form-subtitle">Masuk untuk melanjutkan ke SIPATIK</p>
+
+        <form th:action="@{/auth-adm/proses-login}" th:object="${loginRequest}" method="post">
+            <div class="overlay">
+                <div class="form-group">
+                    <label for="email">Email*</label>
+                    <input type="email" th:field="*{email}" id="email" placeholder="Masukkan Email Anda">
+                    <i class="login__icon ri-mail-fill" id="loginEmail"></i>
+                </div>
+                <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message">
+                </p>
+
+            </div>
+
+            <div class="overlay">
+                <div class="form-group">
+                    <label for="password">Password*</label>
+                    <input type="password" id="password" th:field="*{password}" placeholder="Masukkan Password Anda">
+                    <i class="login__icon cursor-password ri-eye-off-fill" id="loginPassword"></i>
+                </div>
+                <p th:if="${#fields.hasErrors('password')}" th:text="${#fields.errors('password')[0]}"
+                    class="error-message"></p>
+                <!-- <div th:if="${error}" class="error-message">
+                    <p th:text="${error}"></p>
+                </div> -->
+                <p th:if="${error}" th:text="${error}" style="color:red;"></p>
+            </div>
+
+            <input type="hidden" th:field="*{nama}" id="inputNama" />
+            <input type="hidden" th:field="*{angkatan}" id="inputAngkatan" />
+
+            <button type="submit">Masuk</button>
+
+            <div class="text-sm text-center mt-4">
+                <a href="javascript:void(0);" onclick="goToLupaPassword()">Lupa Password?</a>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- POPUP SUCCESS -->
+    <div id="popupOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden 
+            flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-2xl shadow-lg text-center max-w-sm w-full mx-4">
+            <div class="text-4xl mb-2">✅</div>
+            <h2 class="text-xl font-semibold mb-2">Sukses!</h2>
+            <p class="mb-4" th:text="${message}">Link konfirmasi sudah dikirim ke email Anda.</p>
+            <button onclick="closePopup()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full">
+                Tutup
+            </button>
+        </div>
+    </div>
+    <script src="/js/theme.js"></script>
+    <script src="/js/auth.js"></script>
+    <script th:inline="javascript">
+        // tampilkan popup jika ada message dari backend
+        const message = /*[[${message}]]*/ "";
+        if (message && message !== "") {
+            document.getElementById("popupOverlay").classList.remove("hidden");
+        }
+
+        function closePopup() {
+            document.getElementById("popupOverlay").classList.add("hidden");
+        }
+    </script>
+</body>
+
+</html>
