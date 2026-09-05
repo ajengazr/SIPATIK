@@ -1,47 +1,72 @@
 <!DOCTYPE html>
-<html lang="id">
-
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Pilihan Angkatan dan Nama</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <meta name="theme-color" content="#1E40AF">
+    <title>Pilih Data Alumni | SIPATIK</title>
+    <link rel="stylesheet" th:href="@{/css/sipatik.css}">
     <link rel="stylesheet" th:href="@{/css/form.css}">
 </head>
-
-<body>
-    <button class="theme-toggle" aria-label="toggle theme">
-        <i class="fas fa-adjust"></i>
+<body class="auth-page">
+    <a class="skip-link" href="#auth-content">Lewati ke formulir</a>
+    <button class="theme-toggle" type="button" aria-label="Ubah tema terang atau gelap" title="Ubah tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
     </button>
 
-    <div class="form-container">
-        <h2 class="form-title text-2xl">Pilih Angkatan dan Nama</h2>
-        <form th:action="@{/auth/cek-user}" method="post" th:object="${user}">
-            <div class="overlay">
-                <div class="form-group form-select">
-                    <select th:field="*{angkatan}" id="angkatan" onchange="loadNama()" required>
-                        <option value="">Pilih Angkatan</option>
-                        <option th:each="angkatan : ${angkatanList}" th:value="${angkatan}" th:text="${angkatan}">
-                        </option>
-                    </select>
-                </div>
+    <main class="auth-shell auth-shell--compact" id="auth-content">
+        <section class="auth-context" aria-label="Langkah masuk alumni">
+            <a class="auth-brand" href="/auth/" aria-label="SIPATIK, kembali ke beranda">
+                <span class="auth-brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V9l8-5 8 5v10"/><path d="M8 19v-6h8v6"/><path d="M3 19h18"/></svg></span>
+                SIPATIK
+            </a>
+            <div class="auth-context__content">
+                <p class="auth-eyebrow">Identifikasi alumni</p>
+                <h1>Temukan akun dari data angkatan.</h1>
+                <p class="auth-context__lead">Pilih angkatan terlebih dahulu, lalu pilih nama Anda untuk melanjutkan ke proses masuk atau aktivasi.</p>
+                <ul class="trust-list" aria-label="Panduan singkat">
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>Pilih data sesuai daftar alumni</li>
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>Proses berikutnya disesuaikan status akun</li>
+                </ul>
             </div>
+            <p class="auth-context__footer">Butuh bantuan? Hubungi pengelola data alumni</p>
+        </section>
 
-            <div class="overlay">
-                <div class="form-group form-select">
-                    <select th:field="*{nama}" id="nama" required>
-                        <option value="" disabled selected>Pilih Nama</option>
-                    </select>
+        <section class="form-container" aria-labelledby="select-title">
+            <header class="auth-card__header">
+                <p class="form-eyebrow">Langkah 1 dari 2</p>
+                <h2 class="form-title" id="select-title">Pilih angkatan dan nama</h2>
+                <p class="form-subtitle">Data ini digunakan untuk menemukan akun SIPATIK yang sesuai.</p>
+            </header>
+
+            <div th:if="${error}" class="alert alert-error" role="alert" th:text="${error}"></div>
+
+            <form th:action="@{/auth/cek-user}" method="post" th:object="${user}">
+                <div class="overlay">
+                    <div class="form-group">
+                        <label for="angkatan">Angkatan</label>
+                        <select th:field="*{angkatan}" id="angkatan" onchange="loadNama()" required>
+                            <option value="">Pilih angkatan</option>
+                            <option th:each="angkatan : ${angkatanList}" th:value="${angkatan}" th:text="${angkatan}"></option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <button type="submit">Kirim</button>
-        </form>
-    </div>
+
+                <div class="overlay">
+                    <div class="form-group">
+                        <label for="nama">Nama alumni</label>
+                        <select th:field="*{nama}" id="nama" required>
+                            <option value="" disabled selected>Pilih nama</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-submit">Lanjutkan</button>
+            </form>
+        </section>
+    </main>
 
     <script src="/js/theme.js"></script>
     <script src="/js/auth.js"></script>
 </body>
-
 </html>

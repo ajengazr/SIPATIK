@@ -1,181 +1,106 @@
-:root {
-    /* Light theme colors */
-    --color-text-primary: #1F2936;
-    --color-text-placeholder: #798EAE;
-    --color-bg-primary: #f9fafb;
-    --color-bg-secondary: #ECECFD;
-    --color-bg-sidebar: #FFFFFF;
-    --color-border-hr: #E2E8F0;
-    --color-hover-primary: #695CFE;
-    --color-hover-secondary: #e2e2fb;
-    --color-shadow: rgba(0, 0, 0, 0.05);
+/* =====================================================================
+   SIPATIK - Setor & Rekap Infak
+   ---------------------------------------------------------------------
+   Aturan halaman-spesifik. Token warna, tipografi, tombol, dan fokus
+   berasal dari sipatik.css yang dimuat setelah berkas ini.
+   ===================================================================== */
+
+.page-setor-infak .contribution-panel {
+    width: min(100%, 720px);
 }
 
-body.dark-theme {
-    /* Dark theme colors */
-    --color-text-primary: #F1F5F9;
-    --color-text-placeholder: #A6B7D2;
-    --color-bg-primary: #111827;
-    --color-bg-secondary: #3D4859;
-    --color-bg-sidebar: #1f2937;
-    --color-border-hr: #3B475C;
-    --color-hover-secondary: #48566a;
-    --color-shadow: rgba(0, 0, 0, 0.3);
-}
-
-/* ========== SETOR INFAK ========== */
-.main-content {
-    margin: 0;
+.page-setor-infak .contribution-form {
     display: grid;
-    place-items: center;
-    height: 100vh;
+    gap: var(--sp-5);
+    padding: 0;
 }
 
-.form-container {
-    background-color: var(--color-bg-sidebar);
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px var(--color-shadow);
+.page-setor-infak .contribution-form .form-group {
+    margin: 0;
+}
+
+.page-setor-infak .contribution-form label {
+    margin: 0;
+}
+
+.page-setor-infak .contribution-form label > :is(input, select) {
+    margin-top: var(--sp-2);
+}
+
+.page-setor-infak .proof-field input[type="file"] {
+    min-height: 56px;
+    padding: 9px;
+    border-style: dashed;
+    background: var(--sp-surface-2);
+    cursor: pointer;
+}
+
+.page-setor-infak .proof-field input[type="file"]::file-selector-button {
+    min-height: 36px;
+    margin-right: var(--sp-3);
+    padding-inline: var(--sp-3);
+    border: 0;
+    border-radius: var(--sp-radius-sm);
+    color: var(--sp-primary);
+    background: var(--sp-primary-soft);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.page-setor-infak .contribution-submit {
     width: 100%;
-    max-width: 400px;
+    min-height: 48px;
+    margin-top: var(--sp-1);
 }
 
-h2 {
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-    color: var(--color-text-primary);
+.page-setor-infak .field-warning {
+    color: var(--sp-warning-text);
+    font-weight: 600;
+}
+
+.page-rekap-infak .rekap-panel {
+    width: 100%;
+    max-width: none;
+}
+
+.page-rekap-infak .rekap-table {
+    min-width: 680px;
+}
+
+.page-rekap-infak .rekap-table th:first-child,
+.page-rekap-infak .rekap-table td:first-child {
+    width: 88px;
     text-align: center;
 }
 
-.form-group {
-    margin-bottom: 1.5rem;
+.page-rekap-infak .rekap-table th:nth-child(4),
+.page-rekap-infak .rekap-table td:nth-child(4) {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 
-.form-group input {
-    width: 100%;
-    margin-bottom: 0;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--color-border-hr);
-    border-radius: 0.75rem;
-    background: var(--color-bg-secondary);
-    color: var(--color-text-primary);
-    font-size: 1rem;
-    transition: all 0.3s;
+.page-rekap-infak .rekap-table tfoot td {
+    border-top: 2px solid var(--sp-primary-border);
+    background: var(--sp-primary-soft);
+    color: var(--sp-text);
 }
 
-.form-group input:focus {
-    outline: none;
-    border-color: #87CEEB;
-    box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.5);
+.page-rekap-infak .rejection-reason {
+    margin-top: var(--sp-1);
+    color: var(--sp-danger);
+    font-size: .8125rem;
+    line-height: 1.35;
 }
 
-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--color-text-primary);
-}
+@media (max-width: 520px) {
+    .page-setor-infak .contribution-form {
+        gap: var(--sp-4);
+    }
 
-.login__icon {
-    position: absolute;
-    right: 1.5rem;
-    font-weight: 600;
-    top: 50%;
-}
-
-.overlay {
-    margin-bottom: 1.5rem;
-}
-
-select,
-input[type="number"],
-input[type="file"] {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--color-border-hr);
-    border-radius: 4px;
-    font-size: 1rem;
-    background-color: var(--color-bg-secondary);
-    color: var(--color-text-primary);
-    transition: border-color 0.2s, background-color 0.2s;
-}
-
-select:focus,
-input[type="number"]:focus,
-input[type="file"]:focus {
-    outline: none;
-    border-color: var(--color-hover-primary);
-    background-color: var(--color-hover-secondary);
-}
-
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    opacity: 1;
-}
-
-input[type="file"] {
-    padding: 0.5rem;
-}
-
-button {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: var(--color-hover-primary);
-    color: #FFFFFF;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-button:hover {
-    background-color: #5848d8;
-}
-
-
-.material-symbols-outlined {
-    font-variation-settings:
-        'FILL' 1,
-        'wght' 400,
-        'GRAD' 0,
-        'opsz' 24;
-    font-size: 20px;
-    line-height: 1;
-    vertical-align: middle;
-}
-
-/* Tombol bulat */
-.btn-circle {
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-    /* ========== REKAP INFAK ========== */
-    table {
+    .page-setor-infak .proof-field input[type="file"]::file-selector-button {
+        display: block;
         width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
+        margin: 0 0 var(--sp-2);
     }
-
-    th,
-    td {
-        border: 1px solid #ccc;
-        padding: 10px;
-        text-align: center;
-    }
-
-    th {
-        background-color: var(--color-bg-sidebar);
-    }
-
-    @media (max-width: 600px) {
-        .form-container {
-            padding: 1.5rem;
-        }
-    }
+}

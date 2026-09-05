@@ -4,375 +4,77 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Laporan Kas - SIPATIK</title>
+    <title>Laporan Kas | SIPATIK</title>
 
     <link rel="stylesheet" th:href="@{/css/dash.css}">
     <link rel="stylesheet" th:href="@{/css/setor-infak.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table td:first-child,
-        table th:first-child {
-            text-align: left;
-            padding-left: 5px;
-        }
-
-        table td,
-        table th {
-            border: 1px solid #ccc;
-            padding: 8px;
-        }
-
-        table td:nth-child(3),
-        table th:nth-child(3) {
-            text-align: right;
-            padding-right: 6px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 0;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-            max-height: 85vh;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-         .page-title {
-            padding: 20px;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .page-title h3 {
-            margin: 0;
-            color: #333;
-        } 
-
-        .close {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: #000;
-        }
-
-        .form-section {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .form-section h4 {
-            margin: 0 0 15px 0;
-            color: #555;
-            font-size: 16px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-
-        .form-group label {
-            width: 150px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .form-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-        }
-
-        .form-input.error {
-            border-color: #dc2626;
-        }
-
-        .error-message {
-            color: #dc2626;
-            font-size: 12px;
-            margin-top: 4px;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .btn {
-            margin: 5px;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .alert {
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .filter-form .reset-btn {
-            display: inline-block;
-            background: #dc2626;
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 6px;
-            text-decoration: none;
-            margin-left: 8px;
-        }
-
-        .filter-form .reset-btn:hover {
-            background: #b91c1c;
-        }
-
-        .export-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .btn-export-excel, .btn-export-pdf {
-            background: var(--color-hover-primary);
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 500;
-        }
-        .btn-export-excel { background: #16a34a; }
-        .btn-export-excel:hover { background: #15803d; }
-
-        .btn-export-pdf { background: #ef4444; }
-        .btn-export-pdf:hover { background: #dc2626; }
-
-        .sidebar-logo {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #1565c0, #0d47a1, #1976d2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-decoration: none;
-            letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .sidebar-logo i {
-            font-size: 1.8rem;
-            color: #1565c0;
-        }
-
-        .sidebar-logo:hover {
-            opacity: 0.8;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/sipatik.css}" />
+    <link rel="stylesheet" th:href="@{/css/admin-navigation.css}" />
 </head>
 
-<body>
-    <nav class="site-nav">
-        <button class="sidebar-toggle">
-            <span class="material-symbols-rounded">menu</span>
-        </button>
-    </nav>
+<body class="data-page page-laporan-kas">
+    <th:block th:replace="~{html/fragments/admin-navigation :: mobileNavigation}"></th:block>
 
     <div class="container">
-        <aside class="sidebar collapsed">
-            <div class="sidebar-header">
-                <a href="/admin/dash-admin" class="header-logo">
-                    <i class="fas fa-mosque"></i> SIPATIK
-                </a>
-                <button class="sidebar-toggle">
-                    <span class="material-symbols-rounded">chevron_left</span>
-                </button>
-            </div>
+        <th:block th:replace="~{html/fragments/admin-navigation :: adminSidebar(${activePage})}"></th:block>
 
-            <div class="sidebar-content">
-                <ul class="menu-list">
-                    <li class="menu-item">
-                        <a th:href="@{/admin/dash-admin}" class="menu-link"
-                            th:classappend="${activePage == 'dashboard'} ? 'active'">
-                            <span class="material-symbols-rounded">dashboard</span>
-                            <span class="menu-label">Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a th:href="@{/admin/alumni}" class="menu-link"
-                            th:classappend="${activePage == 'alumni'} ? 'active'">
-                            <span class="material-symbols-rounded">inbox_text_person</span>
-                            <span class="menu-label">Alumni</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a th:href="@{/admin/show-pengeluaran}" class="menu-link"
-                            th:classappend="${activePage == 'pengeluaran'} ? ' active' : ''">
-                            <span class="material-symbols-rounded">payment_arrow_down</span>
-                            <span class="menu-label">Pengeluaran</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a th:href="@{/admin/daftar-infak}" class="menu-link"
-                            th:classappend="${activePage == 'infak'} ? 'active'">
-                            <span class="material-symbols-rounded">list_alt_add</span>
-                            <span class="menu-label">Daftar Infak</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a th:href="@{/admin/laporan-kas}" class="menu-link"
-                            th:classappend="${activePage == 'kas'} ? 'active'">
-                            <span class="material-symbols-rounded">add_chart</span>
-                            <span class="menu-label">Laporan Keuangan</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a th:href="@{/auth/logout}" class="menu-link">
-                            <span class="material-symbols-rounded">logout</span>
-                            <span class="menu-label">Keluar</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="sidebar-footer">
-                <button class="theme-toggle">
-                    <div class="theme-label">
-                        <span class="theme-icon material-symbols-rounded">dark_mode</span>
-                        <span class="theme-text">Dark Mode</span>
-                    </div>
-                    <div class="theme-toggle-track">
-                        <div class="theme-toggle-indicator"></div>
-                    </div>
-                </button>
-            </div>
-        </aside>
-
-        <div class="main-content">
-            <div class="header">
-                <h2>LAPORAN KAS PUB</h2>
-                <h2 th:text="'PERIODE ' + ${namaBulan} + ' ' + ${tahun}"> </h2>
-                <div class="header-actions">
-                    <button class="btn-toggle" onclick="openModal()">
-                        <span class="material-symbols-rounded">add</span>
-                        Input Kas
-                    </button>
-                    <button class="btn-toggle" onclick="openEditModal()" th:if="${kasData != null}">
-                        <span class="material-symbols-rounded">edit</span>
-                        Edit Kas
-                    </button>
+        <main class="main-content data-page__content">
+            <header class="header data-page__header">
+                <div class="data-page__heading">
+                    <span class="data-page__kicker">Keuangan organisasi</span>
+                    <h1 class="page-title">Laporan Kas PUB</h1>
+                    <p class="report-period" th:text="'PERIODE ' + ${namaBulan} + ' ' + ${tahun}"> </p>
                 </div>
-                <div class="export-actions">
-                    <a class="btn-export-excel"
-                       th:href="@{/admin/laporan-kas/export/excel(bulan=${selectedBulan},tahun=${selectedTahun})}">
-                        <span class="material-symbols-rounded">table</span>
-                        Export Excel
-                    </a>
-                    <a class="btn-export-pdf"
-                       th:href="@{/admin/laporan-kas/export/pdf(bulan=${selectedBulan},tahun=${selectedTahun})}">
-                        <span class="material-symbols-rounded">picture_as_pdf</span>
-                        Export PDF
-                    </a>
+                <div class="report-actions">
+                    <div class="header-actions data-page__actions">
+                        <button type="button" class="btn-toggle" onclick="openModal(this)">
+                            <span class="material-symbols-rounded" aria-hidden="true">add</span>
+                            Input Kas
+                        </button>
+                        <button type="button" class="btn-toggle" onclick="openEditModal(this)" th:if="${kasData != null}">
+                            <span class="material-symbols-rounded" aria-hidden="true">edit</span>
+                            Edit Kas
+                        </button>
+                    </div>
+                    <div class="export-actions">
+                        <a class="btn-export-excel"
+                           th:href="@{/admin/laporan-kas/export/excel(bulan=${selectedBulan},tahun=${selectedTahun})}">
+                            <span class="material-symbols-rounded" aria-hidden="true">table</span>
+                            Excel
+                        </a>
+                        <a class="btn-export-pdf"
+                           th:href="@{/admin/laporan-kas/export/pdf(bulan=${selectedBulan},tahun=${selectedTahun})}">
+                            <span class="material-symbols-rounded" aria-hidden="true">picture_as_pdf</span>
+                            PDF
+                        </a>
+                    </div>
                 </div>
-            </div> <br>
+            </header>
 
             <!-- Flash Messages -->
-            <div th:if="${success}" class="alert alert-success">
-                <span th:text="${success}"></span>
+            <div class="alert-stack" aria-live="polite">
+                <div th:if="${success}" class="alert alert-success">
+                    <span th:text="${success}"></span>
+                </div>
+
+                <div th:if="${error}" class="alert alert-error">
+                    <span th:text="${error}"></span>
+                </div>
+
+                <div th:if="${warning}" class="alert alert-warning">
+                    <span th:text="${warning}"></span>
+                </div>
             </div>
 
-            <div th:if="${error}" class="alert alert-error">
-                <span th:text="${error}"></span>
-            </div>
-
-            <div class="filters" style="margin-bottom: 20px;">
+            <section class="filters data-toolbar" aria-labelledby="filterLaporanLabel">
+                <span class="data-toolbar__label" id="filterLaporanLabel">Pilih periode</span>
                 <form method="get" th:action="@{/admin/laporan-kas}" id="filterForm" class="filter-form">
-                    <select name="bulan">
+                    <label for="laporanBulan" class="sr-only">Bulan laporan</label>
+                    <select id="laporanBulan" name="bulan">
                         <option value="" th:selected="${selectedBulan == null}">Semua Bulan</option>
                         <option th:value="1" th:selected="${selectedBulan == 1}">JANUARI</option>
                         <option th:value="2" th:selected="${selectedBulan == 2}">FEBRUARI</option>
@@ -387,21 +89,68 @@
                         <option th:value="11" th:selected="${selectedBulan == 11}">NOVEMBER</option>
                         <option th:value="12" th:selected="${selectedBulan == 12}">DESEMBER</option>
                     </select>
-                    <select name="tahun">
+                    <label for="laporanTahun" class="sr-only">Tahun laporan</label>
+                    <select id="laporanTahun" name="tahun">
                         <option value="">Semua Tahun</option>
                         <option th:each="t : ${tahunList}" th:value="${t}" th:text="${t}"
                             th:selected="${t == selectedTahun}"></option>
                     </select>
-                    <button type="submit">Filter</button>
+                    <button type="submit">Terapkan</button>
                     <a th:href="@{/admin/laporan-kas}" class="reset-btn">Reset</a>
                 </form>
+            </section>
+
+            <!-- Peringatan rekonsiliasi, ditampilkan sebelum angka supaya langsung terlihat -->
+            <div class="alert-stack" aria-live="polite">
+            <div th:if="${adaInputKas and !kasSeimbang}" class="alert alert-warning">
+                Kas akhir yang diinput belum sama dengan kas awal ditambah mutasi bulan ini.
+                Selisihnya Rp <span class="format-rupiah-norp" th:text="${selisihKas}">0</span>.
+                Periksa kembali setoran terkonfirmasi dan pengeluaran periode ini.
+            </div>
+            <div th:if="${adaInputKas and !kasAwalNyambung}" class="alert alert-warning">
+                Kas awal periode ini berbeda dengan kas akhir <span th:text="${namaBulanLalu}">bulan lalu</span>
+                (Rp <span class="format-rupiah-norp" th:text="${kasAwalDisarankan}">0</span>).
+                Saldo antar bulan sebaiknya nyambung.
+            </div>
+            <div th:if="${risikoHitungGanda}" class="alert alert-warning">
+                Periode ini punya infak input manual admin sebesar
+                Rp <span class="format-rupiah-norp" th:text="${infakManualPeriodeIni}">0</span>
+                yang sudah terhitung di Total Infak Alumni. Pastikan nominal itu tidak diisi
+                ulang di kolom &quot;Infak lain-lain&quot;, karena uangnya akan terhitung dua kali.
             </div>
 
-            <div class="card">
-                <div class="table-container">
-                    <table class="card">
+            <div th:if="${!adaInputKas}" class="alert alert-info">
+                Belum ada input kas untuk periode ini. Angka pemasukan dan pengeluaran di bawah
+                sudah dihitung dari transaksi, tinggal isi saldo kas awal dan akhirnya.
+            </div>
+            </div>
+
+            <section class="metric-grid" aria-label="Ringkasan laporan kas">
+                <article class="metric-card data-card">
+                    <span class="metric-card__label">Total pemasukan</span>
+                    <strong class="metric-card__value">Rp&nbsp;<span class="format-rupiah-norp" th:text="${pemasukan.total}">0</span></strong>
+                </article>
+                <article class="metric-card metric-card--accent data-card">
+                    <span class="metric-card__label">Total pengeluaran</span>
+                    <strong class="metric-card__value">Rp&nbsp;<span class="format-rupiah-norp" th:text="${pengeluaran.total}">0</span></strong>
+                </article>
+                <article class="metric-card metric-card--success data-card">
+                    <span class="metric-card__label">Saldo akhir</span>
+                    <strong class="metric-card__value">Rp&nbsp;<span class="format-rupiah-norp" th:text="${saldoAkhir.total}">0</span></strong>
+                </article>
+            </section>
+
+            <section class="card data-table-card report-ledger-card" aria-labelledby="rincianKasTitle">
+                <div class="data-table-card__header">
+                    <div>
+                        <span class="data-page__kicker">Buku besar</span>
+                        <h2 id="rincianKasTitle">Rincian arus kas</h2>
+                    </div>
+                </div>
+                <div class="table-container" role="region" aria-label="Rincian laporan kas" tabindex="0">
+                    <table class="cash-report-table data-table report-ledger">
                         <tr>
-                            <td class="judul-section" colspan="3" style="font-weight: bold;">PEMASUKAN</td>
+                            <td class="judul-section" colspan="3">PEMASUKAN</td>
                         </tr>
                         <tr>
                             <td>Total Infak Alumni melalui BCA</td>
@@ -412,6 +161,18 @@
                             <td>Total Infak Alumni melalui Mandiri</td>
                             <td>Rp</td>
                             <td class="format-rupiah-norp" th:text="${pemasukan.mandiri}">0</td>
+                        </tr>
+                        <tr th:if="${pemasukan.bni != null and pemasukan.bni.signum() != 0}">
+                            <td>Total Infak Alumni melalui BNI</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pemasukan.bni}">0</td>
+                        </tr>
+                        <!-- Setoran lewat bank di luar daftar utama tetap ditampilkan supaya
+                             tidak ada nominal terkonfirmasi yang hilang dari total pemasukan. -->
+                        <tr th:each="b : ${pemasukan.bankLain}">
+                            <td th:text="'Total Infak Alumni melalui ' + ${b.bank}">Bank lain</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${b.jumlah}">0</td>
                         </tr>
                         <tr>
                             <td>Infak lain-lain</td>
@@ -434,16 +195,16 @@
                             <td class="format-rupiah-norp" th:text="${pemasukan.bungaBank}">0</td>
                         </tr>
                         <tr>
-                            <td class="total" style="font-weight: 600;">TOTAL PEMASUKAN</td>
+                            <td class="total">TOTAL PEMASUKAN</td>
                             <td>Rp</td>
-                            <td class="format-rupiah-norp" th:text="${pemasukan.total}" style="font-weight: 600;">0</td>
+                            <td class="format-rupiah-norp" th:text="${pemasukan.total}">0</td>
                         </tr>
                         <tr>
                             <td colspan="3"></td>
                         </tr>
     
                         <tr>
-                            <td class="judul-section" colspan="3" style="font-weight: bold;">PENGELUARAN</td>
+                            <td class="judul-section" colspan="3">PENGELUARAN</td>
                         </tr>
                         <tr>
                             <td>Beban Ketua/Keamanan</td>
@@ -521,22 +282,99 @@
                             <td class="format-rupiah-norp" th:text="${pengeluaran.lainLain}">0</td>
                         </tr>
                         <tr>
-                            <td class="total" style="font-weight: 600;">TOTAL PENGELUARAN</td>
+                            <td class="total">TOTAL PENGELUARAN</td>
                             <td>Rp</td>
-                            <td class="format-rupiah-norp" th:text="${pengeluaran.total}" style="font-weight: 600;">0</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.total}">0</td>
                         </tr>
     
                         <tr>
-                            <td class="judul-section" style="font-weight: 600;">Kenaikan/Penurunan</td>
+                            <td class="judul-section">Kenaikan/Penurunan</td>
                             <td>Rp</td>
-                            <td class="format-rupiah-norp" th:text="${kenaikanKas}" style="font-weight: 600;">0</td>
+                            <td class="format-rupiah-norp" th:text="${kenaikanKas}">0</td>
+                        </tr>
+
+                        <!-- Rekonsiliasi: kas akhir yang diinput harus sama dengan
+                             kas awal ditambah mutasi bulan ini. Tanpa baris ini, kas akhir
+                             manual tidak pernah diuji terhadap pemasukan dan pengeluaran. -->
+                        <tr>
+                            <td>Kas akhir seharusnya (kas awal + kenaikan)</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${kasAkhirSeharusnya}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Kas akhir menurut input</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAkhir.total}">0</td>
+                        </tr>
+                        <tr th:classappend="${adaInputKas and !kasSeimbang} ? 'baris-selisih' : ''">
+                            <td class="total"
+                                th:text="${!adaInputKas} ? 'Selisih (belum dicek)' : (${kasSeimbang} ? 'Selisih (seimbang)' : 'Selisih (perlu dicek)')">Selisih</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${selisihKas}">0</td>
+                        </tr>
+
+                        <!-- Rekonsiliasi per kanal. Memakai kolom "jenis" pada tiap
+                             pengeluaran, yang sebelumnya dicatat tapi tidak pernah dipakai,
+                             sehingga saldo bank dan saldo tunai bisa diuji sendiri-sendiri. -->
+                        <tr>
+                            <td colspan="3"></td>
+                        </tr>
+                        <tr>
+                            <td class="judul-section" colspan="3">REKONSILIASI PER KANAL
+                            </td>
+                        </tr>
+                        <tr th:if="${!kanalBisaDicek}">
+                            <td colspan="3" class="reconciliation-note">
+                                Belum bisa dicek per kanal.
+                                <span th:if="${!adaInputKas}">Kas periode ini belum diinput.</span>
+                                <span th:if="${pengeluaran.kanalTanpaJenis > 0}">
+                                    Ada pengeluaran tanpa jenis kanal sebesar Rp
+                                    <span class="format-rupiah-norp" th:text="${pengeluaran.kanalTanpaJenis}">0</span>.
+                                </span>
+                                <span th:if="${infakBankTidakTerpetakan > 0}">
+                                    Ada setoran ke bank tanpa kolom saldo sebesar Rp
+                                    <span class="format-rupiah-norp" th:text="${infakBankTidakTerpetakan}">0</span>.
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Pengeluaran lewat bank</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.kanalBank}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Pengeluaran tunai</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${pengeluaran.kanalTunai}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Kas bank akhir seharusnya (BCA + Mandiri + BNI)</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${bankSeharusnya}">0</td>
+                        </tr>
+                        <tr th:classappend="${kanalBisaDicek and !bankSeimbang} ? 'baris-selisih' : ''">
+                            <td th:text="${!kanalBisaDicek} ? 'Selisih kas bank (belum dicek)' : (${bankSeimbang} ? 'Selisih kas bank (seimbang)' : 'Selisih kas bank (perlu dicek)')">
+                                Selisih kas bank</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${selisihBank}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Kas tunai akhir seharusnya</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${tunaiSeharusnya}">0</td>
+                        </tr>
+                        <tr th:classappend="${kanalBisaDicek and !tunaiSeimbang} ? 'baris-selisih' : ''">
+                            <td th:text="${!kanalBisaDicek} ? 'Selisih kas tunai (belum dicek)' : (${tunaiSeimbang} ? 'Selisih kas tunai (seimbang)' : 'Selisih kas tunai (perlu dicek)')">
+                                Selisih kas tunai</td>
+                            <td>Rp</td>
+                            <td class="format-rupiah-norp" th:text="${selisihTunai}">0</td>
                         </tr>
                         <tr>
                             <td colspan="3"></td>
                         </tr>
     
                         <tr>
-                            <td class="judul-section" colspan="3" style="font-weight: bold;">Saldo Awal Kas</td>
+                            <td class="judul-section" colspan="3">Saldo Awal Kas</td>
                         </tr>
                         <tr>
                             <td>BCA</td>
@@ -559,16 +397,16 @@
                             <td class="format-rupiah-norp" th:text="${saldoAwal.bni}">0</td>
                         </tr>
                         <tr>
-                            <td class="total" style="font-weight: 600;">Total Awal Kas</td>
+                            <td class="total">Total Awal Kas</td>
                             <td>Rp</td>
-                            <td class="format-rupiah-norp" th:text="${saldoAwal.total}" style="font-weight: 600;">0</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAwal.total}">0</td>
                         </tr>
                         <tr>
                             <td colspan="3"></td>
                         </tr>
     
                         <tr>
-                            <td class="judul-section" colspan="3" style="font-weight: bold;">Saldo Akhir Kas</td>
+                            <td class="judul-section" colspan="3">Saldo Akhir Kas</td>
                         </tr>
                         <tr>
                             <td>BCA</td>
@@ -591,134 +429,177 @@
                             <td class="format-rupiah-norp" th:text="${saldoAkhir.bni}">0</td>
                         </tr>
                         <tr>
-                            <td class="total" style="font-weight: 600;">Total Kas Akhir</td>
+                            <td class="total">Total Kas Akhir</td>
                             <td>Rp</td>
-                            <td class="format-rupiah-norp" th:text="${saldoAkhir.total}" style="font-weight: 600;">0</td>
+                            <td class="format-rupiah-norp" th:text="${saldoAkhir.total}">0</td>
                         </tr>
                     </table>
                 </div>
-            </div>
+            </section>
 
             <footer>
                 &copy; 2025 SIPATIK - Pemberdayaan Umat Berkelanjutan.
             </footer>
-        </div>
+        </main>
     </div>
 
     <!-- Modal Input Kas -->
-    <div id="kasModal" class="modal">
+    <div id="kasModal" class="modal data-modal" aria-hidden="true">
         <div class="modal-content">
-            <div class="page-title">
+            <div class="modal-heading">
                 <h3>Input Kas - Periode <span th:text="${namaBulan + ' ' + selectedTahun}"></span></h3>
-                <span class="close" onclick="closeModal()">&times;</span>
+                <button type="button" class="close" onclick="closeModal()" aria-label="Tutup formulir input kas">&times;</button>
             </div>
-            <form method="post" th:action="@{/admin/laporan-kas}" id="inputForm">
+            <p class="modal-description">Lengkapi pemasukan tambahan serta saldo awal dan akhir periode.</p>
+            <form method="post" th:action="@{/admin/laporan-kas}" id="inputForm" class="data-form report-form">
                 <input type="hidden" name="bulan" th:value="${selectedBulan}">
                 <input type="hidden" name="tahun" th:value="${selectedTahun}">
 
-                <div class="form-section">
+                <div class="form-section report-form-section">
                     <h4>Pemasukan Tambahan</h4>
                     <div class="form-group">
-                        <label>Infak Lain-lain:</label>
-                        <div style="flex: 1;">
-                        <input type="text" inputmode="decimal" name="infakLainLain" placeholder="0"
+                        <label for="inputInfakLainLain">Infak Lain-lain:</label>
+                        <div class="field-control">
+                        <input type="text" inputmode="decimal" id="inputInfakLainLain" name="infakLainLain" placeholder="0"
                             class="form-input decimal-input"
+                            aria-describedby="infakLainLain-error"
                             th:value="${kasData != null and kasData.infakLainLain != null ? kasData.infakLainLain : ''}">
                             <div class="error-message" id="infakLainLain-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Pendapatan Lain-lain:</label>
-                        <div style="flex: 1;">
-                        <input type="text" inputmode="decimal" name="pendapatanLainLain" placeholder="0"
+                        <label for="inputPendapatanLainLain">Pendapatan Lain-lain:</label>
+                        <div class="field-control">
+                        <input type="text" inputmode="decimal" id="inputPendapatanLainLain" name="pendapatanLainLain" placeholder="0"
                             class="form-input decimal-input"
+                            aria-describedby="pendapatanLainLain-error"
                             th:value="${kasData != null and kasData.pendapatanLainLain != null ? kasData.pendapatanLainLain : ''}">
                             <div class="error-message" id="pendapatanLainLain-error"></div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="inputZis">ZIS:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="inputZis" name="zis" placeholder="0"
+                                class="form-input decimal-input"
+                                aria-describedby="zis-error"
+                                th:value="${kasData != null and kasData.zis != null ? kasData.zis : ''}">
+                            <div class="error-message" id="zis-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputBungaBank">Pendapatan Bunga Bank:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="inputBungaBank" name="bungaBank" placeholder="0"
+                                class="form-input decimal-input"
+                                aria-describedby="bungaBank-error"
+                                th:value="${kasData != null and kasData.bungaBank != null ? kasData.bungaBank : ''}">
+                            <div class="error-message" id="bungaBank-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputPemasukanLainTunai">Diterima Tunai:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="inputPemasukanLainTunai" name="pemasukanLainTunai" placeholder="0"
+                                class="form-input decimal-input"
+                                aria-describedby="pemasukanLainTunai-error"
+                                th:value="${kasData != null and kasData.pemasukanLainTunai != null ? kasData.pemasukanLainTunai : ''}">
+                            <small>Bagian dari infak lain-lain + pendapatan lain-lain + ZIS yang diterima
+                                sebagai uang tunai. Dipakai memisahkan rekonsiliasi kas tunai dari kas bank.</small>
+                            <div class="error-message" id="pemasukanLainTunai-error"></div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-section">
+                <div class="form-section report-form-section">
                     <h4>Saldo Awal Kas</h4>
                     <div class="form-group">
-                        <label>BCA:</label>
-                        <div style="flex: 1;">
-                        <input type="text" inputmode="decimal" name="awalBca" placeholder="0"
+                        <label for="inputAwalBca">BCA:</label>
+                        <div class="field-control">
+                        <input type="text" inputmode="decimal" id="inputAwalBca" name="awalBca" placeholder="0"
                             class="form-input decimal-input"
-                            th:value="${kasData != null and kasData.kasAwalBca != null ? kasData.kasAwalBca : ''}">
+                            aria-describedby="awalBca-error"
+                            th:value="${kasData != null and kasData.kasAwalBca != null ? kasData.kasAwalBca : (kasAwalPrefill != null ? kasAwalPrefill['bca'] : '')}">
                             <div class="error-message" id="awalBca-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Mandiri:</label>
-                        <div style="flex: 1;">
-                        <input type="text" inputmode="decimal" name="awalMandiri" placeholder="0"
+                        <label for="inputAwalMandiri">Mandiri:</label>
+                        <div class="field-control">
+                        <input type="text" inputmode="decimal" id="inputAwalMandiri" name="awalMandiri" placeholder="0"
                             class="form-input decimal-input"
-                            th:value="${kasData != null and kasData.kasAwalMandiri != null ? kasData.kasAwalMandiri : ''}">
+                            aria-describedby="awalMandiri-error"
+                            th:value="${kasData != null and kasData.kasAwalMandiri != null ? kasData.kasAwalMandiri : (kasAwalPrefill != null ? kasAwalPrefill['mandiri'] : '')}">
                             <div class="error-message" id="awalMandiri-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Tunai:</label>
-                        <div style="flex: 1;">
-                        <input type="text" inputmode="decimal" name="awalTunai" placeholder="0"
+                        <label for="inputAwalTunai">Tunai:</label>
+                        <div class="field-control">
+                        <input type="text" inputmode="decimal" id="inputAwalTunai" name="awalTunai" placeholder="0"
                             class="form-input decimal-input"
-                            th:value="${kasData != null and kasData.kasAwalTunai != null ? kasData.kasAwalTunai : ''}">
+                            aria-describedby="awalTunai-error"
+                            th:value="${kasData != null and kasData.kasAwalTunai != null ? kasData.kasAwalTunai : (kasAwalPrefill != null ? kasAwalPrefill['tunai'] : '')}">
                             <div class="error-message" id="awalTunai-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>BNI:</label>
-                        <div style="flex: 1;">
-                        <input type="text" inputmode="decimal" name="awalBni" placeholder="0"
+                        <label for="inputAwalBni">BNI:</label>
+                        <div class="field-control">
+                        <input type="text" inputmode="decimal" id="inputAwalBni" name="awalBni" placeholder="0"
                             class="form-input decimal-input"
-                            th:value="${kasData != null and kasData.kasAwalBni != null ? kasData.kasAwalBni : ''}">
+                            aria-describedby="awalBni-error"
+                            th:value="${kasData != null and kasData.kasAwalBni != null ? kasData.kasAwalBni : (kasAwalPrefill != null ? kasAwalPrefill['bni'] : '')}">
                             <div class="error-message" id="awalBni-error"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-section">
+                <div class="form-section report-form-section">
                     <h4>Saldo Akhir Kas</h4>
                     <div class="form-group">
-                        <label>BCA:</label>
-                        <div style="flex: 1;">
-                        <input type="text" inputmode="decimal" name="akhirBca" placeholder="0"
+                        <label for="inputAkhirBca">BCA:</label>
+                        <div class="field-control">
+                        <input type="text" inputmode="decimal" id="inputAkhirBca" name="akhirBca" placeholder="0"
                             class="form-input decimal-input"
+                            aria-describedby="akhirBca-error"
                             th:value="${kasData != null and kasData.kasAkhirBca != null ? kasData.kasAkhirBca : ''}">
                             <div class="error-message" id="akhirBca-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Mandiri:</label>
-                        <div style="flex: 1;">
-                        <input type="text" inputmode="decimal" name="akhirMandiri" placeholder="0"
+                        <label for="inputAkhirMandiri">Mandiri:</label>
+                        <div class="field-control">
+                        <input type="text" inputmode="decimal" id="inputAkhirMandiri" name="akhirMandiri" placeholder="0"
                             class="form-input decimal-input"
+                            aria-describedby="akhirMandiri-error"
                             th:value="${kasData != null and kasData.kasAkhirMandiri != null ? kasData.kasAkhirMandiri : ''}">
                             <div class="error-message" id="akhirMandiri-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Tunai:</label>
-                        <div style="flex: 1;">
-                        <input type="text" inputmode="decimal" name="akhirTunai" placeholder="0"
+                        <label for="inputAkhirTunai">Tunai:</label>
+                        <div class="field-control">
+                        <input type="text" inputmode="decimal" id="inputAkhirTunai" name="akhirTunai" placeholder="0"
                             class="form-input decimal-input"
+                            aria-describedby="akhirTunai-error"
                             th:value="${kasData != null and kasData.kasAkhirTunai != null ? kasData.kasAkhirTunai : ''}">
                             <div class="error-message" id="akhirTunai-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>BNI:</label>
-                        <div style="flex: 1;">
-                        <input type="text" inputmode="decimal" name="akhirBni" placeholder="0"
+                        <label for="inputAkhirBni">BNI:</label>
+                        <div class="field-control">
+                        <input type="text" inputmode="decimal" id="inputAkhirBni" name="akhirBni" placeholder="0"
                             class="form-input decimal-input"
+                            aria-describedby="akhirBni-error"
                             th:value="${kasData != null and kasData.kasAkhirBni != null ? kasData.kasAkhirBni : ''}">
                             <div class="error-message" id="akhirBni-error"></div>
                         </div>
                     </div>
                 </div>
 
-                <div style="padding: 20px; text-align: right;">
+                <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Batal</button>
                     <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>
@@ -727,119 +608,162 @@
     </div>
 
     <!-- Modal Edit Kas -->
-    <div id="editKasModal" class="modal">
+    <div id="editKasModal" class="modal data-modal" aria-hidden="true">
         <div class="modal-content">
-            <div class="page-title">
+            <div class="modal-heading">
                 <h3>Edit Kas - Periode <span th:text="${namaBulan + ' ' + selectedTahun}"></span></h3>
-                <span class="close" onclick="closeEditModal()">&times;</span>
+                <button type="button" class="close" onclick="closeEditModal()" aria-label="Tutup formulir edit kas">&times;</button>
             </div>
-            <form method="post" th:action="@{/admin/laporan-kas/edit}" id="editForm">
+            <p class="modal-description">Perbarui angka kas yang tersimpan untuk periode ini.</p>
+            <form method="post" th:action="@{/admin/laporan-kas/edit}" id="editForm" class="data-form report-form">
                 <input type="hidden" name="bulan" th:value="${selectedBulan}">
                 <input type="hidden" name="tahun" th:value="${selectedTahun}">
 
-                <div class="form-section">
+                <div class="form-section report-form-section">
                     <h4>Pemasukan Tambahan</h4>
                     <div class="form-group">
-                        <label>Infak Lain-lain:</label>
-                        <div style="flex: 1;">
-                            <input type="text" inputmode="decimal" name="infakLainLain" placeholder="0"
+                        <label for="editInfakLainLain">Infak Lain-lain:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="editInfakLainLain" name="infakLainLain" placeholder="0"
                                 class="form-input decimal-input"
+                                aria-describedby="edit-infakLainLain-error"
                                 th:value="${kasData != null and kasData.infakLainLain != null ? kasData.infakLainLain : ''}">
                             <div class="error-message" id="edit-infakLainLain-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Pendapatan Lain-lain:</label>
-                        <div style="flex: 1;">
-                            <input type="text" inputmode="decimal" name="pendapatanLainLain" placeholder="0"
+                        <label for="editPendapatanLainLain">Pendapatan Lain-lain:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="editPendapatanLainLain" name="pendapatanLainLain" placeholder="0"
                                 class="form-input decimal-input"
+                                aria-describedby="edit-pendapatanLainLain-error"
                                 th:value="${kasData != null and kasData.pendapatanLainLain != null ? kasData.pendapatanLainLain : ''}">
                             <div class="error-message" id="edit-pendapatanLainLain-error"></div>
                         </div>
                     </div>
+                        <div class="form-group">
+                            <label for="editZis">ZIS:</label>
+                            <div class="field-control">
+                                <input type="text" inputmode="decimal" id="editZis" name="zis" placeholder="0"
+                                    class="form-input decimal-input"
+                                    aria-describedby="edit-zis-error"
+                                    th:value="${kasData != null and kasData.zis != null ? kasData.zis : ''}">
+                                <div class="error-message" id="edit-zis-error"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editBungaBank">Pendapatan Bunga Bank:</label>
+                            <div class="field-control">
+                                <input type="text" inputmode="decimal" id="editBungaBank" name="bungaBank" placeholder="0"
+                                    class="form-input decimal-input"
+                                    aria-describedby="edit-bungaBank-error"
+                                    th:value="${kasData != null and kasData.bungaBank != null ? kasData.bungaBank : ''}">
+                                <div class="error-message" id="edit-bungaBank-error"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPemasukanLainTunai">Diterima Tunai:</label>
+                            <div class="field-control">
+                                <input type="text" inputmode="decimal" id="editPemasukanLainTunai" name="pemasukanLainTunai" placeholder="0"
+                                    class="form-input decimal-input"
+                                    aria-describedby="edit-pemasukanLainTunai-error"
+                                    th:value="${kasData != null and kasData.pemasukanLainTunai != null ? kasData.pemasukanLainTunai : ''}">
+                                <small>Bagian dari infak lain-lain + pendapatan lain-lain + ZIS yang diterima
+                                    sebagai uang tunai. Dipakai memisahkan rekonsiliasi kas tunai dari kas bank.</small>
+                                <div class="error-message" id="edit-pemasukanLainTunai-error"></div>
+                            </div>
+                        </div>
                 </div>
 
-                <div class="form-section">
+                <div class="form-section report-form-section">
                     <h4>Saldo Awal Kas</h4>
                     <div class="form-group">
-                        <label>BCA:</label>
-                        <div style="flex: 1;">
-                            <input type="text" inputmode="decimal" name="awalBca" placeholder="0"
+                        <label for="editAwalBca">BCA:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="editAwalBca" name="awalBca" placeholder="0"
                                 class="form-input decimal-input"
+                                aria-describedby="edit-awalBca-error"
                                 th:value="${kasData != null and kasData.kasAwalBca != null ? kasData.kasAwalBca : ''}">
                             <div class="error-message" id="edit-awalBca-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Mandiri:</label>
-                        <div style="flex: 1;">
-                            <input type="text" inputmode="decimal" name="awalMandiri" placeholder="0"
+                        <label for="editAwalMandiri">Mandiri:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="editAwalMandiri" name="awalMandiri" placeholder="0"
                                 class="form-input decimal-input"
+                                aria-describedby="edit-awalMandiri-error"
                                 th:value="${kasData != null and kasData.kasAwalMandiri != null ? kasData.kasAwalMandiri : ''}">
                             <div class="error-message" id="edit-awalMandiri-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Tunai:</label>
-                        <div style="flex: 1;">
-                            <input type="text" inputmode="decimal" name="awalTunai" placeholder="0"
+                        <label for="editAwalTunai">Tunai:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="editAwalTunai" name="awalTunai" placeholder="0"
                                 class="form-input decimal-input"
+                                aria-describedby="edit-awalTunai-error"
                                 th:value="${kasData != null and kasData.kasAwalTunai != null ? kasData.kasAwalTunai : ''}">
                             <div class="error-message" id="edit-awalTunai-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>BNI:</label>
-                        <div style="flex: 1;">
-                            <input type="text" inputmode="decimal" name="awalBni" placeholder="0"
+                        <label for="editAwalBni">BNI:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="editAwalBni" name="awalBni" placeholder="0"
                                 class="form-input decimal-input"
+                                aria-describedby="edit-awalBni-error"
                                 th:value="${kasData != null and kasData.kasAwalBni != null ? kasData.kasAwalBni : ''}">
                             <div class="error-message" id="edit-awalBni-error"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-section">
+                <div class="form-section report-form-section">
                     <h4>Saldo Akhir Kas</h4>
                     <div class="form-group">
-                        <label>BCA:</label>
-                        <div style="flex: 1;">
-                            <input type="text" inputmode="decimal" name="akhirBca" placeholder="0"
+                        <label for="editAkhirBca">BCA:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="editAkhirBca" name="akhirBca" placeholder="0"
                                 class="form-input decimal-input"
+                                aria-describedby="edit-akhirBca-error"
                                 th:value="${kasData != null and kasData.kasAkhirBca != null ? kasData.kasAkhirBca : ''}">
                             <div class="error-message" id="edit-akhirBca-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Mandiri:</label>
-                        <div style="flex: 1;">
-                            <input type="text" inputmode="decimal" name="akhirMandiri" placeholder="0"
+                        <label for="editAkhirMandiri">Mandiri:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="editAkhirMandiri" name="akhirMandiri" placeholder="0"
                                 class="form-input decimal-input"
+                                aria-describedby="edit-akhirMandiri-error"
                                 th:value="${kasData != null and kasData.kasAkhirMandiri != null ? kasData.kasAkhirMandiri : ''}">
                             <div class="error-message" id="edit-akhirMandiri-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Tunai:</label>
-                        <div style="flex: 1;">
-                            <input type="text" inputmode="decimal" name="akhirTunai" placeholder="0"
+                        <label for="editAkhirTunai">Tunai:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="editAkhirTunai" name="akhirTunai" placeholder="0"
                                 class="form-input decimal-input"
+                                aria-describedby="edit-akhirTunai-error"
                                 th:value="${kasData != null and kasData.kasAkhirTunai != null ? kasData.kasAkhirTunai : ''}">
                             <div class="error-message" id="edit-akhirTunai-error"></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>BNI:</label>
-                        <div style="flex: 1;">
-                            <input type="text" inputmode="decimal" name="akhirBni" placeholder="0"
+                        <label for="editAkhirBni">BNI:</label>
+                        <div class="field-control">
+                            <input type="text" inputmode="decimal" id="editAkhirBni" name="akhirBni" placeholder="0"
                                 class="form-input decimal-input"
+                                aria-describedby="edit-akhirBni-error"
                                 th:value="${kasData != null and kasData.kasAkhirBni != null ? kasData.kasAkhirBni : ''}">
                             <div class="error-message" id="edit-akhirBni-error"></div>
                         </div>
                     </div>
                 </div>
 
-                <div style="padding: 20px; text-align: right;">
+                <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Batal</button>
                     <button type="submit" class="btn btn-primary">Update</button>
                 </div>
@@ -851,39 +775,45 @@
     <script th:src="@{/js/rupiah-no-prefix.js}"></script>
     <script th:src="@{/js/decimal-input.js}"></script>
     <script>
-        function openModal() {
+        function openModal(trigger) {
             var modal = document.getElementById('kasModal');
-            if (modal) {
-                modal.style.display = 'block';
+            if (modal && window.SipatikModal) {
                 clearAllErrors();
+                window.SipatikModal.open(modal, {
+                    trigger: trigger || document.activeElement,
+                    initialFocus: '#inputInfakLainLain'
+                });
             }
         }
 
         function closeModal() {
             var modal = document.getElementById('kasModal');
-            if (modal) {
-                modal.style.display = 'none';
+            if (modal && window.SipatikModal) {
                 clearAllErrors();
+                window.SipatikModal.close(modal);
             }
         }
 
-        function openEditModal() {
+        function openEditModal(trigger) {
             var modal = document.getElementById('editKasModal');
-            if (modal) {
-                modal.style.display = 'block';
+            if (modal && window.SipatikModal) {
                 clearAllEditErrors();
+                window.SipatikModal.open(modal, {
+                    trigger: trigger || document.activeElement,
+                    initialFocus: '#editInfakLainLain'
+                });
             }
         }
 
         function closeEditModal() {
             var modal = document.getElementById('editKasModal');
-            if (modal) {
-                modal.style.display = 'none';
+            if (modal && window.SipatikModal) {
                 clearAllEditErrors();
+                window.SipatikModal.close(modal);
             }
         }
 
-        window.onclick = function (event) {
+        window.addEventListener('click', function (event) {
             var inputModal = document.getElementById('kasModal');
             var editModal = document.getElementById('editKasModal');
             if (event.target == inputModal) {
@@ -892,13 +822,16 @@
             if (event.target == editModal) {
                 closeEditModal();
             }
-        }
+        });
 
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
-                closeModal();
-                closeEditModal();
-            }
+        document.getElementById('kasModal').addEventListener('sipatik:modal-request-close', function (event) {
+            event.preventDefault();
+            closeModal();
+        });
+
+        document.getElementById('editKasModal').addEventListener('sipatik:modal-request-close', function (event) {
+            event.preventDefault();
+            closeEditModal();
         });
 
         function clearAllErrors() {
@@ -972,14 +905,21 @@
             return null;
         }
 
+        function normalizeDecimalFields(form) {
+            form.querySelectorAll('input.decimal-input').forEach(input => {
+                input.value = window.SipatikDecimal.sanitize(input.value);
+            });
+        }
+
         // Input form validation
         document.getElementById('inputForm').addEventListener('submit', function(e) {
-            e.preventDefault();
             clearAllErrors();
+            normalizeDecimalFields(this);
             
             let hasError = false;
             const fields = [
-                'infakLainLain', 'pendapatanLainLain', 
+                'infakLainLain', 'pendapatanLainLain', 'zis',
+                'bungaBank', 'pemasukanLainTunai',
                 'awalBca', 'awalMandiri', 'awalTunai', 'awalBni',
                 'akhirBca', 'akhirMandiri', 'akhirTunai', 'akhirBni'
             ];
@@ -995,19 +935,20 @@
                 }
             });
             
-            if (!hasError) {
-                this.submit();
+            if (hasError) {
+                e.preventDefault();
             }
         });
 
         // Edit form validation
         document.getElementById('editForm').addEventListener('submit', function(e) {
-            e.preventDefault();
             clearAllEditErrors();
+            normalizeDecimalFields(this);
             
             let hasError = false;
             const fields = [
-                'infakLainLain', 'pendapatanLainLain', 
+                'infakLainLain', 'pendapatanLainLain', 'zis',
+                'bungaBank', 'pemasukanLainTunai',
                 'awalBca', 'awalMandiri', 'awalTunai', 'awalBni',
                 'akhirBca', 'akhirMandiri', 'akhirTunai', 'akhirBni'
             ];
@@ -1023,8 +964,8 @@
                 }
             });
             
-            if (!hasError) {
-                this.submit();
+            if (hasError) {
+                e.preventDefault();
             }
         });
 

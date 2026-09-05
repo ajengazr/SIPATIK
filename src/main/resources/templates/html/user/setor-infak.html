@@ -4,17 +4,16 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title th:text="${pageTitle} ?: 'Sidebar Menu'">Sidebar Menu</title>
+    <title th:text="${pageTitle} ?: 'Setor Infak | SIPATIK'">Setor Infak | SIPATIK</title>
 
     <link rel="stylesheet" th:href="@{/css/dash.css}" />
     <link rel="stylesheet" th:href="@{/css/setor-infak.css}" />
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-
+    <link rel="stylesheet" th:href="@{/css/sipatik.css}" />
 </head>
 
-<body>
+<body class="data-page page-setor-infak">
     <!-- Navbar -->
     <nav class="site-nav">
         <button class="sidebar-toggle">
@@ -27,7 +26,8 @@
         <aside class="sidebar collapsed">
             <div class="sidebar-header">
                 <a href="/user/dash-user" class="header-logo">
-                    <i class="fas fa-mosque"></i> SIPATIK
+                    <span class="material-symbols-rounded brand-mark" aria-hidden="true">mosque</span>
+                    <span class="brand-copy">SIPATIK</span>
                 </a>
                 <!-- <img th:src="@{/images/logo.png}" alt="SIPATIK" class="header-logo" /> -->
                 <button class="sidebar-toggle">
@@ -95,49 +95,85 @@
         </aside>
 
         <!-- Konten Utama -->
-        <div class="main-content">
-            <div class="form-container">
-                <h2>Berinfak Yuk!</h2>
+        <main class="main-content data-page__content">
+            <section class="form-container contribution-panel data-panel" aria-labelledby="setorInfakTitle">
+                <div class="form-hero">
+                    <span class="form-hero__icon" aria-hidden="true">
+                        <span class="material-symbols-rounded">volunteer_activism</span>
+                    </span>
+                    <div>
+                        <h1 id="setorInfakTitle">Setor Infak</h1>
+                        <p>Isi detail transfer dan unggah bukti pembayaran untuk diverifikasi admin.</p>
+                    </div>
+                </div>
                 <form th:action="@{/user/setor-infak}" th:object="${setorInfakRequest}" method="post"
-                    enctype="multipart/form-data" class="p-4">
+                    enctype="multipart/form-data" class="p-4 contribution-form data-form" id="setorInfakForm">
                     <div class="form-group">
                         <label>Pilih Bank:
                             <select th:field="*{bank}" required>
                                 <option value="" disabled selected>Pilih Bank</option>
                                 <option value="BCA">BCA</option>
                                 <option value="Mandiri">Mandiri</option>
+                                <option value="BNI">BNI</option>
                             </select>
                         </label>
                     </div>
 
+                    <div th:if="${fieldErrors != null and fieldErrors.containsKey('bank')}"
+                        th:text="${fieldErrors.get('bank')}" class="error-message" role="alert"></div>
+
                     <div class="form-group">
                         <label>Nominal:
-                            <input type="number" th:field="*{nominal}" required>
+                            <input type="number" th:field="*{nominal}" required min="1">
                         </label>
+                        <small th:if="${minimalInfak != null}"
+                            th:text="'Minimal infak angkatan kamu: Rp ' + ${#numbers.formatInteger(minimalInfak, 3, 'POINT')}"></small>
+                        <small th:if="${minimalInfakError != null}" th:text="${minimalInfakError}"
+                            class="field-warning"></small>
                         <div th:if="${fieldErrors != null and fieldErrors.containsKey('nominal')}"
-                            th:text="${fieldErrors.get('nominal')}" style="color:red"></div>
-
+                            th:text="${fieldErrors.get('nominal')}" class="error-message" role="alert"></div>
                     </div>
 
                     <div class="form-group">
-                        <label>Bukti Transfer:
-                            <input type="file" th:field="*{buktiTransfer}" accept="image/*" required>
+                        <!-- Tanggal transfer sebenarnya. Sebelumnya tanggal selalu diisi
+                             tanggal submit, jadi transfer akhir bulan yang baru diunggah
+                             keesokan harinya tercatat di bulan berikutnya. -->
+                        <label>Tanggal Transfer:
+                            <input type="date" th:field="*{tanggalInfak}" required
+                                th:max="${#temporals.format(hariIni, 'yyyy-MM-dd')}">
                         </label>
-                        <div th:if="${fieldErrors != null and fieldErrors.containsKey('buktiTransfer')}"
-                            th:text="${fieldErrors.get('buktiTransfer')}" style="color:red"></div>
+                        <div th:if="${fieldErrors != null and fieldErrors.containsKey('tanggalInfak')}"
+                            th:text="${fieldErrors.get('tanggalInfak')}" class="error-message" role="alert"></div>
                     </div>
 
-                    <button type="submit">Setor</button>
+                    <div class="form-group proof-field">
+                        <label>Bukti Transfer:
+                            <input type="file" th:field="*{buktiTransfer}" accept="image/*,application/pdf" required>
+                        </label>
+                        <small>Format: JPG, PNG, GIF, atau PDF. Maksimal 5 MB.</small>
+                        <div th:if="${fieldErrors != null and fieldErrors.containsKey('buktiTransfer')}"
+                            th:text="${fieldErrors.get('buktiTransfer')}" class="error-message" role="alert"></div>
+                    </div>
+
+                    <button type="submit" id="setorInfakButton" class="contribution-submit">Setor</button>
                 </form>
-            </div>
+            </section>
 
             <footer>
                 &copy; 2025 SIPATIK - Pemberdayaan Umat Berkelanjutan.
             </footer>
-        </div>
+        </main>
     </div>
 
     <script th:src="@{/js/dash.js}"></script>
+    <script>
+        document.getElementById('setorInfakForm').addEventListener('submit', function () {
+            const button = document.getElementById('setorInfakButton');
+            this.setAttribute('aria-busy', 'true');
+            button.disabled = true;
+            button.textContent = 'Mengirim...';
+        });
+    </script>
 </body>
 
 </html>

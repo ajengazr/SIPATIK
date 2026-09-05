@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,17 +14,32 @@ import org.springframework.stereotype.Repository;
 import com.projek.sipatik.models.Role;
 import com.projek.sipatik.models.Users;
 
+import jakarta.persistence.LockModeType;
+
 @Repository
 public interface UserRepository extends JpaRepository<Users, Long> {
-    Optional<Users> findByEmail(String email);
+    @Query("SELECT u FROM Users u WHERE LOWER(u.email) = LOWER(:email)")
+    Optional<Users> findByEmail(@Param("email") String email);
+
+    /**
+     * Mengunci satu alumni selama transaksi pencatatan infak. Dengan begitu dua
+     * submit paralel untuk alumni yang sama tidak dapat sama-sama melewati cek
+     * duplikat sebelum salah satunya tersimpan.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT u FROM Users u WHERE u.id = :id")
+    Optional<Users> findByIdForUpdate(@Param("id") Long id);
 
     Optional<Users> findByNamaAndAngkatan(String name, Long angkatan);
 
     Optional<Users> findByNamaAndAngkatanAndEmail(String name, Long angkatan, String email);
 
-    boolean existsByEmail(String Email);
+    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM Users u "
+            + "WHERE LOWER(u.email) = LOWER(:email)")
+    boolean existsByEmail(@Param("email") String email);
 
-    @Query("SELECT u.nama FROM Users u WHERE u.angkatan = :angkatan")
+    @Query("SELECT u.nama FROM Users u WHERE u.angkatan = :angkatan "
+            + "AND u.role = com.projek.sipatik.models.Role.USER ORDER BY u.nama ASC")
     List<String> findNamaByAngkatan(@Param("angkatan") Long angkatan);
 
     @Query("SELECT DISTINCT u.angkatan FROM Users u ORDER BY u.angkatan ASC")

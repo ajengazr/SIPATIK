@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Kredensial lokal (JANGAN di-commit) ###
+application-local.properties
+config/application-local.properties
+config/application-*.properties
+*-local.properties
+.env
+.env.*
+!.env.example

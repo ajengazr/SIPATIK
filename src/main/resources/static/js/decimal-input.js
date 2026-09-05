@@ -1,26 +1,51 @@
-// Mengizinkan input desimal dengan koma atau titik dan normalisasi ke titik saat submit
+// Mengizinkan input Rupiah dengan pemisah ribuan Indonesia maupun desimal,
+// lalu menormalisasinya ke format BigDecimal saat submit.
 (function () {
   function sanitizeDecimal(value) {
     if (value == null) return '';
     var str = String(value).trim();
-    // Hanya angka, koma, titik, dan minus
     str = str.replace(/[^0-9,.-]/g, '');
-    // Jika ada lebih dari satu koma/titik, pertahankan pemisah desimal terakhir
+
+    var negative = str.charAt(0) === '-';
+    str = str.replace(/-/g, '');
+    if (!str) return negative ? '-' : '';
+
     var lastComma = str.lastIndexOf(',');
     var lastDot = str.lastIndexOf('.');
-    var sep = Math.max(lastComma, lastDot);
+    var hasComma = lastComma >= 0;
+    var hasDot = lastDot >= 0;
+    var decimalIndex = -1;
+
+    if (hasComma && hasDot) {
+      // Bila kedua simbol ada, simbol paling kanan adalah desimal dan sisanya ribuan.
+      decimalIndex = Math.max(lastComma, lastDot);
+    } else if (hasComma || hasDot) {
+      var separator = hasComma ? ',' : '.';
+      var groups = str.split(separator);
+      var groupedThousands = groups.length > 1 && groups[0].length > 0 &&
+        groups.slice(1).every(function (group) { return group.length === 3; });
+
+      // 1.000 dan 1.000.000 adalah Rupiah bertanda ribuan. 1000,50 atau
+      // 1000.00 tetap dibaca sebagai desimal karena bagian akhirnya bukan 3 digit.
+      if (!groupedThousands) {
+        decimalIndex = str.lastIndexOf(separator);
+      }
+    }
+
     var integerPart = str;
     var fractionalPart = '';
-    if (sep > 0) {
-      integerPart = str.slice(0, sep).replace(/[.,]/g, '');
-      fractionalPart = str.slice(sep + 1).replace(/[.,]/g, '');
+    if (decimalIndex >= 0) {
+      integerPart = str.slice(0, decimalIndex).replace(/[.,]/g, '');
+      fractionalPart = str.slice(decimalIndex + 1).replace(/[.,]/g, '');
     } else {
       integerPart = str.replace(/[.,]/g, '');
     }
+
+    var result = (negative ? '-' : '') + (integerPart || '0');
     if (fractionalPart.length > 0) {
-      return integerPart + '.' + fractionalPart;
+      result += '.' + fractionalPart;
     }
-    return integerPart;
+    return result;
   }
 
   function onInput(e) {
@@ -51,6 +76,9 @@
       });
     });
   }
+
+  // Diekspos untuk smoke test browser tanpa mengubah perilaku form.
+  window.SipatikDecimal = Object.freeze({ sanitize: sanitizeDecimal });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

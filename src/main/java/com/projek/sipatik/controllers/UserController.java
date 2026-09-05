@@ -15,17 +15,18 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.projek.sipatik.dto.EditPasswordRequest;
 import com.projek.sipatik.dto.SetorInfakRequest;
 import com.projek.sipatik.exception.FieldValidationException;
 import com.projek.sipatik.models.SetorInfak;
+import com.projek.sipatik.models.StatusInfak;
 import com.projek.sipatik.models.Users;
 import com.projek.sipatik.repositories.SetorInfakRepository;
 import com.projek.sipatik.repositories.UserRepository;
 import com.projek.sipatik.security.JwtUtil;
+import com.projek.sipatik.services.InfakService;
 import com.projek.sipatik.services.UserService;
 
 import jakarta.servlet.http.Cookie;
@@ -43,41 +44,47 @@ public class UserController {
     @Autowired
     private UserService userService;
     @Autowired
+    private InfakService infakService;
+    @Autowired
     private JwtUtil jwtUtil;
     @Autowired
     private SetorInfakRepository setorInfakRespository;
 
     @GetMapping("/dash-user")
-    public String dashUser(
-            HttpServletRequest request,
-            Model model) {
+    public String dashUser(HttpServletRequest request, Model model) {
 
         String token = extractTokenFromCookie(request);
 
         if (token == null || !jwtUtil.validateToken(token)) {
-            return "redirect:/auth/login"; // kalau tidak valid, arahkan ke login
+            return "redirect:/auth/login";
         }
 
         String email = jwtUtil.extractEmail(token);
         Users user = userRepository.findByEmail(email).orElseThrow();
 
-        // 1. Total uang infak
+        // 1. Total uang infak terkonfirmasi
         BigDecimal totalInfak = setorInfakRespository.totalInfakTerkonfirmasiByUser(user);
 
-        // 2. Jumlah infak
+        // 2. Jumlah transaksi terkonfirmasi
         Long jumlahInfak = setorInfakRespository.jumlahInfakByUser(user);
 
-        // 3. Infak terakhir
-        SetorInfak infakTerakhir = setorInfakRespository.findTopByUserAndDikonfirmasiTrueOrderByTanggalInfakDesc(user);
+        // 3. Infak terakhir yang sudah dikonfirmasi
+        SetorInfak infakTerakhir = setorInfakRespository
+                .findTopByUserAndStatusOrderByTanggalInfakDescIdDesc(user, StatusInfak.DIKONFIRMASI);
         Long nominalInfakTerakhir = (infakTerakhir != null) ? infakTerakhir.getNominal() : 0L;
 
-        // 4. Status bulan ini
+        // 4. Status bulan berjalan
         boolean sudahInfakBulanIni = false;
-        if (infakTerakhir != null) {
+        if (infakTerakhir != null && infakTerakhir.getTanggalInfak() != null) {
             LocalDate tanggal = infakTerakhir.getTanggalInfak();
             LocalDate now = LocalDate.now();
-            sudahInfakBulanIni = (tanggal.getMonth() == now.getMonth() && tanggal.getYear() == now.getYear());
+            sudahInfakBulanIni = tanggal.getMonthValue() == now.getMonthValue() && tanggal.getYear() == now.getYear();
         }
+
+        // 5. Setoran yang masih menunggu / ditolak, supaya alumni tahu tindak lanjutnya
+        boolean adaMenunggu = setorInfakRespository.existsByUserAndStatus(user, StatusInfak.MENUNGGU);
+        SetorInfak ditolakTerakhir = setorInfakRespository
+                .findTopByUserAndStatusOrderByTanggalInfakDescIdDesc(user, StatusInfak.DITOLAK);
 
         model.addAttribute("nama", user.getNama());
         model.addAttribute("angkatan", user.getAngkatan());
@@ -85,6 +92,8 @@ public class UserController {
         model.addAttribute("jumlahInfak", jumlahInfak);
         model.addAttribute("infakTerakhir", nominalInfakTerakhir);
         model.addAttribute("statusBulanIni", sudahInfakBulanIni ? "Sudah Infak" : "Belum Infak");
+        model.addAttribute("adaSetoranMenunggu", adaMenunggu);
+        model.addAttribute("setoranDitolak", ditolakTerakhir);
         return "html/user/dash";
     }
 
@@ -100,8 +109,23 @@ public class UserController {
     }
 
     @GetMapping("/form-setor-infak")
-    public String formSetorInfak(Model model) {
-        model.addAttribute("setorInfakRequest", new SetorInfakRequest());
+    public String formSetorInfak(HttpServletRequest request, Model model) {
+        SetorInfakRequest form = new SetorInfakRequest();
+        form.setTanggalInfak(LocalDate.now());
+        model.addAttribute("setorInfakRequest", form);
+        model.addAttribute("hariIni", LocalDate.now());
+
+        String token = extractTokenFromCookie(request);
+        if (token != null) {
+            try {
+                Users user = userService.getUserFromToken(token);
+                model.addAttribute("minimalInfak", infakService.getMinimalInfak(user));
+            } catch (RuntimeException e) {
+                // Tarif tidak tersedia (mis. angkatan di luar rentang) tidak boleh
+                // menghalangi form tampil; validasinya tetap jalan saat submit.
+                model.addAttribute("minimalInfakError", e.getMessage());
+            }
+        }
         return "html/user/setor-infak";
     }
 
@@ -114,42 +138,53 @@ public class UserController {
         if (bindingResult.hasErrors()) {
             Map<String, String> fieldErrors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(err -> fieldErrors.put(err.getField(), err.getDefaultMessage()));
-
-            model.addAttribute("setorInfakRequest", request);
-            model.addAttribute("fieldErrors", fieldErrors);
-            return "html/user/setor-infak";
+            return kembaliKeForm(model, request, fieldErrors);
         }
 
         try {
             Users user = userService.getUserFromToken(token);
-            userService.simpanInfak(request, user);
+            infakService.simpanInfakAlumni(user, request);
 
-            model.addAttribute("message", "Alhamdulillah... Semoga infaknya berkah. Tunggu infaknya dikonfirmasi yaaa");
+            model.addAttribute("message",
+                    "Alhamdulillah... Semoga infaknya berkah. Tunggu infaknya dikonfirmasi yaaa");
             return "html/user/pop-up";
         } catch (FieldValidationException e) {
             Map<String, String> fieldErrors = new HashMap<>();
             fieldErrors.put(e.getField(), e.getMessage());
-            model.addAttribute("setorInfakRequest", request);
-            model.addAttribute("fieldErrors", fieldErrors);
-            return "html/user/setor-infak";
+            return kembaliKeForm(model, request, fieldErrors);
         } catch (IOException e) {
             Map<String, String> fieldErrors = new HashMap<>();
             fieldErrors.put("buktiTransfer", "Gagal upload file. Silakan coba lagi.");
-
-            model.addAttribute("setorInfakRequest", request);
-            model.addAttribute("fieldErrors", fieldErrors);
-            return "html/user/setor-infak";
+            return kembaliKeForm(model, request, fieldErrors);
         }
     }
 
+    private String kembaliKeForm(Model model, SetorInfakRequest request, Map<String, String> fieldErrors) {
+        model.addAttribute("setorInfakRequest", request);
+        model.addAttribute("fieldErrors", fieldErrors);
+        model.addAttribute("hariIni", LocalDate.now());
+        return "html/user/setor-infak";
+    }
+
+    /**
+     * Riwayat setoran alumni.
+     *
+     * Sekarang menampilkan semua status, bukan hanya yang terkonfirmasi, supaya alumni
+     * bisa melihat setoran yang masih menunggu dan alasan setoran yang ditolak.
+     */
     @GetMapping("/rekap-infak")
     public String readRekapInfak(HttpServletRequest request, Model model) {
         String token = extractTokenFromCookie(request);
         Users user = userService.getUserFromToken(token);
 
-        List<SetorInfak> daftarInfak = userService.getRekapInfak(user);
+        List<SetorInfak> semua = infakService.riwayatLengkap(user);
+        List<SetorInfak> terkonfirmasi = semua.stream()
+                .filter(SetorInfak::isDikonfirmasi)
+                .toList();
 
-        model.addAttribute("daftarInfak", daftarInfak);
+        model.addAttribute("daftarInfak", semua);
+        model.addAttribute("daftarInfakTerkonfirmasi", terkonfirmasi);
+        model.addAttribute("totalTerkonfirmasi", setorInfakRespository.totalInfakTerkonfirmasiByUser(user));
         return "html/user/rekap-infak";
     }
 
@@ -168,8 +203,14 @@ public class UserController {
         return "html/user/form-edit-password";
     }
 
-    @PutMapping("/proses-edit-password")
-    public String editPassword(@ModelAttribute EditPasswordRequest editPasswordRequest,
+    /**
+     * Ganti kata sandi.
+     *
+     * Dipetakan ke POST karena form HTML tidak bisa mengirim PUT dan filter _method
+     * tidak aktif, sehingga versi @PutMapping sebelumnya selalu berakhir 405.
+     */
+    @PostMapping("/proses-edit-password")
+    public String editPassword(@ModelAttribute("passwordRequest") EditPasswordRequest editPasswordRequest,
             HttpServletRequest request,
             Model model) {
         String token = extractTokenFromCookie(request);
@@ -180,10 +221,10 @@ public class UserController {
             model.addAttribute("message", "Password berhasil diubah!");
             return "html/user/pop-up";
         } catch (FieldValidationException e) {
-            model.addAttribute("passwordRequest", request);
+            model.addAttribute("passwordRequest", editPasswordRequest);
             model.addAttribute("errorField", e.getField());
             model.addAttribute("errorMessage", e.getMessage());
-            return "html/user/edit-password";
+            return "html/user/form-edit-password";
         }
     }
 
@@ -193,5 +234,4 @@ public class UserController {
         model.addAttribute("activePage", "tentang");
         return "html/user/tentang";
     }
-
 }

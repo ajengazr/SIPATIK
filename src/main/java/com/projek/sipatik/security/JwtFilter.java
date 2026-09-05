@@ -26,63 +26,83 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);
-    
+
+    /**
+     * Path yang benar-benar publik. Perhatikan bahwa "/api" TIDAK ada di sini:
+     * versi sebelumnya melewati seluruh prefix /api tanpa mengisi SecurityContext,
+     * padahal SecurityConfig mewajibkan role untuk /api/**, sehingga semua endpoint
+     * REST selalu berakhir 401 dan tidak pernah bisa dipakai.
+     */
+    private static final List<String> PATH_PUBLIK = List.of(
+            "/auth",
+            "/auth-adm",
+            "/css",
+            "/js",
+            "/assets",
+            "/images",
+            "/webjars",
+            "/.well-known",
+            "/test-error");
+
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
     @Override
-    @SuppressWarnings("null")
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         String path = request.getServletPath();
-        
-        // Skip JWT validation for public paths
-        if (path.startsWith("/auth")
-                || path.startsWith("/auth-adm")
-                || path.startsWith("/api")
-                || path.startsWith("/css")
-                || path.startsWith("/js")
-                || path.startsWith("/assets")
-                || path.startsWith("/images")
-                || path.startsWith("/webjars")
-                || path.startsWith("/.well-known")
-                || path.equals("/error")
-                || path.startsWith("/test-error")
-                || path.equals("/")) {
+
+        if (path.equals("/") || path.equals("/error") || PATH_PUBLIK.stream().anyMatch(path::startsWith)) {
             filterChain.doFilter(request, response);
             return;
         }
-        
-        // For protected paths, check JWT token
-        String token = null;
 
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("jwt".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
-        }
+        String token = ambilToken(request, path);
 
-        if (token != null) {
+        if (token != null && jwtUtil.validateToken(token)) {
             try {
                 String email = jwtUtil.extractEmail(token);
                 Optional<Users> userOpt = userRepository.findByEmail(email);
 
                 if (userOpt.isPresent()) {
                     Users user = userOpt.get();
-
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null,
                             List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             } catch (Exception e) {
-                log.error("JWT validation error: {}", e.getMessage());
+                log.warn("JWT validation error untuk {}: {}", path, e.getMessage());
             }
         }
-        
+
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Token dibaca dari cookie untuk halaman web, dan dari header Authorization untuk
+     * klien REST.
+     *
+     * Khusus /api/**, cookie sengaja tidak diterima. Kredensial yang dikirim browser
+     * secara otomatis adalah syarat terjadinya CSRF; dengan hanya menerima header,
+     * permukaan REST menjadi benar-benar stateless dan boleh dikecualikan dari
+     * proteksi CSRF di SecurityConfig.
+     */
+    private String ambilToken(HttpServletRequest request, String path) {
+        String dariHeader = jwtUtil.resolveTokenFromRequest(request);
+        if (dariHeader != null) {
+            return dariHeader;
+        }
+        if (path.startsWith("/api/")) {
+            return null;
+        }
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

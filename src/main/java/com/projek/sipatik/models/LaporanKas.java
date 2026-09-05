@@ -40,5 +40,22 @@ public class LaporanKas {
     private BigDecimal infakLainLain;
     private BigDecimal pendapatanLainLain;
 
+    /**
+     * Zakat, infak, sedekah dan pendapatan bunga bank.
+     * Dulu keduanya ditampilkan di laporan tapi nilainya ditulis nol di kode, jadi
+     * bendahara tidak punya cara mengisinya. Sekarang jadi input manual seperti
+     * pemasukan tambahan lainnya.
+     */
+    private BigDecimal zis;
+    private BigDecimal bungaBank;
+
+    /**
+     * Bagian dari pemasukan manual (infak lain-lain, pendapatan lain-lain, ZIS) yang
+     * diterima sebagai uang tunai, bukan masuk rekening. Dipakai untuk memisahkan
+     * rekonsiliasi kanal tunai dari kanal bank; tanpa angka ini, saldo tunai dan saldo
+     * bank tidak bisa diuji sendiri-sendiri.
+     */
+    private BigDecimal pemasukanLainTunai;
+
     private LocalDateTime updatedAt;
 }

@@ -98,11 +98,17 @@ class ErrorHandler {
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         `;
 
-        notification.innerHTML = `
-            <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'exclamation-circle'} me-2"></i>
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
+        const icon = document.createElement('i');
+        icon.className = `fas fa-${type === 'error' ? 'exclamation-triangle' : 'exclamation-circle'} me-2`;
+        icon.setAttribute('aria-hidden', 'true');
+        const messageText = document.createElement('span');
+        messageText.textContent = String(message || 'Terjadi kesalahan.');
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.className = 'btn-close';
+        closeButton.setAttribute('aria-label', 'Tutup notifikasi');
+        closeButton.addEventListener('click', () => notification.remove());
+        notification.append(icon, messageText, closeButton);
 
         document.body.appendChild(notification);
 

@@ -1,11 +1,17 @@
 package com.projek.sipatik.services;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -15,11 +21,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import com.projek.sipatik.dto.LoginResponse;
-import com.projek.sipatik.dto.UserRequest;
 import com.projek.sipatik.models.AdminToken;
 import com.projek.sipatik.models.OtpToken;
 import com.projek.sipatik.models.Role;
@@ -36,6 +42,15 @@ import jakarta.mail.internet.MimeMessage;
 @Service
 public class AuthService {
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final int RESET_TOKEN_BYTES = 32;
+    private static final int RESET_TOKEN_TTL_MINUTES = 10;
+    private static final int OTP_TTL_MINUTES = 5;
+    private static final int OTP_RESEND_COOLDOWN_SECONDS = 60;
+    private static final int OTP_MAX_FAILED_ATTEMPTS = 5;
+    private static final int ADMIN_RESEND_COOLDOWN_SECONDS = 60;
+    private static final int MIN_NEW_PASSWORD_LENGTH = 8;
+    private static final int MAX_BCRYPT_PASSWORD_BYTES = 72;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -60,6 +75,7 @@ public class AuthService {
 
     // Generate token baru
     public AdminToken generateToken(String email) {
+        email = normalizeEmail(email);
         Users user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
 
@@ -81,6 +97,7 @@ public class AuthService {
     }
 
     // Validasi token dan return Users jika valid, null jika invalid
+    @Transactional
     public Users validateToken(String tokenInput) {
         Optional<AdminToken> tokenOpt = adminTokenRepository.findByToken(tokenInput);
         if (tokenOpt.isEmpty())
@@ -97,29 +114,36 @@ public class AuthService {
         return token.getUser();
     }
 
+    @Transactional
     public void resendToken(String email, Users user) {
+        email = normalizeEmail(email);
         LocalDateTime now = LocalDateTime.now();
 
         // ambil token terakhir
         AdminToken lastToken = adminTokenRepository.findTopByEmailOrderByCreatedAtDesc(email).orElse(null);
 
-        // if (lastToken != null) {
-        //     // reset counter kalau sudah lewat 5 menit
-        //     if (lastToken.getLastResendTime() == null || lastToken.getLastResendTime().plusMinutes(5).isBefore(now)) {
-        //         lastToken.setResendCount(0);
-        //     }
+        if (lastToken != null) {
+            LocalDateTime lastSentAt = lastToken.getLastResendTime() != null
+                    ? lastToken.getLastResendTime()
+                    : lastToken.getCreatedAt();
+            LocalDateTime bolehKirimLagi = lastSentAt == null
+                    ? now
+                    : lastSentAt.plusSeconds(ADMIN_RESEND_COOLDOWN_SECONDS);
+            if (now.isBefore(bolehKirimLagi)) {
+                long sisaDetik = Math.max(1, Duration.between(now, bolehKirimLagi).toSeconds() + 1);
+                throw new IllegalStateException(
+                        "Tunggu " + sisaDetik + " detik sebelum meminta token baru.");
+            }
+        }
 
-        //     // // kalau sudah 3x dalam 5 menit → tolak
-        //     // if (lastToken.getResendCount() >= 3) {
-        //     //     redirect.addFlashAttribute("cooldown", true);
-        //     //     redirect.addFlashAttribute("remaining",
-        //     //             Duration.between(now, lastToken.getLastResendTime().plusMinutes(5)).getSeconds());
-        //     //     return "redirect:/auth-adm/token-form?email=" + email;
-        //     // }
-        // }
+        // Cabut seluruh token login lama agar hanya token terbaru yang dapat dipakai.
+        List<AdminToken> activeTokens = adminTokenRepository.findAllByEmailAndUsedFalse(email);
+        activeTokens.forEach(activeToken -> activeToken.setUsed(true));
+        if (!activeTokens.isEmpty()) {
+            adminTokenRepository.saveAll(activeTokens);
+        }
 
-        // generate token baru (contoh pakai JWT atau UUID)
-        String newToken = jwtUtil.generateToken(user);
+        String newToken = UUID.randomUUID().toString();
 
         AdminToken token = new AdminToken();
         token.setEmail(email);
@@ -127,7 +151,10 @@ public class AuthService {
         token.setCreatedAt(now);
         token.setExpiresAt(now.plusMinutes(5));
         token.setUsed(false);
-        token.setResendCount((lastToken == null ? 0 : lastToken.getResendCount()) + 1);
+        int resendSebelumnya = lastToken == null || lastToken.getResendCount() == null
+                ? 0
+                : lastToken.getResendCount();
+        token.setResendCount(resendSebelumnya + 1);
         token.setLastResendTime(now);
         token.setUser(user);
 
@@ -173,31 +200,15 @@ public class AuthService {
             mailSender.send(mimeMessage);
 
         } catch (MessagingException e) {
-            log.error("Failed to send token email to: {}", email, e);
-        }
-    }
-
-    public boolean cekUserValid(String nama, Long angkatan, String email) {
-        return userRepository.findByNamaAndAngkatanAndEmail(nama, angkatan, email).isPresent();
-    }
-
-    public void updateLupaPassword(String email, String newPassword) {
-        Optional<Users> optionalUser = userRepository.findByEmail(email);
-
-        if (optionalUser.isPresent()) {
-            Users user = optionalUser.get();
-
-            String hashedPassword = passwordEncoder.encode(newPassword);
-            user.setPassword(hashedPassword);
-
-            userRepository.save(user);
+            log.error("Failed to send admin login token email", e);
         }
     }
 
     public String generateOtp() {
-        Random random = new Random();
-        Long otp = 100000 + random.nextLong(999999);
-        return String.valueOf(otp);
+        // nextInt(900000) menghasilkan 0..899999, sehingga hasil akhir selalu
+        // tepat enam digit dalam rentang 100000..999999.
+        int otp = 100000 + SECURE_RANDOM.nextInt(900000);
+        return Integer.toString(otp);
     }
 
     public void sendOtpEmail(String toEmail, String otp, String nama) {
@@ -209,7 +220,6 @@ public class AuthService {
             Context context = new Context();
             context.setVariable("otp", otp);
             context.setVariable("nama", nama);
-            log.debug("Generated OTP for {}: {}", toEmail, otp);
 
             // nge-generate isi email dari html
             String htmlContent = templateEngine.process("html/auth/email-otp", context);
@@ -221,85 +231,194 @@ public class AuthService {
             javaMailSender.send(message);
 
         } catch (MessagingException e) {
-            log.error("Failed to send OTP email to: {}", toEmail, e);
+            log.error("Failed to send password reset email", e);
             throw new RuntimeException("Gagal mengirim email", e);
         }
     }
 
-    public void createAndSendOtp(Users user) {
+    @Transactional
+    public void createAndSendOtp(Users requestedUser) {
+        if (requestedUser == null || requestedUser.getId() == null) {
+            throw new IllegalStateException("Akun tidak valid.");
+        }
+
+        Users user = userRepository.findByIdForUpdate(requestedUser.getId())
+                .orElseThrow(() -> new IllegalStateException("Akun tidak valid."));
+        if (user.getRole() != Role.USER || user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new IllegalStateException("Akun tidak valid.");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        OtpToken latest = otpTokenRepository.findTopByUserIdOrderByIdDesc(user.getId()).orElse(null);
+        if (latest != null) {
+            LocalDateTime sentAt = latest.getCreatedAt();
+            if (sentAt == null && latest.getExpiredAt() != null) {
+                sentAt = latest.getExpiredAt().minusMinutes(OTP_TTL_MINUTES);
+            }
+            if (sentAt != null && now.isBefore(sentAt.plusSeconds(OTP_RESEND_COOLDOWN_SECONDS))) {
+                long remaining = Math.max(1,
+                        Duration.between(now, sentAt.plusSeconds(OTP_RESEND_COOLDOWN_SECONDS)).toSeconds() + 1);
+                throw new IllegalStateException("Tunggu " + remaining + " detik sebelum meminta kode baru.");
+            }
+        }
+
+        List<OtpToken> activeTokens = otpTokenRepository.findAllByUserIdAndVerifiedFalse(user.getId());
+        activeTokens.forEach(token -> token.setVerified(true));
+        if (!activeTokens.isEmpty()) {
+            otpTokenRepository.saveAll(activeTokens);
+        }
+
         String otp = generateOtp();
 
         OtpToken otpToken = new OtpToken();
         otpToken.setOtp(otp);
         otpToken.setUser(user);
         otpToken.setEmail(user.getEmail());
-        otpToken.setExpiredAt(LocalDateTime.now().plusMinutes(5));
+        otpToken.setCreatedAt(now);
+        otpToken.setExpiredAt(now.plusMinutes(OTP_TTL_MINUTES));
+        otpToken.setFailedAttempts(0);
 
         otpTokenRepository.save(otpToken);
         sendOtpEmail(user.getEmail(), otp, user.getNama());
     }
 
-    public void validasiDaftar(Long id, UserRequest request, Map<String, String> errors) {
-        Users user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User tidak ditemukan."));
-        // if(user == null){
-        // return "html/not-found";
-        // }
-
-        // validasi nomor
-        request.normalizeNomorWa();
-
-        // validasi email
-        String email = request.getEmail();
-        if (email == null || email.isBlank()) {
-            errors.put("email", "Email tidak boleh kosong.");
-        } else if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-            errors.put("email", "Format email tidak valid");
-        } else if (!email.equals(user.getEmail()) && userRepository.existsByEmail(email)) {
-            errors.put("email", "Email sudah digunakan");
+    /**
+     * Memverifikasi OTP di dalam lock database lalu menerbitkan grant reset yang
+     * terikat ke satu akun. Hanya hash grant disimpan; token mentah diberikan ke
+     * controller untuk cookie HttpOnly.
+     */
+    @Transactional(noRollbackFor = OtpVerificationException.class)
+    public PasswordResetGrant verifyOtpAndIssuePasswordReset(Long userId, String otp) {
+        if (userId == null || otp == null || otp.isBlank()) {
+            throw new IllegalStateException("Kode OTP tidak valid atau kedaluwarsa.");
         }
 
-        // validasi pass
-        String password = request.getPassword();
-        if (password == null || password.isBlank()) {
-            errors.put("password", "Password tidak boleh kosong.");
-        } else if (password.length() < 6 || password.length() > 8) {
-            errors.put("password", "Password harus 6-8 karakter");
-        } else if (!password.matches("^[A-Z][A-Za-z0-9]*$")) {
-            errors.put("password", "Password harus diawali huruf kapital dan berisi huruf/angka");
+        OtpToken otpToken = otpTokenRepository.findTopByUserIdAndVerifiedFalseOrderByIdDesc(userId)
+                .orElseThrow(() -> new IllegalStateException("Kode OTP tidak valid atau kedaluwarsa."));
+        LocalDateTime now = LocalDateTime.now();
+        int failedAttempts = otpToken.getFailedAttempts() == null ? 0 : otpToken.getFailedAttempts();
+        if (otpToken.isVerified()
+                || otpToken.getExpiredAt() == null
+                || !otpToken.getExpiredAt().isAfter(now)
+                || otpToken.getOtp() == null
+                || otpToken.getUser() == null
+                || otpToken.getUser().getRole() != Role.USER
+                || failedAttempts >= OTP_MAX_FAILED_ATTEMPTS) {
+            throw new IllegalStateException("Kode OTP tidak valid atau kedaluwarsa.");
         }
 
-        // validasi nomor
-        String nomorHp = request.getNomorHp();
-        if (nomorHp == null || nomorHp.isBlank()) {
-            errors.put("nomorHp", "Nomor HP tidak boleh kosong");
-        } else if (!nomorHp.matches("^08[0-9]{9,11}$")) {
-            errors.put("nomorHp", "Nomor WA harus diawali 08 dan 11-13 digit");
-        }
-
-        // validasi jenjang
-        String jenjang = request.getJenjang();
-        if (jenjang == null || jenjang.isBlank()) {
-            errors.put("jenjang", "Jenjang wajib dipilih.");
-        } else if (!jenjang.equalsIgnoreCase("S1") && !jenjang.equalsIgnoreCase("D3")) {
-            errors.put("jenjang", "Jenjang hanya boleh S1 atau D3.");
-        }
-
-        // Jika tidak ada error, simpan
-        if (errors.isEmpty()) {
-            user.setEmail(email);
-            user.setPassword(passwordEncoder.encode(password));
-            user.setNomorHp(nomorHp);
-            user.setJenjang(jenjang);
-            if (user.getRole() == null) {
-                user.setRole(Role.USER);
+        boolean otpMatches = MessageDigest.isEqual(
+                otpToken.getOtp().getBytes(StandardCharsets.UTF_8),
+                otp.trim().getBytes(StandardCharsets.UTF_8));
+        if (!otpMatches) {
+            failedAttempts++;
+            otpToken.setFailedAttempts(failedAttempts);
+            if (failedAttempts >= OTP_MAX_FAILED_ATTEMPTS) {
+                otpToken.setVerified(true);
             }
-            userRepository.save(user);
+            otpTokenRepository.save(otpToken);
+            // Exception khusus ini tidak me-rollback transaksi, sehingga penghitung
+            // percobaan salah benar-benar tersimpan sebelum respons ditolak.
+            throw new OtpVerificationException();
         }
 
+        byte[] tokenBytes = new byte[RESET_TOKEN_BYTES];
+        SECURE_RANDOM.nextBytes(tokenBytes);
+        String rawToken = Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+
+        otpToken.setVerified(true);
+        otpToken.setResetTokenHash(hashResetToken(rawToken));
+        otpToken.setResetExpiresAt(now.plusMinutes(RESET_TOKEN_TTL_MINUTES));
+        otpToken.setResetUsed(false);
+        otpTokenRepository.save(otpToken);
+
+        Users user = otpToken.getUser();
+        return new PasswordResetGrant(rawToken, user.getNama(), user.getAngkatan(), user.getEmail());
+    }
+
+    public Optional<PasswordResetAccount> findActivePasswordReset(String rawToken) {
+        if (rawToken == null || rawToken.isBlank()) {
+            return Optional.empty();
+        }
+
+        return otpTokenRepository.findByResetTokenHash(hashResetToken(rawToken))
+                .filter(this::isActivePasswordReset)
+                .map(token -> {
+                    Users user = token.getUser();
+                    return new PasswordResetAccount(user.getNama(), user.getAngkatan(), user.getEmail());
+                });
+    }
+
+    /**
+     * Lock pesimistis membuat pemeriksaan, perubahan password, dan penandaan token
+     * sebagai terpakai menjadi satu transaksi. Dua POST paralel tidak dapat memakai
+     * grant yang sama.
+     */
+    @Transactional
+    public PasswordResetAccount consumePasswordReset(String rawToken, String newPassword) {
+        validateNewPassword(newPassword);
+        if (rawToken == null || rawToken.isBlank()) {
+            throw new IllegalStateException("Sesi reset password tidak valid atau telah berakhir.");
+        }
+
+        OtpToken resetToken = otpTokenRepository
+                .findByResetTokenHashForUpdate(hashResetToken(rawToken))
+                .orElseThrow(() -> new IllegalStateException(
+                        "Sesi reset password tidak valid atau telah berakhir."));
+        if (!isActivePasswordReset(resetToken)) {
+            throw new IllegalStateException("Sesi reset password tidak valid atau telah berakhir.");
+        }
+
+        Users user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        resetToken.setResetUsed(true);
+        userRepository.save(user);
+        otpTokenRepository.save(resetToken);
+
+        return new PasswordResetAccount(user.getNama(), user.getAngkatan(), user.getEmail());
+    }
+
+    private boolean isActivePasswordReset(OtpToken token) {
+        return token.isVerified()
+                && !Boolean.TRUE.equals(token.getResetUsed())
+                && token.getResetExpiresAt() != null
+                && token.getResetExpiresAt().isAfter(LocalDateTime.now())
+                && token.getUser() != null
+                && token.getUser().getRole() == Role.USER;
+    }
+
+    private void validateNewPassword(String password) {
+        if (password == null || password.isBlank()
+                || password.length() < MIN_NEW_PASSWORD_LENGTH
+                || password.getBytes(StandardCharsets.UTF_8).length > MAX_BCRYPT_PASSWORD_BYTES) {
+            throw new IllegalArgumentException(
+                    "Password minimal 8 karakter dan tidak boleh terlalu panjang.");
+        }
+    }
+
+    private String hashResetToken(String rawToken) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return HexFormat.of().formatHex(digest.digest(rawToken.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 tidak tersedia", e);
+        }
+    }
+
+    public record PasswordResetGrant(String token, String nama, Long angkatan, String email) {
+    }
+
+    public record PasswordResetAccount(String nama, Long angkatan, String email) {
+    }
+
+    private static final class OtpVerificationException extends IllegalStateException {
+        private OtpVerificationException() {
+            super("Kode OTP tidak valid atau kedaluwarsa.");
+        }
     }
 
     public LoginResponse validateLogin(String email, String password) {
+        email = normalizeEmail(email);
         // validasi email
         if (email == null || email.isBlank()) {
             throw new FieldValidationException("email", "Email tidak boleh kosong.");
@@ -312,8 +431,11 @@ public class AuthService {
         if (password == null || password.isBlank()) {
             throw new FieldValidationException("password", "Password tidak boleh kosong.");
         }
-        if (password.length() < 6 || password.length() > 8) {
-            throw new FieldValidationException("password", "Password harus 6-8 karakter.");
+        // Akun lama mungkin masih memiliki password enam karakter. Saat login kita
+        // hanya membatasi panjang aman BCrypt; kebijakan minimal delapan karakter
+        // diterapkan ketika membuat atau mengganti password.
+        if (password.getBytes(StandardCharsets.UTF_8).length > MAX_BCRYPT_PASSWORD_BYTES) {
+            throw new FieldValidationException("password", "Password terlalu panjang.");
         }
         // Remove strict password pattern validation that was causing admin login to fail
         // The original pattern ^[A-Z][A-Za-z0-9]*$ was too restrictive
@@ -334,6 +456,10 @@ public class AuthService {
         String token = jwtUtil.generateToken(user);
 
         return new LoginResponse(token, user.getEmail(), user.getNama(), user.getAngkatan(), user.getRole());
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase(java.util.Locale.ROOT);
     }
 
 }

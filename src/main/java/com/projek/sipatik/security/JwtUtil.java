@@ -37,7 +37,7 @@ public class JwtUtil {
                 .claim("nama", user.getNama())
                 .claim("angkatan", user.getAngkatan())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1 hari
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1 jam
                 .signWith(kunci, SignatureAlgorithm.HS256)
                 .compact();
     }

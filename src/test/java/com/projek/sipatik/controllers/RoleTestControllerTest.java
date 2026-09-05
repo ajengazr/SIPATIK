@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -42,7 +43,11 @@ public class RoleTestControllerTest {
     @WithMockUser(roles = "USER")
     void testAdminOnlyEndpointWithUserRole() throws Exception {
         mockMvc.perform(get("/api/test/admin-only"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.error").value("Forbidden"))
+                .andExpect(jsonPath("$.path").value("/api/test/admin-only"));
     }
 
     @Test
@@ -57,7 +62,30 @@ public class RoleTestControllerTest {
     @WithMockUser(roles = "ADMIN")
     void testUserOnlyEndpointWithAdminRole() throws Exception {
         mockMvc.perform(get("/api/test/user-only"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.error").value("Forbidden"))
+                .andExpect(jsonPath("$.path").value("/api/test/user-only"));
+    }
+
+    @Test
+    void testProtectedApiWithoutAuthentication() throws Exception {
+        mockMvc.perform(get("/api/test/admin-only"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.error").value("Unauthorized"))
+                .andExpect(jsonPath("$.path").value("/api/test/admin-only"));
+    }
+
+    @Test
+    void testLandingPageAndFaviconArePublic() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("html/landing-page"));
+        mockMvc.perform(get("/favicon.ico"))
+                .andExpect(status().isNoContent());
     }
 }
 

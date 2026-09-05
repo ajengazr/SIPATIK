@@ -4,113 +4,184 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.projek.sipatik.models.JenisPengeluaran;
 import com.projek.sipatik.models.KategoriBeban;
 import com.projek.sipatik.models.LaporanKas;
 import com.projek.sipatik.repositories.LaporanKasRepository;
 import com.projek.sipatik.repositories.PengeluaranRepository;
 import com.projek.sipatik.repositories.SetorInfakRepository;
-
+import com.projek.sipatik.repositories.AlumniInvitationRepository;
+import com.projek.sipatik.repositories.UserRepository;
+import com.projek.sipatik.models.Users;
+import com.projek.sipatik.models.Role;
 
 @Service
 public class AdminService {
 
+    private static final String[] NAMA_BULAN = {
+            "", "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
+            "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
+    };
+
+    /** Bank yang punya kolom saldo sendiri di laporan kas. */
+    private static final List<String> BANK_UTAMA = List.of("BCA", "MANDIRI", "BNI");
+
     private final SetorInfakRepository setorInfakRepo;
     private final PengeluaranRepository pengeluaranRepo;
     private final LaporanKasRepository laporanKasRepo;
+    private final AlumniInvitationRepository alumniInvitationRepo;
+    private final UserRepository userRepo;
 
-     public AdminService(SetorInfakRepository setorInfakRepo,
-                        PengeluaranRepository pengeluaranRepo,
-                        LaporanKasRepository laporanKasRepo) {
+    public AdminService(SetorInfakRepository setorInfakRepo,
+            PengeluaranRepository pengeluaranRepo,
+            LaporanKasRepository laporanKasRepo,
+            AlumniInvitationRepository alumniInvitationRepo,
+            UserRepository userRepo) {
         this.setorInfakRepo = setorInfakRepo;
         this.pengeluaranRepo = pengeluaranRepo;
         this.laporanKasRepo = laporanKasRepo;
+        this.alumniInvitationRepo = alumniInvitationRepo;
+        this.userRepo = userRepo;
+    }
+
+    /**
+     * Menghapus alumni dan undangannya dalam satu transaksi. Riwayat infak tetap
+     * menjadi penghalang karena menghapusnya akan mengubah laporan keuangan lama.
+     */
+    @Transactional
+    public AlumniDeletionResult deleteAlumni(Long id) {
+        Users alumni = userRepo.findByIdForUpdate(id).orElse(null);
+        if (alumni == null || alumni.getRole() != Role.USER) {
+            return new AlumniDeletionResult(AlumniDeletionStatus.NOT_FOUND, null, 0);
+        }
+
+        long jumlahInfak = setorInfakRepo.countByUser(alumni);
+        if (jumlahInfak > 0) {
+            return new AlumniDeletionResult(AlumniDeletionStatus.HAS_INFAK, alumni.getNama(), jumlahInfak);
+        }
+
+        alumniInvitationRepo.deleteByUserId(id);
+        alumniInvitationRepo.flush();
+        userRepo.delete(alumni);
+        userRepo.flush();
+        return new AlumniDeletionResult(AlumniDeletionStatus.DELETED, alumni.getNama(), 0);
+    }
+
+    public enum AlumniDeletionStatus {
+        DELETED,
+        NOT_FOUND,
+        HAS_INFAK
+    }
+
+    public record AlumniDeletionResult(AlumniDeletionStatus status, String nama, long jumlahInfak) {
     }
 
     public List<Integer> getTahunList() {
         int tahunSekarang = Year.now().getValue();
-        int tahunMulai = tahunSekarang - 5; // 5 tahun terakhir
+        int tahunMulai = tahunSekarang - 5;
         return IntStream.rangeClosed(tahunMulai, tahunSekarang)
                 .boxed()
+                .sorted((a, b) -> Integer.compare(b, a))
                 .collect(Collectors.toList());
     }
 
+    // =====================================================================
+    // Dashboard
+    // =====================================================================
+
+    /**
+     * Ringkasan dashboard admin.
+     *
+     * Angka di sini diturunkan dari builder laporan kas yang sama supaya
+     * "kenaikan kas" di dashboard dan di halaman Laporan Kas tidak lagi memakai
+     * dua rumus berbeda (dulu dashboard mengabaikan infak & pendapatan lain-lain).
+     */
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public Map<String, Object> getDashboardData() {
         LocalDate now = LocalDate.now();
+        Map<String, Object> laporan = buildDataLaporanKas(now.getYear(), now.getMonthValue());
 
-        // Hitung awal dan akhir bulan
-        LocalDate start = now.withDayOfMonth(1);
-        LocalDate end = now.withDayOfMonth(now.lengthOfMonth());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> pemasukan = (Map<String, Object>) laporan.get("pemasukan");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> pengeluaran = (Map<String, Object>) laporan.get("pengeluaran");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> saldoAwal = (Map<String, Object>) laporan.get("saldoAwal");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> saldoAkhir = (Map<String, Object>) laporan.get("saldoAkhir");
 
-        // Ambil data infak dan pengeluaran (bulan berjalan)
-        BigDecimal totalInfak = setorInfakRepo.totalInfakBulanan(start, end);
-        BigDecimal totalPengeluaran = pengeluaranRepo.totalPengeluaranPerBulan(start, end);
-
-        // Pastikan tidak null
-        if (totalInfak == null) totalInfak = BigDecimal.ZERO;
-        if (totalPengeluaran == null) totalPengeluaran = BigDecimal.ZERO;
-
-        // Ambil kas awal/akhir dari LaporanKas untuk bulan & tahun berjalan
-        LaporanKas kas = laporanKasRepo.findByTahunAndBulan(now.getYear(), now.getMonthValue()).orElse(null);
-
-        BigDecimal kasAwal = BigDecimal.ZERO;
-        BigDecimal kasAkhir = BigDecimal.ZERO;
-
-        if (kas != null) {
-            BigDecimal awalBca = kas.getKasAwalBca() == null ? BigDecimal.ZERO : kas.getKasAwalBca();
-            BigDecimal awalMandiri = kas.getKasAwalMandiri() == null ? BigDecimal.ZERO : kas.getKasAwalMandiri();
-            BigDecimal awalTunai = kas.getKasAwalTunai() == null ? BigDecimal.ZERO : kas.getKasAwalTunai();
-            BigDecimal awalBni = kas.getKasAwalBni() == null ? BigDecimal.ZERO : kas.getKasAwalBni();
-            kasAwal = kas.getTotalKasAwal() != null ? kas.getTotalKasAwal()
-                    : awalBca.add(awalMandiri).add(awalTunai).add(awalBni);
-
-            BigDecimal akhirBca = kas.getKasAkhirBca() == null ? BigDecimal.ZERO : kas.getKasAkhirBca();
-            BigDecimal akhirMandiri = kas.getKasAkhirMandiri() == null ? BigDecimal.ZERO : kas.getKasAkhirMandiri();
-            BigDecimal akhirTunai = kas.getKasAkhirTunai() == null ? BigDecimal.ZERO : kas.getKasAkhirTunai();
-            BigDecimal akhirBni = kas.getKasAkhirBni() == null ? BigDecimal.ZERO : kas.getKasAkhirBni();
-            kasAkhir = kas.getTotalKasAkhir() != null ? kas.getTotalKasAkhir()
-                    : akhirBca.add(akhirMandiri).add(akhirTunai).add(akhirBni);
-        }
-
-        BigDecimal selisih = totalInfak.subtract(totalPengeluaran);
-        String statusNaikTurun = selisih.compareTo(BigDecimal.ZERO) >= 0 ? "NAIK" : "TURUN";
+        BigDecimal totalInfak = (BigDecimal) pemasukan.get("totalInfak");
+        BigDecimal totalPemasukan = (BigDecimal) pemasukan.get("total");
+        BigDecimal totalPengeluaran = (BigDecimal) pengeluaran.get("total");
+        BigDecimal kenaikanKas = (BigDecimal) laporan.get("kenaikanKas");
 
         Map<String, Object> data = new HashMap<>();
         data.put("totalInfak", totalInfak);
+        data.put("totalPemasukan", totalPemasukan);
         data.put("totalPengeluaran", totalPengeluaran);
-        data.put("NaikTurun", selisih);
-        data.put("statusNaikTurun", statusNaikTurun);
-        data.put("KasAwal", kasAwal);
-        data.put("KasAkhir", kasAkhir);
-
+        data.put("NaikTurun", kenaikanKas);
+        data.put("statusNaikTurun", kenaikanKas.compareTo(BigDecimal.ZERO) > 0
+                ? "SURPLUS"
+                : kenaikanKas.compareTo(BigDecimal.ZERO) < 0 ? "DEFISIT" : "NETRAL");
+        data.put("KasAwal", saldoAwal.get("total"));
+        data.put("KasAkhir", saldoAkhir.get("total"));
+        data.put("namaBulan", laporan.get("namaBulan"));
+        data.put("tahun", laporan.get("tahun"));
+        data.put("adaInputKas", laporan.get("adaInputKas"));
+        data.put("kasAkhirSeharusnya", laporan.get("kasAkhirSeharusnya"));
+        data.put("kasSeimbang", laporan.get("kasSeimbang"));
+        data.put("selisihKas", laporan.get("selisihKas"));
         return data;
     }
 
+    // =====================================================================
+    // Laporan kas
+    // =====================================================================
+
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public Map<String, Object> buildDataLaporanKas(Integer tahun, Integer bulan) {
         LocalDate start = LocalDate.of(tahun, bulan, 1);
         LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
 
-        // Pemasukan dari SetorInfak (confirmed)
-        BigDecimal bca = sumInfakByBank("BCA", start, end);
-        BigDecimal mandiri = sumInfakByBank("MANDIRI", start, end);
-
-        // Ambil data manual dari LaporanKas
         LaporanKas kas = laporanKasRepo.findByTahunAndBulan(tahun, bulan).orElse(null);
-        BigDecimal lainLain = kas != null && kas.getInfakLainLain() != null ? kas.getInfakLainLain() : BigDecimal.ZERO;
-        BigDecimal pendapatanLain = kas != null && kas.getPendapatanLainLain() != null
-                ? kas.getPendapatanLainLain()
-                : BigDecimal.ZERO;
-        BigDecimal zis = BigDecimal.ZERO; // placeholder
-        BigDecimal bungaBank = BigDecimal.ZERO; // placeholder
 
-        BigDecimal totalPemasukan = bca.add(mandiri).add(lainLain).add(pendapatanLain).add(zis).add(bungaBank);
+        // ---- Pemasukan infak, dikelompokkan per bank langsung dari database ----
+        Map<String, BigDecimal> infakPerBank = sumInfakPerBank(start, end);
+        BigDecimal totalInfak = infakPerBank.values().stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // Nilai dari instalasi lama bisa memakai nama bank di luar rekening yang punya
+        // kolom saldo (atau bahkan null). Uangnya tetap masuk total pemasukan, tetapi
+        // rekonsiliasi per kanal tidak boleh mengklaim seimbang karena saldo akhirnya
+        // tidak memiliki tempat yang setara untuk dibandingkan.
+        BigDecimal infakBankTidakTerpetakan = infakPerBank.entrySet().stream()
+                .filter(entry -> !BANK_UTAMA.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Pengeluaran per kategori
+        BigDecimal lainLain = nilai(kas == null ? null : kas.getInfakLainLain());
+        BigDecimal pendapatanLain = nilai(kas == null ? null : kas.getPendapatanLainLain());
+        // ZIS dan bunga bank sekarang benar-benar diambil dari input bendahara,
+        // bukan lagi konstanta nol yang menyamar sebagai data di laporan.
+        BigDecimal zis = nilai(kas == null ? null : kas.getZis());
+        BigDecimal bungaBank = nilai(kas == null ? null : kas.getBungaBank());
+
+        BigDecimal totalPemasukan = totalInfak
+                .add(lainLain).add(pendapatanLain).add(zis).add(bungaBank);
+
+        // ---- Pengeluaran per kategori ----
         Map<String, BigDecimal> pengeluaranMap = new LinkedHashMap<>();
         pengeluaranMap.put("ketuaKeamanan", total(KategoriBeban.KETUA_KEAMANAN, start, end));
         pengeluaranMap.put("bendahara", total(KategoriBeban.BENDAHARA, start, end));
@@ -128,161 +199,334 @@ public class AdminService {
         pengeluaranMap.put("kantor", total(KategoriBeban.KANTOR_PUB, start, end));
         pengeluaranMap.put("lainLain", total(KategoriBeban.LAIN_LAIN, start, end));
 
-        BigDecimal totalPengeluaran = pengeluaranMap.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalPengeluaran = pengeluaranMap.values().stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Ambil/susun kas manual yang tersimpan (BigDecimal)
-        BigDecimal awalBca = kas != null && kas.getKasAwalBca() != null ? kas.getKasAwalBca() : BigDecimal.ZERO;
-        BigDecimal awalMandiri = kas != null && kas.getKasAwalMandiri() != null ? kas.getKasAwalMandiri() : BigDecimal.ZERO;
-        BigDecimal awalTunai = kas != null && kas.getKasAwalTunai() != null ? kas.getKasAwalTunai() : BigDecimal.ZERO;
-        BigDecimal awalBni = kas != null && kas.getKasAwalBni() != null ? kas.getKasAwalBni() : BigDecimal.ZERO;
-        BigDecimal totalAwal = kas != null && kas.getTotalKasAwal() != null ? kas.getTotalKasAwal()
-                : awalBca.add(awalMandiri).add(awalTunai).add(awalBni);
+        // Pemecahan per kanal. Kolom "jenis" sudah lama dicatat pada tiap pengeluaran
+        // tapi tidak pernah dipakai laporan, sehingga saldo tunai dan saldo bank
+        // tidak bisa diuji sendiri-sendiri.
+        BigDecimal pengeluaranTunai = nilai(
+                pengeluaranRepo.totalByJenisAndRange(JenisPengeluaran.KAS_TUNAI, start, end));
+        BigDecimal pengeluaranBank = nilai(
+                pengeluaranRepo.totalByJenisAndRange(JenisPengeluaran.BANK, start, end));
+        BigDecimal pengeluaranTanpaKanal = totalPengeluaran
+                .subtract(pengeluaranTunai).subtract(pengeluaranBank);
 
-        BigDecimal akhirBca = kas != null && kas.getKasAkhirBca() != null ? kas.getKasAkhirBca() : BigDecimal.ZERO;
-        BigDecimal akhirMandiri = kas != null && kas.getKasAkhirMandiri() != null ? kas.getKasAkhirMandiri() : BigDecimal.ZERO;
-        BigDecimal akhirTunai = kas != null && kas.getKasAkhirTunai() != null ? kas.getKasAkhirTunai() : BigDecimal.ZERO;
-        BigDecimal akhirBni = kas != null && kas.getKasAkhirBni() != null ? kas.getKasAkhirBni() : BigDecimal.ZERO;
-        BigDecimal totalAkhir = kas != null && kas.getTotalKasAkhir() != null ? kas.getTotalKasAkhir()
-                : akhirBca.add(akhirMandiri).add(akhirTunai).add(akhirBni);
+        BigDecimal kenaikanKas = totalPemasukan.subtract(totalPengeluaran);
 
-        // Format nama bulan dalam bahasa Indonesia
-        String[] namaBulan = {
-            "", "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
-            "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
-        };
-        
+        // ---- Saldo kas (input manual bendahara) ----
+        BigDecimal awalBca = nilai(kas == null ? null : kas.getKasAwalBca());
+        BigDecimal awalMandiri = nilai(kas == null ? null : kas.getKasAwalMandiri());
+        BigDecimal awalTunai = nilai(kas == null ? null : kas.getKasAwalTunai());
+        BigDecimal awalBni = nilai(kas == null ? null : kas.getKasAwalBni());
+        BigDecimal totalAwal = awalBca.add(awalMandiri).add(awalTunai).add(awalBni);
+
+        BigDecimal akhirBca = nilai(kas == null ? null : kas.getKasAkhirBca());
+        BigDecimal akhirMandiri = nilai(kas == null ? null : kas.getKasAkhirMandiri());
+        BigDecimal akhirTunai = nilai(kas == null ? null : kas.getKasAkhirTunai());
+        BigDecimal akhirBni = nilai(kas == null ? null : kas.getKasAkhirBni());
+        BigDecimal totalAkhir = akhirBca.add(akhirMandiri).add(akhirTunai).add(akhirBni);
+
+        // ---- Rekonsiliasi: mutasi harus menjelaskan perubahan saldo ----
+        BigDecimal kasAkhirSeharusnya = totalAwal.add(kenaikanKas);
+        BigDecimal selisihKas = totalAkhir.subtract(kasAkhirSeharusnya);
+        boolean adaInputKas = kas != null;
+        boolean kasSeimbang = !adaInputKas || selisihKas.compareTo(BigDecimal.ZERO) == 0;
+
+        // ---- Rekonsiliasi per kanal ----
+        // Semua infak alumni masuk lewat rekening, jadi kanal tunai hanya menerima
+        // bagian pemasukan manual yang dinyatakan diterima tunai oleh bendahara.
+        BigDecimal pemasukanTunai = nilai(kas == null ? null : kas.getPemasukanLainTunai());
+        BigDecimal pemasukanBank = totalPemasukan.subtract(pemasukanTunai);
+
+        BigDecimal awalBank = awalBca.add(awalMandiri).add(awalBni);
+        BigDecimal akhirBank = akhirBca.add(akhirMandiri).add(akhirBni);
+
+        BigDecimal bankSeharusnya = awalBank.add(pemasukanBank).subtract(pengeluaranBank);
+        BigDecimal tunaiSeharusnya = awalTunai.add(pemasukanTunai).subtract(pengeluaranTunai);
+        BigDecimal selisihBank = akhirBank.subtract(bankSeharusnya);
+        BigDecimal selisihTunai = akhirTunai.subtract(tunaiSeharusnya);
+
+        // Pemecahan per kanal hanya bermakna bila setiap pengeluaran punya jenis dan
+        // setiap setoran mengarah ke rekening yang memiliki kolom saldo pada laporan.
+        boolean kanalBisaDicek = adaInputKas
+                && pengeluaranTanpaKanal.compareTo(BigDecimal.ZERO) == 0
+                && infakBankTidakTerpetakan.compareTo(BigDecimal.ZERO) == 0;
+        boolean bankSeimbang = !kanalBisaDicek || selisihBank.compareTo(BigDecimal.ZERO) == 0;
+        boolean tunaiSeimbang = !kanalBisaDicek || selisihTunai.compareTo(BigDecimal.ZERO) == 0;
+
+        // ---- Peringatan hitung ganda ----
+        // Setoran offline yang sudah diinput lewat "Tambah Infak Manual" ikut terhitung
+        // di total infak alumni. Bila nominalnya juga dimasukkan ke "infak lain-lain",
+        // uang yang sama tercatat dua kali.
+        BigDecimal infakManualPeriodeIni = nilai(setorInfakRepo.totalInfakManualBetween(start, end));
+        boolean risikoHitungGanda = lainLain.compareTo(BigDecimal.ZERO) > 0
+                && infakManualPeriodeIni.compareTo(BigDecimal.ZERO) > 0;
+
+        // ---- Sambungan saldo antar bulan ----
+        LocalDate bulanLalu = start.minusMonths(1);
+        LaporanKas kasBulanLalu = laporanKasRepo
+                .findByTahunAndBulan(bulanLalu.getYear(), bulanLalu.getMonthValue())
+                .orElse(null);
+        BigDecimal kasAwalDisarankan = kasBulanLalu == null ? null : totalKasAkhir(kasBulanLalu);
+        boolean kasAwalNyambung = kasAwalDisarankan == null || !adaInputKas
+                || kasAwalDisarankan.compareTo(totalAwal) == 0;
+
         Map<String, Object> model = new HashMap<>();
-        model.put("namaBulan", namaBulan[bulan]);
+        model.put("namaBulan", NAMA_BULAN[bulan]);
         model.put("tahun", tahun);
 
         Map<String, Object> pemasukan = new HashMap<>();
-        pemasukan.put("bca", bca);
-        pemasukan.put("mandiri", mandiri);
+        // Kunci per bank utama tetap ada agar tampilan lama tidak berubah bentuk.
+        pemasukan.put("bca", infakPerBank.getOrDefault("BCA", BigDecimal.ZERO));
+        pemasukan.put("mandiri", infakPerBank.getOrDefault("MANDIRI", BigDecimal.ZERO));
+        pemasukan.put("bni", infakPerBank.getOrDefault("BNI", BigDecimal.ZERO));
         pemasukan.put("lainLain", lainLain);
         pemasukan.put("pendapatanLain", pendapatanLain);
         pemasukan.put("zis", zis);
         pemasukan.put("bungaBank", bungaBank);
+        pemasukan.put("tunai", nilai(kas == null ? null : kas.getPemasukanLainTunai()));
+        pemasukan.put("totalInfak", totalInfak);
         pemasukan.put("total", totalPemasukan);
+        // Baris infak dari bank di luar daftar utama, supaya tidak ada nominal yang hilang.
+        pemasukan.put("bankLain", bankDiLuarDaftarUtama(infakPerBank));
         model.put("pemasukan", pemasukan);
+        model.put("infakPerBank", infakPerBank);
 
         Map<String, Object> pengeluaran = new HashMap<>(pengeluaranMap);
         pengeluaran.put("total", totalPengeluaran);
+        // Sengaja memakai awalan kanal*: kunci "bank" sudah dipakai untuk kategori
+        // beban Bank, bukan untuk kanal pembayaran.
+        pengeluaran.put("kanalTunai", pengeluaranTunai);
+        pengeluaran.put("kanalBank", pengeluaranBank);
+        pengeluaran.put("kanalTanpaJenis", pengeluaranTanpaKanal);
         model.put("pengeluaran", pengeluaran);
 
-        model.put("kenaikanKas", totalPemasukan.subtract(totalPengeluaran));
+        model.put("kenaikanKas", kenaikanKas);
 
-        Map<String, Object> saldoAwal = Map.of(
+        model.put("saldoAwal", Map.of(
                 "bca", awalBca,
                 "mandiri", awalMandiri,
                 "tunai", awalTunai,
                 "bni", awalBni,
-                "total", totalAwal);
-        Map<String, Object> saldoAkhir = Map.of(
+                "total", totalAwal));
+        model.put("saldoAkhir", Map.of(
                 "bca", akhirBca,
                 "mandiri", akhirMandiri,
                 "tunai", akhirTunai,
                 "bni", akhirBni,
-                "total", totalAkhir);
-        model.put("saldoAwal", saldoAwal);
-        model.put("saldoAkhir", saldoAkhir);
+                "total", totalAkhir));
+
+        // Rekonsiliasi per kanal.
+        model.put("kanalBisaDicek", kanalBisaDicek);
+        model.put("pemasukanTunai", pemasukanTunai);
+        model.put("pemasukanBank", pemasukanBank);
+        model.put("infakBankTidakTerpetakan", infakBankTidakTerpetakan);
+        model.put("awalBank", awalBank);
+        model.put("akhirBank", akhirBank);
+        model.put("bankSeharusnya", bankSeharusnya);
+        model.put("tunaiSeharusnya", tunaiSeharusnya);
+        model.put("selisihBank", selisihBank);
+        model.put("selisihTunai", selisihTunai);
+        model.put("bankSeimbang", bankSeimbang);
+        model.put("tunaiSeimbang", tunaiSeimbang);
+
+        // Peringatan potensi hitung ganda infak lain-lain.
+        model.put("risikoHitungGanda", risikoHitungGanda);
+        model.put("infakManualPeriodeIni", infakManualPeriodeIni);
+
+        // Blok rekonsiliasi yang ditampilkan di halaman laporan.
+        model.put("adaInputKas", adaInputKas);
+        model.put("kasAkhirSeharusnya", kasAkhirSeharusnya);
+        model.put("selisihKas", selisihKas);
+        model.put("kasSeimbang", kasSeimbang);
+        model.put("kasAwalDisarankan", kasAwalDisarankan);
+        model.put("kasAwalNyambung", kasAwalNyambung);
+        model.put("namaBulanLalu", NAMA_BULAN[bulanLalu.getMonthValue()] + " " + bulanLalu.getYear());
 
         return model;
     }
 
-    public void saveKasManual(Integer tahun, Integer bulan,
-            java.math.BigDecimal awalBca, java.math.BigDecimal awalMandiri, java.math.BigDecimal awalTunai, java.math.BigDecimal awalBni,
-            java.math.BigDecimal akhirBca, java.math.BigDecimal akhirMandiri, java.math.BigDecimal akhirTunai, java.math.BigDecimal akhirBni,
-            java.math.BigDecimal infakLainLain, java.math.BigDecimal pendapatanLainLain) {
-        LaporanKas kas = laporanKasRepo.findByTahunAndBulan(tahun, bulan)
-                .orElse(LaporanKas.builder().tahun(tahun).bulan(bulan).build());
+    // =====================================================================
+    // Simpan kas manual
+    // =====================================================================
 
-        java.math.BigDecimal awalBcaNZ = awalBca == null ? java.math.BigDecimal.ZERO : awalBca;
-        java.math.BigDecimal awalMandiriNZ = awalMandiri == null ? java.math.BigDecimal.ZERO : awalMandiri;
-        java.math.BigDecimal awalTunaiNZ = awalTunai == null ? java.math.BigDecimal.ZERO : awalTunai;
-        java.math.BigDecimal awalBniNZ = awalBni == null ? java.math.BigDecimal.ZERO : awalBni;
+    /**
+     * Simpan atau perbarui saldo kas manual satu periode.
+     * Total kas awal/akhir selalu dihitung ulang dari komponennya, tidak pernah diinput.
+     */
+    @Transactional
+    public LaporanKas simpanKasManual(Integer tahun, Integer bulan,
+            BigDecimal awalBca, BigDecimal awalMandiri, BigDecimal awalTunai, BigDecimal awalBni,
+            BigDecimal akhirBca, BigDecimal akhirMandiri, BigDecimal akhirTunai, BigDecimal akhirBni,
+            BigDecimal infakLainLain, BigDecimal pendapatanLainLain,
+            BigDecimal zis, BigDecimal bungaBank, BigDecimal pemasukanLainTunai,
+            boolean harusSudahAda) {
 
-        kas.setKasAwalBca(awalBcaNZ);
-        kas.setKasAwalMandiri(awalMandiriNZ);
-        kas.setKasAwalTunai(awalTunaiNZ);
-        kas.setKasAwalBni(awalBniNZ);
-        kas.setTotalKasAwal(awalBcaNZ.add(awalMandiriNZ).add(awalTunaiNZ).add(awalBniNZ));
+        validasiPeriode(tahun, bulan);
 
-        java.math.BigDecimal akhirBcaNZ = akhirBca == null ? java.math.BigDecimal.ZERO : akhirBca;
-        java.math.BigDecimal akhirMandiriNZ = akhirMandiri == null ? java.math.BigDecimal.ZERO : akhirMandiri;
-        java.math.BigDecimal akhirTunaiNZ = akhirTunai == null ? java.math.BigDecimal.ZERO : akhirTunai;
-        java.math.BigDecimal akhirBniNZ = akhirBni == null ? java.math.BigDecimal.ZERO : akhirBni;
+        LaporanKas kas = laporanKasRepo.findByTahunAndBulan(tahun, bulan).orElse(null);
+        if (kas == null) {
+            if (harusSudahAda) {
+                throw new IllegalArgumentException("Data kas " + bulan + "/" + tahun + " tidak ditemukan");
+            }
+            kas = LaporanKas.builder().tahun(tahun).bulan(bulan).build();
+        }
 
-        kas.setKasAkhirBca(akhirBcaNZ);
-        kas.setKasAkhirMandiri(akhirMandiriNZ);
-        kas.setKasAkhirTunai(akhirTunaiNZ);
-        kas.setKasAkhirBni(akhirBniNZ);
-        kas.setTotalKasAkhir(akhirBcaNZ.add(akhirMandiriNZ).add(akhirTunaiNZ).add(akhirBniNZ));
+        BigDecimal aBca = wajibTidakNegatif(awalBca, "Kas awal BCA");
+        BigDecimal aMandiri = wajibTidakNegatif(awalMandiri, "Kas awal Mandiri");
+        BigDecimal aTunai = wajibTidakNegatif(awalTunai, "Kas awal tunai");
+        BigDecimal aBni = wajibTidakNegatif(awalBni, "Kas awal BNI");
 
-        kas.setInfakLainLain(infakLainLain == null ? java.math.BigDecimal.ZERO : infakLainLain);
-        kas.setPendapatanLainLain(pendapatanLainLain == null ? java.math.BigDecimal.ZERO : pendapatanLainLain);
+        kas.setKasAwalBca(aBca);
+        kas.setKasAwalMandiri(aMandiri);
+        kas.setKasAwalTunai(aTunai);
+        kas.setKasAwalBni(aBni);
+        kas.setTotalKasAwal(aBca.add(aMandiri).add(aTunai).add(aBni));
+
+        BigDecimal kBca = wajibTidakNegatif(akhirBca, "Kas akhir BCA");
+        BigDecimal kMandiri = wajibTidakNegatif(akhirMandiri, "Kas akhir Mandiri");
+        BigDecimal kTunai = wajibTidakNegatif(akhirTunai, "Kas akhir tunai");
+        BigDecimal kBni = wajibTidakNegatif(akhirBni, "Kas akhir BNI");
+
+        kas.setKasAkhirBca(kBca);
+        kas.setKasAkhirMandiri(kMandiri);
+        kas.setKasAkhirTunai(kTunai);
+        kas.setKasAkhirBni(kBni);
+        kas.setTotalKasAkhir(kBca.add(kMandiri).add(kTunai).add(kBni));
+
+        BigDecimal infakLain = wajibTidakNegatif(infakLainLain, "Infak lain-lain");
+        BigDecimal pendapatanLain = wajibTidakNegatif(pendapatanLainLain, "Pendapatan lain-lain");
+        BigDecimal zisNZ = wajibTidakNegatif(zis, "ZIS");
+        BigDecimal bungaNZ = wajibTidakNegatif(bungaBank, "Pendapatan bunga bank");
+        BigDecimal tunaiNZ = wajibTidakNegatif(pemasukanLainTunai, "Pemasukan lain-lain tunai");
+
+        // Bagian tunai tidak boleh melebihi pemasukan manual yang tersedia, kalau tidak
+        // rekonsiliasi kanal bank akan ikut salah tanpa sebab yang jelas.
+        BigDecimal totalPemasukanManual = infakLain.add(pendapatanLain).add(zisNZ);
+        if (tunaiNZ.compareTo(totalPemasukanManual) > 0) {
+            throw new IllegalArgumentException(
+                    "Bagian tunai (" + tunaiNZ + ") tidak boleh melebihi total infak lain-lain, "
+                            + "pendapatan lain-lain, dan ZIS (" + totalPemasukanManual + ").");
+        }
+
+        kas.setInfakLainLain(infakLain);
+        kas.setPendapatanLainLain(pendapatanLain);
+        kas.setZis(zisNZ);
+        kas.setBungaBank(bungaNZ);
+        kas.setPemasukanLainTunai(tunaiNZ);
 
         kas.setUpdatedAt(LocalDateTime.now());
-        laporanKasRepo.save(kas);
-    }
-
-    public void updateKasManual(int tahun, int bulan,
-        java.math.BigDecimal awalBca, java.math.BigDecimal awalMandiri, java.math.BigDecimal awalTunai, java.math.BigDecimal awalBni,
-        java.math.BigDecimal akhirBca, java.math.BigDecimal akhirMandiri, java.math.BigDecimal akhirTunai, java.math.BigDecimal akhirBni,
-        java.math.BigDecimal infakLainLain, java.math.BigDecimal pendapatanLainLain) {
-
-    LaporanKas kas = laporanKasRepo.findByTahunAndBulan(tahun, bulan)
-            .orElseThrow(() -> new IllegalArgumentException("Data kas " + bulan + "/" + tahun + " tidak ditemukan"));
-
-    java.math.BigDecimal awalBcaNZ = awalBca == null ? java.math.BigDecimal.ZERO : awalBca;
-    java.math.BigDecimal awalMandiriNZ = awalMandiri == null ? java.math.BigDecimal.ZERO : awalMandiri;
-    java.math.BigDecimal awalTunaiNZ = awalTunai == null ? java.math.BigDecimal.ZERO : awalTunai;
-    java.math.BigDecimal awalBniNZ = awalBni == null ? java.math.BigDecimal.ZERO : awalBni;
-
-    kas.setKasAwalBca(awalBcaNZ);
-    kas.setKasAwalMandiri(awalMandiriNZ);
-    kas.setKasAwalTunai(awalTunaiNZ);
-    kas.setKasAwalBni(awalBniNZ);
-    kas.setTotalKasAwal(awalBcaNZ.add(awalMandiriNZ).add(awalTunaiNZ).add(awalBniNZ));
-
-    java.math.BigDecimal akhirBcaNZ = akhirBca == null ? java.math.BigDecimal.ZERO : akhirBca;
-    java.math.BigDecimal akhirMandiriNZ = akhirMandiri == null ? java.math.BigDecimal.ZERO : akhirMandiri;
-    java.math.BigDecimal akhirTunaiNZ = akhirTunai == null ? java.math.BigDecimal.ZERO : akhirTunai;
-    java.math.BigDecimal akhirBniNZ = akhirBni == null ? java.math.BigDecimal.ZERO : akhirBni;
-
-    kas.setKasAkhirBca(akhirBcaNZ);
-    kas.setKasAkhirMandiri(akhirMandiriNZ);
-    kas.setKasAkhirTunai(akhirTunaiNZ);
-    kas.setKasAkhirBni(akhirBniNZ);
-    kas.setTotalKasAkhir(akhirBcaNZ.add(akhirMandiriNZ).add(akhirTunaiNZ).add(akhirBniNZ));
-
-    kas.setInfakLainLain(infakLainLain == null ? java.math.BigDecimal.ZERO : infakLainLain);
-    kas.setPendapatanLainLain(pendapatanLainLain == null ? java.math.BigDecimal.ZERO : pendapatanLainLain);
-
-    kas.setUpdatedAt(java.time.LocalDateTime.now());
-    laporanKasRepo.save(kas);
-}
-
-    private BigDecimal sumInfakByBank(String bank, LocalDate start, LocalDate end) {
-        var items = setorInfakRepo.findConfirmedBetween(start, end).stream()
-                .filter(s -> s.getBank() != null && s.getBank().equalsIgnoreCase(bank))
-                .collect(Collectors.toList());
-        return items.stream()
-                .map(s -> BigDecimal.valueOf(s.getNominal() == null ? 0L : s.getNominal()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    private BigDecimal total(KategoriBeban kategori, LocalDate start, LocalDate end) {
-        BigDecimal v = pengeluaranRepo.totalByKategoriAndRange(kategori, start, end);
-        return v == null ? BigDecimal.ZERO : v;
+        return laporanKasRepo.save(kas);
     }
 
     public LaporanKas getKasData(Integer tahun, Integer bulan) {
         return laporanKasRepo.findByTahunAndBulan(tahun, bulan).orElse(null);
     }
 
-    private String formatId(long v) {
-        return java.text.NumberFormat
-                .getInstance(java.util.Locale.of("id", "ID"))
-                .format(v);
+    /** Total kas akhir bulan sebelumnya, untuk prefill kas awal bulan berjalan. */
+    public BigDecimal getKasAwalDisarankan(int tahun, int bulan) {
+        LocalDate bulanLalu = LocalDate.of(tahun, bulan, 1).minusMonths(1);
+        return laporanKasRepo.findByTahunAndBulan(bulanLalu.getYear(), bulanLalu.getMonthValue())
+                .map(this::totalKasAkhir)
+                .orElse(null);
+    }
+
+    /** Rincian kas akhir bulan sebelumnya per kanal, untuk prefill form kas awal. */
+    public Map<String, BigDecimal> getRincianKasAkhirBulanLalu(int tahun, int bulan) {
+        LocalDate bulanLalu = LocalDate.of(tahun, bulan, 1).minusMonths(1);
+        return laporanKasRepo.findByTahunAndBulan(bulanLalu.getYear(), bulanLalu.getMonthValue())
+                .map(k -> {
+                    Map<String, BigDecimal> rincian = new LinkedHashMap<>();
+                    rincian.put("bca", nilai(k.getKasAkhirBca()));
+                    rincian.put("mandiri", nilai(k.getKasAkhirMandiri()));
+                    rincian.put("tunai", nilai(k.getKasAkhirTunai()));
+                    rincian.put("bni", nilai(k.getKasAkhirBni()));
+                    return rincian;
+                })
+                .orElse(null);
+    }
+
+    // =====================================================================
+    // Helper
+    // =====================================================================
+
+    /**
+     * Total infak terkonfirmasi per bank untuk satu periode.
+     *
+     * Sebelumnya hanya BCA dan Mandiri yang dijumlah dengan nama bank ditulis
+     * langsung di kode, sehingga setoran lewat bank lain hilang dari total
+     * pemasukan tanpa error. Sekarang pengelompokan dilakukan di database
+     * berdasarkan nilai bank yang benar-benar tersimpan.
+     */
+    private Map<String, BigDecimal> sumInfakPerBank(LocalDate start, LocalDate end) {
+        Map<String, BigDecimal> hasil = new LinkedHashMap<>();
+        for (Object[] baris : setorInfakRepo.sumConfirmedPerBank(start, end)) {
+            String bank = baris[0] == null ? "TIDAK DIKETAHUI" : baris[0].toString().toUpperCase(Locale.ROOT);
+            BigDecimal jumlah = toBigDecimal(baris[1]);
+            hasil.merge(bank, jumlah, BigDecimal::add);
+        }
+        return hasil;
+    }
+
+    private List<Map<String, Object>> bankDiLuarDaftarUtama(Map<String, BigDecimal> infakPerBank) {
+        List<Map<String, Object>> lainnya = new ArrayList<>();
+        infakPerBank.forEach((bank, jumlah) -> {
+            if (!BANK_UTAMA.contains(bank) && jumlah.compareTo(BigDecimal.ZERO) != 0) {
+                Map<String, Object> baris = new LinkedHashMap<>();
+                baris.put("bank", bank);
+                baris.put("jumlah", jumlah);
+                lainnya.add(baris);
+            }
+        });
+        return lainnya;
+    }
+
+    private BigDecimal total(KategoriBeban kategori, LocalDate start, LocalDate end) {
+        return nilai(pengeluaranRepo.totalByKategoriAndRange(kategori, start, end));
+    }
+
+    private BigDecimal totalKasAkhir(LaporanKas kas) {
+        // Kolom total adalah cache turunan. Selalu hitung dari rincian agar baris legacy
+        // dengan total lama/tidak sinkron tidak membuat saran kas awal berbeda dari
+        // angka per rekening yang ditampilkan dan diprefill.
+        return nilai(kas.getKasAkhirBca())
+                .add(nilai(kas.getKasAkhirMandiri()))
+                .add(nilai(kas.getKasAkhirTunai()))
+                .add(nilai(kas.getKasAkhirBni()));
+    }
+
+    private static BigDecimal nilai(BigDecimal v) {
+        return v == null ? BigDecimal.ZERO : v;
+    }
+
+    private static BigDecimal toBigDecimal(Object v) {
+        if (v == null) {
+            return BigDecimal.ZERO;
+        }
+        if (v instanceof BigDecimal bd) {
+            return bd;
+        }
+        if (v instanceof java.math.BigInteger bi) {
+            return new BigDecimal(bi);
+        }
+        return BigDecimal.valueOf(((Number) v).longValue());
+    }
+
+    private static BigDecimal wajibTidakNegatif(BigDecimal v, String label) {
+        BigDecimal hasil = nilai(v);
+        if (hasil.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(label + " tidak boleh negatif.");
+        }
+        return hasil;
+    }
+
+    private static void validasiPeriode(Integer tahun, Integer bulan) {
+        if (bulan == null || bulan < 1 || bulan > 12) {
+            throw new IllegalArgumentException("Bulan harus antara 1 sampai 12.");
+        }
+        if (tahun == null || tahun < 2000 || tahun > 2100) {
+            throw new IllegalArgumentException("Tahun tidak valid.");
+        }
     }
 }

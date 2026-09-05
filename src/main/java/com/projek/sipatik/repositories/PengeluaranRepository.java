@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.projek.sipatik.models.JenisPengeluaran;
 import com.projek.sipatik.models.KategoriBeban;
 import com.projek.sipatik.models.Pengeluaran;
 
@@ -19,6 +20,14 @@ public interface PengeluaranRepository extends JpaRepository<Pengeluaran, Long> 
 
     @Query("SELECT COALESCE(SUM(p.nominal),0) FROM Pengeluaran p")
     BigDecimal totalPengeluaranKeseluruhan();
+
+    /** Total pengeluaran per kanal (KAS_TUNAI / BANK) dalam satu periode. */
+    @Query("SELECT COALESCE(SUM(p.nominal),0) FROM Pengeluaran p " +
+            "WHERE p.jenis = :jenis " +
+            "AND p.tanggalPengeluaran >= :startDate AND p.tanggalPengeluaran <= :endDate")
+    BigDecimal totalByJenisAndRange(@Param("jenis") JenisPengeluaran jenis,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 
     @Query("SELECT COALESCE(SUM(p.nominal),0) FROM Pengeluaran p " +
            "WHERE p.kategori = :kategori " +

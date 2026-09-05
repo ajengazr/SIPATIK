@@ -4,17 +4,16 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title th:text="${pageTitle} ?: 'Sidebar Menu'">Sidebar Menu</title>
+    <title th:text="${pageTitle} ?: 'Rekap Infak | SIPATIK'">Rekap Infak | SIPATIK</title>
 
     <link rel="stylesheet" th:href="@{/css/dash.css}" />
     <link rel="stylesheet" th:href="@{/css/setor-infak.css}" />
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-
+    <link rel="stylesheet" th:href="@{/css/sipatik.css}" />
 </head>
 
-<body>
+<body class="data-page page-rekap-infak">
     <!-- Navbar -->
     <nav class="site-nav">
         <button class="sidebar-toggle">
@@ -27,7 +26,8 @@
         <aside class="sidebar collapsed">
             <div class="sidebar-header">
                 <a href="/user/dash-user" class="header-logo">
-                    <i class="fas fa-mosque"></i> SIPATIK
+                    <span class="material-symbols-rounded brand-mark" aria-hidden="true">mosque</span>
+                    <span class="brand-copy">SIPATIK</span>
                 </a>
                 <!-- <img th:src="@{/images/logo.png}" alt="SIPATIK" class="header-logo" /> -->
                 <button class="sidebar-toggle">
@@ -95,33 +95,63 @@
         </aside>
 
         <!-- Konten Utama -->
-        <div class="main-content">
-            <div class="form-container">
-                <h2>Rekap Infak Anda</h2>
+        <main class="main-content data-page__content">
+            <section class="form-container rekap-panel data-panel" aria-labelledby="rekapInfakTitle">
+                <div class="form-hero">
+                    <span class="form-hero__icon" aria-hidden="true">
+                        <span class="material-symbols-rounded">receipt_long</span>
+                    </span>
+                    <div>
+                        <h1 id="rekapInfakTitle">Rekap Infak Anda</h1>
+                        <p>Pantau nominal, tanggal, dan status setiap setoran yang sudah dikirim.</p>
+                    </div>
+                </div>
 
-                <table>
+                <!-- Menampilkan semua status, bukan hanya yang terkonfirmasi, supaya
+                     setoran yang masih menunggu dan alasan penolakan ikut terlihat. -->
+                <div class="table-container" role="region" aria-label="Rekap infak" tabindex="0">
+                <table class="data-table rekap-table">
                     <thead>
                         <tr>
                             <th>Infak ke</th>
                             <th>Tanggal Berinfak</th>
+                            <th>Bank</th>
                             <th>Nominal Berinfak</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="infak, stat : ${daftarInfak}">
                             <td th:text="${stat.index + 1}"></td>
                             <td th:text="${#temporals.format(infak.tanggalInfak, 'dd MMMM yyyy')}"></td>
-                            <td th:text="${#numbers.formatInteger(infak.nominal, 1, 'POINT')}"></td>
-
+                            <td th:text="${infak.bank}"></td>
+                            <td class="money-cell" th:text="${#numbers.formatInteger(infak.nominal, 1, 'POINT')}"></td>
+                            <td>
+                                <span th:text="${infak.status != null ? infak.status.label : 'Menunggu'}"></span>
+                                <div th:if="${infak.ditolak and infak.alasanTolak != null}"
+                                    class="rejection-reason"
+                                    th:text="'Alasan: ' + ${infak.alasanTolak}"></div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(daftarInfak)}">
+                            <td colspan="5" class="empty-state">Belum ada setoran infak</td>
                         </tr>
                     </tbody>
+                    <tfoot th:if="${!#lists.isEmpty(daftarInfak)}">
+                        <tr>
+                            <td colspan="3">Total Terkonfirmasi</td>
+                            <td colspan="2" class="money-cell"
+                                th:text="'Rp ' + ${#numbers.formatInteger(totalTerkonfirmasi, 1, 'POINT')}"></td>
+                        </tr>
+                    </tfoot>
                 </table>
-            </div>
+                </div>
+            </section>
 
             <footer>
                 &copy; 2025 SIPATIK - Pemberdayaan Umat Berkelanjutan.
             </footer>
-        </div>
+        </main>
     </div>
 
     <script th:src="@{/js/dash.js}"></script>

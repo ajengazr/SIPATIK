@@ -1,51 +1,79 @@
 <!DOCTYPE html>
 <html lang="id" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Input OTP</title>
+    <meta name="theme-color" content="#1E40AF">
+    <title>Verifikasi OTP | SIPATIK</title>
+    <link rel="stylesheet" th:href="@{/css/sipatik.css}">
+    <link rel="stylesheet" th:href="@{/css/form.css}">
     <link rel="stylesheet" th:href="@{/css/form-otp.css}">
 </head>
+<body class="auth-page">
+    <a class="skip-link" href="#auth-content">Lewati ke formulir</a>
+    <button class="theme-toggle" type="button" aria-label="Ubah tema terang atau gelap" title="Ubah tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+    </button>
 
-<body>
-    <div class="form-container">
-        <h2 class="form-title">Masukkan Kode OTP</h2>
-        <p class="form-subtitle">Kode telah dikirim ke email Anda</p>
+    <main class="auth-shell auth-shell--compact" id="auth-content">
+        <section class="auth-context" aria-label="Keamanan verifikasi SIPATIK">
+            <a class="auth-brand" href="/auth/" aria-label="SIPATIK, kembali ke beranda">
+                <span class="auth-brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V9l8-5 8 5v10"/><path d="M8 19v-6h8v6"/><path d="M3 19h18"/></svg></span>
+                SIPATIK
+            </a>
+            <div class="auth-context__content">
+                <p class="auth-eyebrow">Verifikasi dua langkah</p>
+                <h1>Pastikan akses benar-benar milik Anda.</h1>
+                <p class="auth-context__lead">Kode sekali pakai membantu melindungi perubahan penting pada akun alumni.</p>
+                <ul class="trust-list" aria-label="Panduan kode OTP">
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>Kode hanya berlaku untuk waktu terbatas</li>
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4l16 16"/><path d="M15 9a4 4 0 0 1 0 6"/><path d="M9 15a4 4 0 0 1 0-6"/></svg>Jangan pernah membagikan kode</li>
+                </ul>
+            </div>
+            <p class="auth-context__footer">SIPATIK tidak pernah meminta kode OTP melalui telepon</p>
+        </section>
 
-        <!-- Form kirim ke controller -->
-        <form id="otp-form" method="post" th:action="@{/auth/verifikasi-otp}">
-            <!-- Hidden input untuk userId -->
-            <input type="hidden" name="userId" th:value="${userId}" />
+        <section class="form-container" aria-labelledby="otp-title">
+            <header class="auth-card__header">
+                <p class="form-eyebrow">Konfirmasi identitas</p>
+                <h2 class="form-title" id="otp-title">Masukkan kode OTP</h2>
+                <p class="form-subtitle">Enam digit kode telah dikirim ke email Anda.</p>
+            </header>
 
-            <!-- Hidden input untuk alir data -->
-            <input type="hidden" name="nama" th:value="${nama}" id="inputNama" />
-            <input type="hidden" name="angkatan" th:value="${angkatan}" id="inputAngkatan" />
-
-            <!-- Input OTP per digit -->
-            <div class="otp-inputs">
-                <input type="text" maxlength="1" oninput="moveToNext(this)" class="otp-input" required>
-                <input type="text" maxlength="1" oninput="moveToNext(this)" class="otp-input" required>
-                <input type="text" maxlength="1" oninput="moveToNext(this)" class="otp-input" required>
-                <input type="text" maxlength="1" oninput="moveToNext(this)" class="otp-input" required>
-                <input type="text" maxlength="1" oninput="moveToNext(this)" class="otp-input" required>
-                <input type="text" maxlength="1" oninput="moveToNext(this)" class="otp-input" required>
+            <div class="otp-security-note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
+                <span>Masukkan kode sebelum masa berlakunya habis. Periksa folder spam bila email belum terlihat.</span>
             </div>
 
-            <!-- Hidden input untuk gabungan OTP -->
-            <input type="hidden" name="otp" id="otp-hidden" />
+            <form id="otp-form" method="post" th:action="@{/auth/verifikasi-otp}">
+                <input type="hidden" name="userId" th:value="${userId}">
+                <input type="hidden" name="nama" th:value="${nama}" id="inputNama">
+                <input type="hidden" name="angkatan" th:value="${angkatan}" id="inputAngkatan">
 
-            <!-- Submit button -->
-            <button type="submit" class="form-button">Verifikasi</button>
-        </form>
+                <div class="otp-inputs" aria-label="Kode OTP enam digit">
+                    <input type="text" maxlength="1" inputmode="numeric" autocomplete="one-time-code" aria-label="Digit OTP 1" oninput="moveToNext(this)" class="otp-input" required>
+                    <input type="text" maxlength="1" inputmode="numeric" aria-label="Digit OTP 2" oninput="moveToNext(this)" class="otp-input" required>
+                    <input type="text" maxlength="1" inputmode="numeric" aria-label="Digit OTP 3" oninput="moveToNext(this)" class="otp-input" required>
+                    <input type="text" maxlength="1" inputmode="numeric" aria-label="Digit OTP 4" oninput="moveToNext(this)" class="otp-input" required>
+                    <input type="text" maxlength="1" inputmode="numeric" aria-label="Digit OTP 5" oninput="moveToNext(this)" class="otp-input" required>
+                    <input type="text" maxlength="1" inputmode="numeric" aria-label="Digit OTP 6" oninput="moveToNext(this)" class="otp-input" required>
+                </div>
 
+                <input type="hidden" name="otp" id="otp-hidden">
+                <button type="submit" class="form-button auth-submit">Verifikasi kode</button>
+            </form>
 
-        <p th:if="${error}" th:text="${error}" style="color:red;"></p>
-        <p class="form-resend">Belum menerima kode? <a href="javascript:void(0);" id="resendOtpLink"
-                onclick="resendOtp()" class="resend-link">Kirim ulang</a></p>
-    </div>
+            <p th:if="${error}" th:text="${error}" class="error-message" role="alert"></p>
+            <form method="post" th:action="@{/auth/form-otp}" class="form-resend">
+                <input type="hidden" name="nama" th:value="${nama}">
+                <input type="hidden" name="angkatan" th:value="${angkatan}">
+                <span>Belum menerima kode?</span>
+                <button type="submit" id="resendOtpLink" class="resend-link" disabled>Kirim Ulang</button>
+            </form>
+        </section>
+    </main>
 
+    <script src="/js/theme.js"></script>
     <script src="/js/auth.js"></script>
 </body>
-
 </html>

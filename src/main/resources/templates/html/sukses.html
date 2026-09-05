@@ -1,20 +1,25 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
-
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Success Popup</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1E40AF">
+    <title>Proses Berhasil | SIPATIK</title>
+    <link rel="stylesheet" th:href="@{/css/sipatik.css}">
     <link rel="stylesheet" th:href="@{/css/sukses.css}">
 </head>
-
-<body>
-    <div class="popup-overlay" id="popupOverlay">
+<body class="success-page">
+    <div class="popup-overlay" id="popupOverlay" role="dialog" aria-modal="true" aria-labelledby="success-title">
         <div class="popup-content" id="popupContent">
-            <div class="popup-icon">✅</div>
-            <h2 class="popup-title">Sukses!</h2>
-            <p class="popup-message" th:text="${message}"></p>
-            <button class="popup-button" onclick="closePopup()">Tutup</button>
+            <div class="popup-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
+                    <path d="M5 12.5 9.25 16.5 19 6.75" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <p class="popup-kicker">Proses selesai</p>
+            <h1 class="popup-title" id="success-title">Berhasil</h1>
+            <p class="popup-message" th:text="${message}">Data berhasil diproses.</p>
+            <button type="button" class="popup-button" onclick="closePopup()">Kembali ke beranda</button>
         </div>
     </div>
 
@@ -36,5 +41,4 @@
         }
     </script>
 </body>
-
 </html>

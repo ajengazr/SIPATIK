@@ -56,6 +56,16 @@ public class EditKasRequest {
     
     @DecimalMin(value = "0.0", message = "Nilai tidak boleh negatif")
     private BigDecimal pendapatanLainLain;
+
+    @DecimalMin(value = "0.0", message = "Nilai tidak boleh negatif")
+    private BigDecimal zis;
+
+    @DecimalMin(value = "0.0", message = "Nilai tidak boleh negatif")
+    private BigDecimal bungaBank;
+
+    /** Bagian pemasukan manual yang diterima tunai, untuk rekonsiliasi per kanal. */
+    @DecimalMin(value = "0.0", message = "Nilai tidak boleh negatif")
+    private BigDecimal pemasukanLainTunai;
 }
 
 

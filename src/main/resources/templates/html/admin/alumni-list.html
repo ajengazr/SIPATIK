@@ -4,374 +4,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Alumni</title>
+    <title>Data Alumni | SIPATIK</title>
     <link rel="stylesheet" th:href="@{/css/dash.css}">
     <link rel="stylesheet" th:href="@{/css/setor-infak.css}">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" th:href="@{/css/sipatik.css}" />
+    <link rel="stylesheet" th:href="@{/css/admin-navigation.css}" />
 </head>
-<style>
-    .error-message {
-        color: #dc2626;
-        font-size: 12px;
-        margin-top: 4px;
-        display: none;
-    }
 
-    .sidebar-logo {
-        font-family: 'Poppins', sans-serif;
-        font-size: 1.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #1565c0, #0d47a1, #1976d2);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-decoration: none;
-        letter-spacing: -0.5px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .sidebar-logo i {
-        font-size: 1.8rem;
-        color: #1565c0;
-    }
-
-    .sidebar-logo:hover {
-        opacity: 0.8;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 6px;
-        align-items: center;
-    }
-
-    .btn-icon {
-        background: #2563eb;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        width: 36px;
-        height: 36px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-    }
-
-    .btn-icon.danger {
-        background: #dc2626;
-    }
-
-    .btn-icon:hover {
-        opacity: .9;
-    }
-
-    .alert {
-        padding: 12px;
-        border-radius: 4px;
-        margin-bottom: 20px;
-    }
-
-    .alert-success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-
-    .alert-error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-
-    .filters {
-        background: var(--color-bg-sidebar);
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-cancel {
-        background: #6b7280;
-        color: white;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    .btn-cancel:hover {
-        background: #4b5563;
-    }
-
-    .btn-confirm {
-        background: #dc2626;
-        color: white;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    .btn-confirm:hover {
-        background: #b91c1c;
-    }
-
-    .btn-toggle {
-        background: var(--color-hover-primary);
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .btn-toggle:hover {
-        opacity: 0.9;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-    }
-
-    .sort-buttons {
-        display: flex;
-        gap: 8px;
-    }
-
-    .btn-sort {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 8px 16px;
-        border: 2px solid var(--color-hover-primary);
-        border-radius: 6px;
-        text-decoration: none;
-        color: var(--color-hover-primary);
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-
-    .btn-sort:hover {
-        background: var(--color-hover-primary);
-        color: white;
-    }
-
-    .btn-sort.active {
-        background: var(--color-hover-primary);
-        color: white;
-    }
-
-    .angkatan-header {
-        background: var(--color-bg-sidebar);
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        text-align: center;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .angkatan-header h2 {
-        margin: 0 0 10px 0;
-        color: var(--color-text);
-        font-size: 24px;
-    }
-
-    .angkatan-header p {
-        margin: 0;
-        color: var(--color-text-secondary);
-        font-size: 16px;
-    }
-
-    /* Add styles for pagination */
-    .pagination-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 20px;
-        padding: 15px;
-        gap: 1rem;
-        background: var(--color-bg-sidebar);
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .pagination-info {
-        display: flex;
-        gap: 20px;
-        align-items: center;
-    }
-
-    .pagination-buttons {
-        display: flex;
-        gap: 10px;
-    }
-
-    .btn-pagination {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        background: var(--color-hover-primary);
-        color: white;
-        text-decoration: none;
-        border-radius: 6px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-
-    .btn-pagination:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-    }
-
-    .btn-pagination .material-symbols-rounded {
-        font-size: 18px;
-    }
-
-    .btn-lihat {
-        background: #059669;
-        color: white;
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-right: 5px;
-        font-size: 12px;
-    }
-
-    .btn-lihat:hover {
-        background: #047857;
-    }
-
-    .btn-edit {
-        background: #2563eb;
-        color: white;
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-right: 5px;
-        font-size: 12px;
-    }
-
-    .btn-edit:hover {
-        background: #1d4ed8;
-    }
-
-    .btn-delete {
-        background: #dc2626;
-        color: white;
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 12px;
-    }
-
-    .btn-delete:hover {
-        background: #b91c1c;
-    }
-</style>
-
-<body>
-    <!-- Navbar -->
-    <nav class="site-nav">
-        <button class="sidebar-toggle">
-            <span class="material-symbols-rounded">menu</span>
-        </button>
-    </nav>
+<body class="data-page page-alumni">
+    <th:block th:replace="~{html/fragments/admin-navigation :: mobileNavigation}"></th:block>
 
     <div class="container">
-        <!-- Sidebar -->
-        <aside class="sidebar collapsed">
-            <div class="sidebar-header">
-                <a href="/admin/dash-admin" class="header-logo">
-                    <i class="fas fa-mosque"></i> SIPATIK
-                </a>
-                <button class="sidebar-toggle">
-                    <span class="material-symbols-rounded">chevron_left</span>
-                </button>
-            </div>
-
-            <div class="sidebar-content">
-                <ul class="menu-list">
-                    <li class="menu-item">
-                        <a th:href="@{/admin/dash-admin}" class="menu-link"
-                            th:classappend="${activePage == 'dashboard'} ? ' active' : ''">
-                            <span class="material-symbols-rounded">dashboard</span>
-                            <span class="menu-label">Dashboard</span>
-                        </a>
-                    </li>
-
-                    <li class="menu-item">
-                        <a th:href="@{/admin/alumni}" class="menu-link"
-                            th:classappend="${activePage == 'alumni'} ? ' active' : ''">
-                            <span class="material-symbols-rounded">inbox_text_person</span>
-                            <span class="menu-label">Alumni</span>
-                        </a>
-                    </li>
-
-                    <li class="menu-item">
-                        <a th:href="@{/admin/show-pengeluaran}" class="menu-link"
-                            th:classappend="${activePage == 'pengeluaran'} ? ' active' : ''">
-                            <span class="material-symbols-rounded">payment_arrow_down</span>
-                            <span class="menu-label">Pengeluaran</span>
-                        </a>
-                    </li>
-
-                    <li class="menu-item">
-                        <a th:href="@{/admin/daftar-infak}" class="menu-link"
-                            th:classappend="${activePage == 'infak'} ? ' active' : ''">
-                            <span class="material-symbols-rounded">list_alt_add</span>
-                            <span class="menu-label">Daftar Infak</span>
-                        </a>
-                    </li>
-
-                    <li class="menu-item">
-                        <a th:href="@{/admin/laporan-kas}" class="menu-link"
-                            th:classappend="${activePage == 'kas'} ? ' active' : ''">
-                            <span class="material-symbols-rounded">add_chart</span>
-                            <span class="menu-label">Laporan Keuangan</span>
-                        </a>
-                    </li>
-
-                    <li class="menu-item">
-                        <a th:href="@{/auth/logout}" class="menu-link">
-                            <span class="material-symbols-rounded">logout</span>
-                            <span class="menu-label">Keluar</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="sidebar-footer">
-                <button class="theme-toggle">
-                    <div class="theme-label">
-                        <span class="theme-icon material-symbols-rounded">dark_mode</span>
-                        <span class="theme-text">Dark Mode</span>
-                    </div>
-                    <div class="theme-toggle-track">
-                        <div class="theme-toggle-indicator"></div>
-                    </div>
-                </button>
-            </div>
-        </aside>
+        <th:block th:replace="~{html/fragments/admin-navigation :: adminSidebar(${activePage})}"></th:block>
 
         <!-- Konten Utama -->
-        <div class="main-content">
+        <main class="main-content data-page__content">
             <!-- Header dengan Tombol Sort dan Filter -->
-            <div class="header">
-                <h1 class="page-title">Daftar Alumni</h1>
-                <div class="header-actions">
+            <header class="header data-page__header">
+                <div class="data-page__heading">
+                    <span class="data-page__kicker">Direktori anggota</span>
+                    <h1 class="page-title">Daftar Alumni</h1>
+                    <p class="data-page__subtitle">Kelola data alumni dan undangan aktivasi akun.</p>
+                </div>
+                <div class="header-actions data-page__actions">
                     <!-- Tombol Sort ASC/DESC -->
                     <div class="sort-buttons">
                         <a th:href="@{/admin/alumni(sort='asc', angkatan=${angkatan})}" class="btn-sort"
@@ -386,51 +43,56 @@
                         </a>
                     </div>
 
-                    <button onclick="openTambahModal()" class="btn-toggle">+ Tambah Alumni</button>
+                    <button type="button" onclick="openTambahModal()" class="btn-toggle">
+                        <span class="material-symbols-rounded" aria-hidden="true">person_add</span>
+                        Tambah Alumni
+                    </button>
                 </div>
-            </div> <br>
+            </header>
 
             <!-- Flash Messages -->
-            <div th:if="${success}" class="alert alert-success" id="successMessage">
-                <span th:text="${success}"></span>
-            </div>
+            <div class="alert-stack" aria-live="polite">
+                <div th:if="${success}" class="alert alert-success" id="successMessage">
+                    <span th:text="${success}"></span>
+                </div>
 
-            <div th:if="${error}" class="alert alert-error" id="errorMessage">
-                <span th:text="${error}"></span>
+                <div th:if="${error}" class="alert alert-error" id="errorMessage">
+                    <span th:text="${error}"></span>
+                </div>
             </div>
 
             <!-- Filter Angkatan -->
-            <div class="filters" style="margin-bottom: 20px;">
-                <form method="get" style="display: flex; gap: 10px; align-items: center;">
+            <section class="filters data-toolbar" aria-labelledby="filterAlumniLabel">
+                <span class="data-toolbar__label" id="filterAlumniLabel">Tampilkan alumni</span>
+                <form method="get" class="filter-form">
                     <input type="hidden" name="sort" th:value="${sort}" />
-                    <select name="angkatan" style="padding: 8px; border-radius: 6px; border: 1px solid #d1d5db;">
+                    <label for="filterAngkatan" class="sr-only">Angkatan alumni</label>
+                    <select id="filterAngkatan" name="angkatan">
                         <option value="">Semua Angkatan</option>
                         <option th:each="angk : ${availableAngkatan}" th:value="${angk}" th:text="${angk}"
                             th:selected="${angkatan != null && angkatan == angk}"></option>
                     </select>
-                    <button type="submit" class="btn-toggle"
-                        style="background: #2563eb; color: white; padding: 8px 16px;">Filter</button>
-                    <a th:href="@{/admin/alumni(sort=${sort})}" class="btn-toggle"
-                        style="background: #6b7280; color: white; padding: 8px 16px; text-decoration: none;">Reset</a>
+                    <button type="submit" class="btn btn-primary">Terapkan</button>
+                    <a th:href="@{/admin/alumni(sort=${sort})}" class="btn btn-secondary reset-btn">Reset</a>
                 </form>
-            </div>
+            </section>
 
             <!-- Tabel Data Alumni -->
-            <div class="table-container">
+            <section class="card data-table-card">
                 <!-- Header untuk angkatan spesifik -->
-                <div th:if="${angkatan != null}" class="angkatan-header">
+                <div th:if="${angkatan != null}" class="angkatan-header alumni-summary">
                     <h2>Angkatan <span th:text="${angkatan}"></span></h2>
                     <p>Total: <strong th:text="${#lists.size(alumniList)}"></strong> Alumni</p>
                 </div>
 
                 <!-- Header untuk semua angkatan (saat reset) -->
-                <div th:if="${angkatan == null}" class="angkatan-header">
+                <div th:if="${angkatan == null}" class="angkatan-header alumni-summary">
                     <h2>Semua Alumni</h2>
                     <p>Total: <strong th:text="${#lists.size(alumniList)}"></strong> Alumni</p>
                 </div>
 
-                <div class="card">
-                    <table class="card">
+                <div class="table-container" role="region" aria-label="Daftar alumni" tabindex="0">
+                    <table class="data-table alumni-table">
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -441,23 +103,32 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="alumni, iter : ${alumniList}">
-                                <td th:text="${iter.index + 1}"></td>
-                                <td th:text="${alumni.nama}"></td>
+                            <tr th:each="alumni, iter : ${alumniList}"
+                                th:with="registrationCandidate=${(alumni.email == null or #strings.isEmpty(#strings.trim(alumni.email))) and (alumni.password == null or #strings.isEmpty(#strings.trim(alumni.password))) and (alumni.nomorHp == null or #strings.isEmpty(#strings.trim(alumni.nomorHp)))}">
+                                <td class="cell-mono" th:text="${iter.index + 1}"></td>
+                                <td class="cell-primary" th:text="${alumni.nama}"></td>
                                 <td th:text="${alumni.jenjang}"></td>
                                 <td th:text="${alumni.angkatan}"></td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button type="button" class="btn-icon" title="Lihat" th:data-id="${alumni.id}"
-                                            th:data-nama="${alumni.nama}" onclick="openLihatModalFromButton(this)">
+                                        <button type="button" class="btn-icon" title="Lihat" aria-label="Lihat detail alumni" th:data-id="${alumni.id}"
+                                            th:data-nama="${alumni.nama}"
+                                            th:data-registration-candidate="${registrationCandidate}"
+                                            onclick="openLihatModalFromButton(this)">
                                             <span class="material-symbols-rounded">visibility</span>
                                         </button>
-                                        <button type="button" class="btn-icon" title="Edit" th:data-id="${alumni.id}"
+                                        <button type="button" class="btn-icon btn-invitation" title="Buat undangan"
+                                            aria-label="Buat undangan aktivasi" th:data-id="${alumni.id}"
+                                            th:data-nama="${alumni.nama}" th:if="${registrationCandidate}"
+                                            onclick="openInvitationModalFromButton(this)">
+                                            <span class="material-symbols-rounded">key</span>
+                                        </button>
+                                        <button type="button" class="btn-icon" title="Edit" aria-label="Edit alumni" th:data-id="${alumni.id}"
                                             th:data-nama="${alumni.nama}" th:data-jenjang="${alumni.jenjang}"
                                             th:data-angkatan="${alumni.angkatan}" onclick="openEditModalFromButton(this)">
                                             <span class="material-symbols-rounded">edit</span>
                                         </button>
-                                        <button type="button" class="btn-icon danger" title="Hapus"
+                                        <button type="button" class="btn-icon danger" title="Hapus" aria-label="Hapus alumni"
                                             th:data-id="${alumni.id}" th:data-nama="${alumni.nama}"
                                             onclick="openDeleteModalFromButton(this)">
                                             <span class="material-symbols-rounded">delete</span>
@@ -468,7 +139,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
             <!-- Pagination Angkatan dengan Tombol < > - FIXED -->
             <div class="pagination-container" th:if="${angkatan != null}">
@@ -496,15 +167,16 @@
             </div>
 
             <!-- Modal Tambah Alumni -->
-            <div id="tambahModal" class="modal hidden">
+            <div id="tambahModal" class="modal hidden data-modal">
                 <div class="modal-content">
-                    <span class="close" onclick="closeTambahModal()">&times;</span>
+                    <button type="button" class="close" onclick="closeTambahModal()" aria-label="Tutup formulir tambah alumni">&times;</button>
                     <h2 class="page-title">Tambah Alumni</h2>
-                    <form id="tambahForm" th:action="@{/admin/alumni/add}" method="post">
+                    <p class="modal-description">Tambahkan identitas dasar alumni ke direktori.</p>
+                    <form id="tambahForm" class="data-form" th:action="@{/admin/alumni/add}" method="post">
                         <input type="hidden" name="filterAngkatan" th:value="${angkatan}" />
                         <input type="hidden" name="sort" th:value="${sort}" />
 
-                        <label for="nama">Nama</label>
+                        <label for="tambah-nama">Nama</label>
                         <input type="text" id="tambah-nama" name="nama"
                             th:value="${alumniFormData != null ? alumniFormData.nama : ''}" />
                         <div class="error-message" id="tambah-nama-error"
@@ -513,7 +185,7 @@
                             th:style="'display: ' + (${alumniErrors != null and alumniErrors.containsKey('nama')} ? 'block' : 'none')">
                         </div>
 
-                        <label>Jenjang</label>
+                        <label for="tambah-jenjang">Jenjang</label>
                         <select id="tambah-jenjang" name="jenjang">
                             <option value="">Pilih Jenjang</option>
                             <option value="D3"
@@ -527,8 +199,8 @@
                             th:style="'display: ' + (${alumniErrors != null and alumniErrors.containsKey('jenjang')} ? 'block' : 'none')">
                         </div>
 
-                        <label>Angkatan</label>
-                        <input type="number" id="tambah-angkatan" name="angkatan" min="1" max="100"
+                        <label for="tambah-angkatan">Angkatan</label>
+                        <input type="number" id="tambah-angkatan" name="angkatan" min="1" max="24"
                             th:value="${alumniFormData != null ? alumniFormData.angkatan : ''}" />
                         <div class="error-message" id="tambah-angkatan-error"
                             th:if="${alumniErrors != null and alumniErrors.containsKey('angkatan')}"
@@ -542,16 +214,19 @@
             </div>
 
             <!-- Modal Edit Alumni -->
-            <div id="editModal" class="modal hidden">
+            <div id="editModal" class="modal hidden data-modal">
                 <div class="modal-content">
-                    <span class="close" onclick="closeEditModal()">&times;</span>
+                    <button type="button" class="close" onclick="closeEditModal()" aria-label="Tutup formulir edit alumni">&times;</button>
                     <h2 class="page-title">Edit Alumni</h2>
-                    <form id="editForm" method="post">
+                    <!-- th:action placeholder: dibutuhkan agar Thymeleaf menyuntikkan token CSRF.
+                         Alamat sebenarnya diisi JavaScript saat modal dibuka. -->
+                    <p class="modal-description">Perbarui nama atau jenjang alumni terpilih.</p>
+                    <form id="editForm" class="data-form" method="post" th:action="@{/admin/alumni/edit/0}">
                         <input type="hidden" id="editId" name="id" />
                         <input type="hidden" name="filterAngkatan" th:value="${angkatan}" />
                         <input type="hidden" name="sort" th:value="${sort}" />
 
-                        <label>Nama</label>
+                        <label for="editNama">Nama</label>
                         <input type="text" id="editNama" name="nama"
                             th:value="${editFormData != null ? editFormData.nama : ''}" />
                         <div class="error-message" id="edit-nama-error"
@@ -560,7 +235,7 @@
                             th:style="'display: ' + (${editErrors != null and editErrors.containsKey('nama')} ? 'block' : 'none')">
                         </div>
 
-                        <label>Jenjang</label>
+                        <label for="editJenjang">Jenjang</label>
                         <select id="editJenjang" name="jenjang">
                             <option value="">Pilih Jenjang</option>
                             <option value="D3" th:selected="${editFormData != null and editFormData.jenjang == 'D3'}">D3
@@ -574,7 +249,7 @@
                             th:style="'display: ' + (${editErrors != null and editErrors.containsKey('jenjang')} ? 'block' : 'none')">
                         </div>
 
-                        <label>Angkatan</label>
+                        <label for="editAngkatan">Angkatan</label>
                         <input type="number" id="editAngkatan" name="angkatan" min="1" max="100"
                             th:value="${editFormData != null ? editFormData.angkatan : ''}" readonly />
                         <div class="error-message" id="edit-angkatan-error"
@@ -589,31 +264,37 @@
             </div>
 
             <!-- Modal Konfirmasi Hapus -->
-            <div id="confirmDeleteModal" class="modal hidden">
+            <div id="confirmDeleteModal" class="modal hidden data-modal">
                 <div class="modal-content">
-                    <h3 style="margin:0 0 .5rem 0;" class="page-title">Konfirmasi Hapus</h3>
-                    <p id="confirmDeleteText" style="margin:0 0 1rem 0;">Yakin ingin menghapus data ini?</p>
-                    <div style="display:flex; gap:8px; justify-content:flex-end;">
+                    <h3 class="page-title">Konfirmasi Hapus</h3>
+                    <p id="confirmDeleteText" class="modal-description">Yakin ingin menghapus data ini?</p>
+                    <div class="form-actions">
                         <button id="cancelDeleteBtn" type="button" class="btn-cancel"
                             onclick="closeDeleteModal()">Batal</button>
-                        <button id="confirmDeleteBtn" type="button" class="btn-confirm">Hapus</button>
+                        <button id="confirmDeleteBtn" type="button" class="btn-confirm btn-danger">Hapus</button>
                     </div>
                 </div>
             </div>
 
             <!-- Modal Lihat Infak Alumni -->
-            <div id="lihatModal" class="modal hidden">
+            <div id="lihatModal" class="modal hidden data-modal">
                 <div class="modal-content">
-                    <span class="close" onclick="closeLihatModal()">&times;</span>
+                    <button type="button" class="close" onclick="closeLihatModal()" aria-label="Tutup detail infak alumni">&times;</button>
                     <h2 class="page-title">Detail Infak Alumni</h2>
-                    <div id="alumniInfo"
-                        style="margin-bottom: 20px; padding: 15px; background: var(--color-bg-sidebar); border-radius: 8px;">
-                        <h3 id="alumniName" style="margin: 0 0 10px 0; color: var(--color-text);"></h3>
-                        <p id="alumniDetails" style="margin: 0; color: var(--color-text-secondary);"></p>
+                    <p class="modal-description">Riwayat setoran terkonfirmasi untuk alumni terpilih.</p>
+                    <div id="alumniInfo" class="alumni-detail-card">
+                        <h3 id="alumniName"></h3>
+                        <p id="alumniDetails"></p>
+                        <button type="button" id="detailInvitationButton" class="btn btn-secondary"
+                            onclick="openInvitationModalFromDetail(this)" hidden>
+                            <span class="material-symbols-rounded">key</span>
+                            Buat undangan aktivasi
+                        </button>
                     </div>
 
-                    <div id="infakTableContainer">
-                        <table id="infakTable" class="card" style="width: 100%;">
+                    <div id="infakTableContainer" class="table-container" role="region"
+                        aria-label="Riwayat infak alumni" tabindex="0">
+                        <table id="infakTable" class="data-table">
                             <thead>
                                 <tr>
                                     <th>Infak ke</th>
@@ -626,26 +307,60 @@
                             </tbody>
                             <tfoot id="infakTableFooter" style="display: none;">
                                 <tr>
-                                    <th colspan="2" style="text-align: right;">Total Infak</th>
+                                    <th colspan="2" class="money-cell">Total Infak</th>
                                     <th id="infakTotalValue">Rp 0</th>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
 
-                    <div id="noInfakMessage" class="hidden"
-                        style="text-align: center; padding: 40px; color: var(--color-text-secondary);">
-                        <span class="material-symbols-rounded"
-                            style="font-size: 48px; margin-bottom: 10px; display: block;">money_off</span>
+                    <div id="noInfakMessage" class="hidden infak-empty-state">
+                        <span class="material-symbols-rounded" aria-hidden="true">money_off</span>
                         <p>Belum ada catatan infak yang dikonfirmasi</p>
                     </div>
+                </div>
+            </div>
+
+            <!-- Undangan aktivasi dibuat atas tindakan eksplisit admin. URL berisi
+                 token rahasia dan hanya diisi sesudah endpoint POST berhasil. -->
+            <div id="invitationModal" class="modal hidden data-modal" aria-hidden="true">
+                <div class="modal-content">
+                    <button type="button" class="close" onclick="closeInvitationModal()"
+                        aria-label="Tutup dialog undangan">&times;</button>
+                    <h2 class="page-title">Undangan Aktivasi Alumni</h2>
+                    <p id="invitationTarget" class="modal-description"></p>
+
+                    <div id="invitationWarning" class="alert alert-warning" role="note">
+                        Membuat undangan baru membatalkan undangan sebelumnya. Berlaku 7 hari.
+                    </div>
+                    <div id="invitationError" class="alert alert-error hidden" role="alert" tabindex="-1"></div>
+
+                    <div id="invitationResult" class="hidden">
+                        <p id="invitationResultMessage" class="text-success"></p>
+                        <label for="invitationUrl">URL undangan</label>
+                        <div class="invitation-url-row">
+                            <input type="text" id="invitationUrl" readonly spellcheck="false"
+                                aria-describedby="invitationExpiry invitationSecretNote" />
+                            <button type="button" id="copyInvitationButton" class="btn btn-secondary"
+                                onclick="copyInvitationUrl()">Salin URL</button>
+                        </div>
+                        <small id="invitationExpiry"></small>
+                        <small id="invitationSecretNote">URL ini berisi token rahasia. Bagikan hanya kepada alumni yang dituju.</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeInvitationModal()">Tutup</button>
+                        <button type="button" id="generateInvitationButton" class="btn btn-primary"
+                            onclick="generateInvitation()">Buat undangan</button>
+                    </div>
+                    <div id="invitationStatus" class="sr-only" aria-live="polite"></div>
                 </div>
             </div>
 
             <footer>
                 &copy; 2025 SIPATIK - Pemberdayaan Umat Berkelanjutan.
             </footer>
-        </div>
+        </main>
     </div>
 
     <script th:src="@{/js/dash.js}"></script>
@@ -702,7 +417,16 @@
             if (deleteId) {
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = '/admin/alumni/hapus/' + deleteId;
+                if (!/^\d+$/.test(String(deleteId))) return;
+                form.action = '/admin/alumni/hapus/' + encodeURIComponent(deleteId);
+
+                const csrfField = document.createElement('input');
+                csrfField.type = 'hidden';
+                csrfField.name = '_csrf';
+                csrfField.value = window.csrfToken()
+                    || (document.querySelector('input[name="_csrf"]') || {}).value
+                    || '';
+                form.appendChild(csrfField);
 
                 // Add hidden field to preserve current angkatan filter
                 const currentAngkatan = '[[${angkatan}]]';
@@ -744,6 +468,10 @@
             // Set alumni info
             document.getElementById('alumniName').textContent = alumniName;
             document.getElementById('alumniDetails').textContent = 'Detail catatan infak yang telah dikonfirmasi';
+            const detailInvitationButton = document.getElementById('detailInvitationButton');
+            detailInvitationButton.dataset.id = alumniId;
+            detailInvitationButton.dataset.nama = alumniName || '';
+            detailInvitationButton.hidden = button.dataset.registrationCandidate !== 'true';
 
             // Show loading state
             document.getElementById('infakTableContainer').classList.add('hidden');
@@ -760,7 +488,7 @@
                     const tbody = document.getElementById('infakTableBody');
                     const tfoot = document.getElementById('infakTableFooter');
                     const totalValueCell = document.getElementById('infakTotalValue');
-                    tbody.innerHTML = '';
+                    tbody.replaceChildren();
 
                     if (data && data.length > 0) {
                         let totalNominal = 0;
@@ -768,11 +496,12 @@
                             const row = document.createElement('tr');
                             const nominal = Number(infak.nominal) || 0;
                             totalNominal += nominal;
-                            row.innerHTML = `
-                                <td>${index + 1}</td>
-                                <td>${formatDate(infak.tanggalInfak)}</td>
-                                <td>Rp ${formatNumber(nominal)}</td>
-                            `;
+                            [index + 1, formatDate(infak.tanggalInfak), 'Rp ' + formatNumber(nominal)]
+                                .forEach(value => {
+                                    const cell = document.createElement('td');
+                                    cell.textContent = String(value);
+                                    row.appendChild(cell);
+                                });
                             tbody.appendChild(row);
                         });
                         if (tfoot && totalValueCell) {
@@ -801,6 +530,193 @@
 
         function closeLihatModal() {
             document.getElementById('lihatModal').classList.add('hidden');
+        }
+
+        // Undangan aktivasi alumni. Tidak ada pengiriman email: admin menyalin
+        // URL rahasia yang hanya dikembalikan endpoint sesudah POST eksplisit.
+        let invitationAlumniId = null;
+        let invitationRequestController = null;
+
+        function resetInvitationDialog() {
+            const result = document.getElementById('invitationResult');
+            const error = document.getElementById('invitationError');
+            const url = document.getElementById('invitationUrl');
+            const expiry = document.getElementById('invitationExpiry');
+            const resultMessage = document.getElementById('invitationResultMessage');
+            const status = document.getElementById('invitationStatus');
+            const generateButton = document.getElementById('generateInvitationButton');
+            const copyButton = document.getElementById('copyInvitationButton');
+
+            result.classList.add('hidden');
+            error.classList.add('hidden');
+            error.textContent = '';
+            url.value = '';
+            expiry.textContent = '';
+            resultMessage.textContent = '';
+            status.textContent = '';
+            generateButton.disabled = false;
+            generateButton.removeAttribute('aria-busy');
+            generateButton.textContent = 'Buat undangan';
+            copyButton.textContent = 'Salin URL';
+        }
+
+        function openInvitationModalFromButton(button, restoreTarget) {
+            const id = String(button.dataset.id || '');
+            if (!/^\d+$/.test(id)) return;
+
+            invitationAlumniId = id;
+            resetInvitationDialog();
+            document.getElementById('invitationTarget').textContent =
+                'Alumni: ' + (button.dataset.nama || 'tanpa nama');
+
+            const modal = document.getElementById('invitationModal');
+            if (window.SipatikModal) {
+                window.SipatikModal.open(modal, {
+                    trigger: restoreTarget || button,
+                    initialFocus: '#generateInvitationButton'
+                });
+            } else {
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function openInvitationModalFromDetail(button) {
+            const id = String(button.dataset.id || '');
+            const rowButton = Array.from(document.querySelectorAll('.btn-invitation'))
+                .find(candidate => candidate.dataset.id === id);
+            openInvitationModalFromButton(button, rowButton || button);
+        }
+
+        function closeInvitationModal() {
+            const modal = document.getElementById('invitationModal');
+            if (invitationRequestController) invitationRequestController.abort();
+            invitationRequestController = null;
+            if (window.SipatikModal) window.SipatikModal.close(modal);
+            else {
+                modal.classList.add('hidden');
+                invitationAlumniId = null;
+                resetInvitationDialog();
+            }
+        }
+
+        document.getElementById('invitationModal').addEventListener('sipatik:modal-close', function () {
+            // Token berada di URL: hapus dari DOM setiap dialog ditutup, termasuk
+            // lewat Escape, klik backdrop, atau ketika dialog lain dibuka.
+            if (invitationRequestController) invitationRequestController.abort();
+            invitationRequestController = null;
+            invitationAlumniId = null;
+            resetInvitationDialog();
+        });
+
+        function formatInvitationExpiry(value) {
+            const parsed = new Date(value);
+            if (Number.isNaN(parsed.getTime())) return String(value || '');
+            return new Intl.DateTimeFormat('id-ID', {
+                dateStyle: 'long',
+                timeStyle: 'short'
+            }).format(parsed);
+        }
+
+        async function generateInvitation() {
+            if (!invitationAlumniId) return;
+
+            const requestedAlumniId = invitationAlumniId;
+            const generateButton = document.getElementById('generateInvitationButton');
+            const error = document.getElementById('invitationError');
+            const result = document.getElementById('invitationResult');
+            const status = document.getElementById('invitationStatus');
+
+            if (generateButton.disabled) return;
+            generateButton.disabled = true;
+            generateButton.setAttribute('aria-busy', 'true');
+            generateButton.textContent = 'Membuat...';
+            error.classList.add('hidden');
+            error.textContent = '';
+            result.classList.add('hidden');
+            status.textContent = 'Sedang membuat undangan.';
+            invitationRequestController = new AbortController();
+            const requestController = invitationRequestController;
+
+            try {
+                const response = await fetch('/admin/alumni/' + encodeURIComponent(requestedAlumniId) + '/undangan', {
+                    method: 'POST',
+                    headers: window.csrfHeaders({ 'Accept': 'application/json' }),
+                    signal: requestController.signal
+                });
+                let payload = {};
+                try {
+                    payload = await response.json();
+                } catch (_) {
+                    payload = {};
+                }
+
+                if (requestController.signal.aborted || invitationAlumniId !== requestedAlumniId) return;
+
+                if (!response.ok) {
+                    throw new Error(payload.message || 'Undangan tidak dapat dibuat.');
+                }
+                if (!payload.url || typeof payload.url !== 'string') {
+                    throw new Error('Respons undangan tidak memuat URL.');
+                }
+
+                const absoluteUrl = new URL(payload.url, window.location.origin);
+                if (absoluteUrl.origin !== window.location.origin) {
+                    throw new Error('Origin URL undangan tidak valid.');
+                }
+                document.getElementById('invitationUrl').value = absoluteUrl.href;
+                document.getElementById('invitationResultMessage').textContent =
+                    payload.message || 'Undangan berhasil dibuat.';
+                document.getElementById('invitationExpiry').textContent = payload.expiresAt
+                    ? 'Berlaku hingga ' + formatInvitationExpiry(payload.expiresAt)
+                    : 'Berlaku selama 7 hari.';
+                result.classList.remove('hidden');
+                generateButton.textContent = 'Undangan dibuat';
+                generateButton.removeAttribute('aria-busy');
+                status.textContent = 'Undangan berhasil dibuat. URL siap disalin.';
+                document.getElementById('copyInvitationButton').focus();
+            } catch (requestError) {
+                if (requestError.name === 'AbortError') return;
+                error.textContent = requestError.message || 'Undangan tidak dapat dibuat.';
+                error.classList.remove('hidden');
+                generateButton.disabled = false;
+                generateButton.removeAttribute('aria-busy');
+                generateButton.textContent = 'Coba lagi';
+                status.textContent = 'Gagal membuat undangan.';
+                error.focus();
+            } finally {
+                if (invitationRequestController === requestController) invitationRequestController = null;
+            }
+        }
+
+        async function copyInvitationUrl() {
+            const input = document.getElementById('invitationUrl');
+            const copyButton = document.getElementById('copyInvitationButton');
+            const status = document.getElementById('invitationStatus');
+            if (!input.value) return;
+
+            let copied = false;
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(input.value);
+                    copied = true;
+                }
+            } catch (_) {
+                copied = false;
+            }
+
+            if (!copied) {
+                input.focus();
+                input.select();
+                try {
+                    copied = document.execCommand('copy');
+                } catch (_) {
+                    copied = false;
+                }
+            }
+
+            status.textContent = copied ? 'URL undangan disalin.' : 'Tidak dapat menyalin otomatis. Salin URL secara manual.';
+            copyButton.textContent = copied ? 'Tersalin' : 'Pilih URL';
+            if (!copied) input.select();
         }
 
         // Helper functions for formatting

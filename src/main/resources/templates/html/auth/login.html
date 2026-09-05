@@ -1,63 +1,114 @@
 <!DOCTYPE html>
-<html lang="id">
-
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.css">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <meta name="theme-color" content="#1E40AF">
+    <title>Masuk Alumni | SIPATIK</title>
+    <link rel="stylesheet" th:href="@{/css/sipatik.css}">
     <link rel="stylesheet" th:href="@{/css/form.css}">
 </head>
-
-<body>
-    <button class="theme-toggle" aria-label="toggle theme">
-        <i class="fas fa-adjust"></i>
+<body class="auth-page" data-auth-page="login">
+    <a class="skip-link" href="#auth-content">Lewati ke formulir</a>
+    <button class="theme-toggle" type="button" aria-label="Ubah tema terang atau gelap" title="Ubah tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/>
+        </svg>
     </button>
 
-    <div class="form-container">
-        <h2 class="form-title">Selamat Datang</h2>
-        <p class="form-subtitle">Masuk untuk melanjutkan ke SIPATIK</p>
+    <main class="auth-shell auth-shell--compact" id="auth-content">
+        <section class="auth-context" aria-label="Tentang SIPATIK">
+            <a class="auth-brand" href="/auth/" aria-label="SIPATIK, kembali ke beranda">
+                <span class="auth-brand__mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19V9l8-5 8 5v10"/><path d="M8 19v-6h8v6"/><path d="M3 19h18"/>
+                    </svg>
+                </span>
+                SIPATIK
+            </a>
+            <div class="auth-context__content">
+                <p class="auth-eyebrow">Ruang alumni tepercaya</p>
+                <h1>Infak tercatat, kontribusi tetap transparan.</h1>
+                <p class="auth-context__lead">Akses riwayat kontribusi dan pantau pencatatan infak Anda dalam satu tempat yang aman.</p>
+                <ul class="trust-list" aria-label="Keunggulan layanan">
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+                        Data alumni terverifikasi
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+                        Akses dilindungi dengan aman
+                    </li>
+                </ul>
+            </div>
+            <p class="auth-context__footer">Sistem Informasi Pencatatan Infak Terintegrasi Komunitas</p>
+        </section>
 
-        <form th:action="@{/auth/proses-login}" th:object="${loginRequest}" method="post">
-            <div class="overlay">
-                <div class="form-group">
-                    <label for="email">Email*</label>
-                    <input type="email" th:field="*{email}" id="email" placeholder="Masukkan Email Anda">
-                    <i class="login__icon ri-mail-fill" id="loginEmail"></i>
+        <section class="form-container" aria-labelledby="login-title">
+            <a class="auth-back-link" th:href="@{/auth/cek}" aria-label="Kembali ke pemilihan akun alumni">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m15 18-6-6 6-6" />
+                </svg>
+                <span>Kembali</span>
+            </a>
+
+            <header class="auth-card__header">
+                <p class="form-eyebrow">Akun alumni</p>
+                <h2 class="form-title" id="login-title">Selamat datang kembali</h2>
+                <p class="form-subtitle">Masukkan email dan password untuk melanjutkan ke SIPATIK.</p>
+            </header>
+
+            <form th:action="@{/auth/proses-login}" th:object="${loginRequest}" method="post" data-auth-form>
+                <div class="overlay">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <div class="input-wrap">
+                            <input type="email" th:field="*{email}" id="email" autocomplete="email" required
+                                   placeholder="nama@email.com">
+                            <span class="field-icon" id="loginEmail" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                            </span>
+                        </div>
+                    </div>
+                    <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message" role="alert"></p>
                 </div>
-                <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message">
+
+                <div class="overlay">
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrap">
+                            <input type="password" id="password" th:field="*{password}" maxlength="72" required
+                                   autocomplete="current-password" placeholder="Masukkan password Anda">
+                            <button type="button" class="login__icon cursor-password ri-eye-off-fill" id="loginPassword"
+                                    aria-label="Tampilkan password" aria-pressed="false" aria-controls="password">
+                                <svg class="icon-eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m3 3 18 18"/><path d="M10.6 10.7a2 2 0 0 0 2.7 2.7"/><path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c6.5 0 10 8 10 8a17 17 0 0 1-2.1 3.2"/><path d="M6.6 6.6C3.5 8.6 2 12 2 12s3.5 8 10 8a9.8 9.8 0 0 0 4.3-1"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p th:if="${#fields.hasErrors('password')}" th:text="${#fields.errors('password')[0]}"
+                       class="error-message" role="alert"></p>
+                    <div th:if="${error}" class="error-message" role="alert">
+                        <p th:text="${error}"></p>
+                    </div>
+                </div>
+
+                <input type="hidden" th:field="*{nama}" id="inputNama">
+                <input type="hidden" th:field="*{angkatan}" id="inputAngkatan">
+
+                <button type="submit" class="auth-submit">Masuk ke akun</button>
+
+                <p class="form-meta">
+                    <a href="javascript:void(0);" onclick="goToLupaPassword()">Lupa password?</a>
                 </p>
-            </div>
+            </form>
+        </section>
+    </main>
 
-            <div class="overlay">
-                <div class="form-group">
-                    <label for="password">Password*</label>
-                    <input type="password" id="password" th:field="*{password}" placeholder="Masukkan Password Anda">
-                    <i class="login__icon cursor-password ri-eye-off-fill" id="loginPassword"></i>
-                </div>
-                <p th:if="${#fields.hasErrors('password')}" th:text="${#fields.errors('password')[0]}"
-                    class="error-message"></p>
-                <div th:if="${error}" class="error-message">
-                    <p th:text="${error}"></p>
-                </div>
-            </div>
+    <th:block th:replace="~{html/fragments/auth-loading :: authLoader}"></th:block>
 
-            <input type="hidden" th:field="*{nama}"id="inputNama" />
-            <input type="hidden" th:field="*{angkatan}" id="inputAngkatan"/>
-
-            <button type="submit">Masuk</button>
-
-            <div class="text-sm text-center mt-4">
-                <a href="javascript:void(0);" onclick="goToLupaPassword()">Lupa Password?</a>
-            </div>
-
-        </form>
-    </div>
     <script src="/js/theme.js"></script>
     <script src="/js/auth.js"></script>
 </body>
-
 </html>

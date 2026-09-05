@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<body>
+    <nav th:fragment="mobileNavigation" class="site-nav admin-mobile-nav" aria-label="Navigasi seluler">
+        <a th:href="@{/admin/dash-admin}" class="mobile-brand" aria-label="SIPATIK — dashboard admin">
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                    <path d="M4 19V9l8-5 8 5v10" />
+                    <path d="M8 19v-6h8v6" />
+                    <path d="M3 19h18" />
+                </svg>
+            </span>
+            <span class="brand-copy">SIPATIK <small>Portal Admin</small></span>
+        </a>
+        <button class="sidebar-toggle" type="button" aria-label="Buka navigasi">
+            <span class="material-symbols-rounded" aria-hidden="true">menu</span>
+        </button>
+    </nav>
+
+    <th:block th:fragment="adminSidebar(activePage)">
+        <aside class="sidebar admin-sidebar collapsed" id="app-sidebar" aria-label="Navigasi admin">
+            <div class="sidebar-header">
+                <a th:href="@{/admin/dash-admin}" class="header-logo" aria-label="SIPATIK — dashboard admin">
+                    <span class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                            <path d="M4 19V9l8-5 8 5v10" />
+                            <path d="M8 19v-6h8v6" />
+                            <path d="M3 19h18" />
+                        </svg>
+                    </span>
+                    <span class="brand-copy">SIPATIK <small>Portal Admin</small></span>
+                </a>
+                <button class="sidebar-toggle" type="button" aria-label="Tutup navigasi"
+                    data-drawer-initial-focus>
+                    <span class="material-symbols-rounded" aria-hidden="true">chevron_left</span>
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <div class="sidebar-account" role="group" aria-label="Akun administrator">
+                    <span class="sidebar-account__avatar material-symbols-rounded"
+                        aria-hidden="true">admin_panel_settings</span>
+                    <span class="sidebar-account__copy">
+                        <strong sec:authentication="principal.nama">Administrator</strong>
+                        <small>Bendahara · Administrator</small>
+                    </span>
+                </div>
+
+                <span class="sidebar-section-label">Menu utama</span>
+                <nav aria-label="Menu admin">
+                    <ul class="menu-list">
+                        <li class="menu-item">
+                            <a th:href="@{/admin/dash-admin}" class="menu-link"
+                                th:classappend="${activePage == 'dashboard'} ? ' active' : ''"
+                                th:attr="aria-current=${activePage == 'dashboard'} ? 'page' : null">
+                                <span class="material-symbols-rounded" aria-hidden="true">dashboard</span>
+                                <span class="menu-label">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a th:href="@{/admin/alumni}" class="menu-link"
+                                th:classappend="${activePage == 'alumni'} ? ' active' : ''"
+                                th:attr="aria-current=${activePage == 'alumni'} ? 'page' : null">
+                                <span class="material-symbols-rounded" aria-hidden="true">group</span>
+                                <span class="menu-label">Alumni</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a th:href="@{/admin/show-pengeluaran}" class="menu-link"
+                                th:classappend="${activePage == 'pengeluaran'} ? ' active' : ''"
+                                th:attr="aria-current=${activePage == 'pengeluaran'} ? 'page' : null">
+                                <span class="material-symbols-rounded" aria-hidden="true">payments</span>
+                                <span class="menu-label">Pengeluaran</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a th:href="@{/admin/daftar-infak}" class="menu-link"
+                                th:classappend="${activePage == 'infak'} ? ' active' : ''"
+                                th:attr="aria-current=${activePage == 'infak'} ? 'page' : null">
+                                <span class="material-symbols-rounded" aria-hidden="true">volunteer_activism</span>
+                                <span class="menu-label">Daftar Infak</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a th:href="@{/admin/laporan-kas}" class="menu-link"
+                                th:classappend="${activePage == 'kas'} ? ' active' : ''"
+                                th:attr="aria-current=${activePage == 'kas'} ? 'page' : null">
+                                <span class="material-symbols-rounded" aria-hidden="true">monitoring</span>
+                                <span class="menu-label">Laporan Keuangan</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="theme-toggle" type="button">
+                    <span class="theme-label">
+                        <span class="theme-icon material-symbols-rounded" aria-hidden="true">dark_mode</span>
+                        <span class="theme-text">Mode gelap</span>
+                    </span>
+                    <span class="theme-toggle-track" aria-hidden="true">
+                        <span class="theme-toggle-indicator"></span>
+                    </span>
+                </button>
+                <a th:href="@{/auth/logout}" class="sidebar-logout">
+                    <span class="material-symbols-rounded" aria-hidden="true">logout</span>
+                    <span class="sidebar-logout__label">Keluar</span>
+                </a>
+            </div>
+        </aside>
+
+        <button class="sidebar-backdrop" type="button" aria-label="Tutup navigasi" tabindex="-1"
+            aria-hidden="true"></button>
+    </th:block>
+</body>
+
+</html>

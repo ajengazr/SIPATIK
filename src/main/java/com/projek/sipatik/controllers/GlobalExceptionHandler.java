@@ -4,17 +4,22 @@ import com.projek.sipatik.dto.ErrorResponse;
 import com.projek.sipatik.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.ui.Model;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
@@ -22,6 +27,7 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // ========== API ERROR HANDLERS (JSON Response) ==========
     
@@ -62,6 +68,30 @@ public class GlobalExceptionHandler {
             request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    /**
+     * Menangani penolakan dari method security, misalnya {@code @PreAuthorize}.
+     * Penolakan yang terjadi di filter chain ditangani SecurityConfig, sedangkan
+     * penolakan setelah controller dipilih masuk ke ControllerAdvice. Tanpa handler
+     * khusus ini, handler {@link Exception} di bawah mengubah 403 menjadi 500.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Object handleAccessDeniedException(
+            AccessDeniedException ex, HttpServletRequest request, Model model) {
+        if (request.getRequestURI().startsWith("/api/")) {
+            ErrorResponse error = new ErrorResponse(
+                    HttpStatus.FORBIDDEN.value(),
+                    "Forbidden",
+                    "Anda tidak memiliki akses ke endpoint ini",
+                    request.getRequestURI());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        }
+
+        model.addAttribute("statusCode", HttpStatus.FORBIDDEN.value());
+        model.addAttribute("errorMessage", "Anda tidak memiliki akses ke halaman ini");
+        return "html/error/403";
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -129,7 +159,16 @@ public class GlobalExceptionHandler {
     // ========== VIEW ERROR HANDLERS (HTML Response) ==========
 
     @ExceptionHandler(FieldValidationException.class)
-    public String handleFieldValidationException(FieldValidationException ex, Model model) {
+    public Object handleFieldValidationException(
+            FieldValidationException ex, HttpServletRequest request, Model model) {
+        if (request.getRequestURI().startsWith("/api/")) {
+            ErrorResponse error = new ErrorResponse(
+                    HttpStatus.BAD_REQUEST.value(),
+                    "Bad Request",
+                    ex.getMessage(),
+                    request.getRequestURI());
+            return ResponseEntity.badRequest().body(error);
+        }
         model.addAttribute(ex.getField() + "Error", ex.getMessage());
         return "html/auth/login";
     }
@@ -160,16 +199,47 @@ public class GlobalExceptionHandler {
         }
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Object handleNoResourceFoundException(
+            NoResourceFoundException ex, HttpServletRequest request, Model model) {
+        if (request.getRequestURI().startsWith("/api/")) {
+            ErrorResponse error = new ErrorResponse(
+                    HttpStatus.NOT_FOUND.value(),
+                    "Not Found",
+                    "Resource tidak ditemukan",
+                    request.getRequestURI());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+
+        model.addAttribute("errorMessage", "Halaman tidak ditemukan");
+        model.addAttribute("statusCode", HttpStatus.NOT_FOUND.value());
+        return "html/error/404";
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotAllowed(
+            HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.METHOD_NOT_ALLOWED.value(),
+                "Method Not Allowed",
+                "Metode HTTP tidak diizinkan untuk endpoint ini",
+                request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(error);
+    }
+
     // Handle general exceptions - this will handle both API and View requests
     @ExceptionHandler(Exception.class)
     public Object handleGeneralException(Exception ex, HttpServletRequest request, Model model) {
+        log.error("Unexpected error while handling {} {}", request.getMethod(), request.getRequestURI(), ex);
+
         // Check if this is an API request
         if (request.getRequestURI().startsWith("/api/")) {
             // Return JSON response for API requests
             ErrorResponse error = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error",
-                "Terjadi kesalahan pada server: " + ex.getMessage(),
+                "Terjadi kesalahan pada server, silakan coba lagi",
                 request.getRequestURI()
             );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);

@@ -18,6 +18,9 @@ public class UserRequest {
     private String jenjang;
 
      public void normalizeNomorWa() {
+        if (nomorHp == null) {
+            return;
+        }
         if (nomorHp.startsWith("+62")) {
             nomorHp = "0" + nomorHp.substring(3);
         } else if (nomorHp.startsWith("62")) {

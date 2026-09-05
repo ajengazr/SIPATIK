@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="authLoader" id="auth-loader" class="auth-loader" hidden
+        role="dialog" aria-modal="true" aria-labelledby="auth-loader-title"
+        aria-describedby="auth-loader-description" tabindex="-1">
+        <div class="auth-loader__panel">
+            <div class="auth-loader__emblem" aria-hidden="true">
+                <svg class="auth-loader__ring" viewBox="0 0 100 100" focusable="false">
+                    <circle class="auth-loader__ring-track" cx="50" cy="50" r="44" />
+                    <circle class="auth-loader__ring-value" cx="50" cy="50" r="44" />
+                </svg>
+                <span class="auth-loader__brand-mark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                        <path d="M4 19V9l8-5 8 5v10" />
+                        <path d="M8 19v-6h8v6" />
+                        <path d="M3 19h18" />
+                    </svg>
+                </span>
+            </div>
+
+            <p class="auth-loader__badge" data-loader-badge>MENYIAPKAN SIPATIK</p>
+            <h2 class="auth-loader__title" id="auth-loader-title">SIPATIK</h2>
+            <p class="auth-loader__description" id="auth-loader-description" data-loader-description>
+                Menyiapkan halaman yang aman untuk Anda.
+            </p>
+
+            <div class="auth-loader__progress" data-loader-progress role="progressbar"
+                aria-label="Progres pemuatan" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <span class="auth-loader__progress-value" data-loader-fill></span>
+            </div>
+            <div class="auth-loader__meta">
+                <p data-loader-status role="status" aria-live="polite" aria-atomic="true">Memulai…</p>
+                <span data-loader-value aria-hidden="true">0%</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,71 +1,86 @@
 <!DOCTYPE html>
-<html lang="id">
-
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.css">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <meta name="theme-color" content="#1E40AF">
+    <title>Verifikasi Token Admin | SIPATIK</title>
+    <link rel="stylesheet" th:href="@{/css/sipatik.css}">
     <link rel="stylesheet" th:href="@{/css/form.css}">
     <link rel="stylesheet" th:href="@{/css/form-otp.css}">
 </head>
-
-<body>
-    <button class="theme-toggle" aria-label="toggle theme">
-        <i class="fas fa-adjust"></i>
+<body class="auth-page">
+    <a class="skip-link" href="#auth-content">Lewati ke formulir</a>
+    <button class="theme-toggle" type="button" aria-label="Ubah tema terang atau gelap" title="Ubah tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
     </button>
 
-    <div class="form-container">
+    <main class="auth-shell auth-shell--compact" id="auth-content">
+        <section class="auth-context" aria-label="Keamanan akses admin">
+            <a class="auth-brand" href="/auth/" aria-label="SIPATIK, kembali ke beranda">
+                <span class="auth-brand__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V9l8-5 8 5v10"/><path d="M8 19v-6h8v6"/><path d="M3 19h18"/></svg></span>
+                SIPATIK
+            </a>
+            <div class="auth-context__content">
+                <p class="auth-eyebrow">Lapisan keamanan admin</p>
+                <h1>Konfirmasi akses sebelum mengelola data.</h1>
+                <p class="auth-context__lead">Token verifikasi membantu memastikan panel administrasi hanya diakses oleh pengelola yang sah.</p>
+                <ul class="trust-list" aria-label="Panduan token">
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>Token dikirim ke email admin</li>
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4l16 16"/><path d="M15 9a4 4 0 0 1 0 6"/><path d="M9 15a4 4 0 0 1 0-6"/></svg>Jangan bagikan token kepada siapa pun</li>
+                </ul>
+            </div>
+            <p class="auth-context__footer">Akses administratif dicatat untuk menjaga akuntabilitas</p>
+        </section>
 
-        <form th:action="@{/auth-adm/verify-token}" method="post">
+        <section class="form-container" aria-labelledby="token-title">
+            <header class="auth-card__header">
+                <p class="form-eyebrow">Verifikasi admin</p>
+                <h2 class="form-title" id="token-title">Masukkan token keamanan</h2>
+                <p class="form-subtitle">Periksa email admin dan masukkan token yang baru dikirim.</p>
+            </header>
 
-            <input type="hidden" name="email" th:value="${email}" />
-            <div class="overlay">
-                <div class="form-group">
-                    <input type="text" name="token" placeholder="Masukkan token" required />
-                </div>
-                <div th:if="${error}" class="error-message">
-                    <p th:if="${error}" class="error" th:text="${error}"></p>
-                </div>
-                <p th:if="${success}" class="success" th:text="${success}"></p>
+            <div class="otp-security-note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
+                <span>Gunakan token terbaru. Token lama tidak dapat dipakai setelah pengiriman ulang.</span>
             </div>
 
-            <button type="submit">Verifikasi</button>
+            <form th:action="@{/auth-adm/verify-token}" method="post">
+                <input type="hidden" name="email" id="adminEmail" th:value="${email}">
+                <div class="overlay">
+                    <div class="form-group">
+                        <label for="adminToken">Token verifikasi</label>
+                        <input type="text" name="token" id="adminToken" class="token-input" autocomplete="one-time-code" placeholder="Masukkan token" required>
+                    </div>
+                    <div th:if="${error}" class="error-message" role="alert">
+                        <p th:if="${error}" class="error" th:text="${error}"></p>
+                    </div>
+                    <p th:if="${success}" class="success" th:text="${success}" role="status"></p>
+                </div>
 
-        </form>
+                <button type="submit" class="auth-submit">Verifikasi token</button>
+            </form>
 
-        <!-- <form id="resendForm" th:action="@{/admin/api/resend-token}" method="post" style="display:none;">
-            <input type="hidden" name="email" value="${email}" />
-        </form> -->
+            <p class="form-resend">
+                <span>Belum menerima token?</span>
+                <a href="javascript:void(0);" class="resend-link" id="resendAdminTokenLink">Kirim ulang</a>
+                <span id="countdown" aria-live="polite"></span>
+            </p>
+        </section>
+    </main>
 
-        <p class="form-resend">
-            Belum menerima token?
-            <a href="javascript:void(0);" class="resend-link text-blue-500 font-semibold" id="resendOtpLink">Kirim
-                ulang</a>
-            <span id="countdown" class="ml-2 text-red-500 font-semibold"></span>
-        </p>
-
-    </div>
-
-    <!-- POPUP SUCCESS -->
-    <div id="popupOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden 
-            flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-lg text-center max-w-sm w-full mx-4">
-            <div class="text-4xl mb-2">✅</div>
-            <h2 class="text-xl font-semibold mb-2">Sukses!</h2>
-            <p class="mb-4" th:text="${message}">Link konfirmasi sudah dikirim ke email Anda.</p>
-            <button onclick="closePopup()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full">
-                Tutup
-            </button>
+    <div id="popupOverlay" class="popup-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="token-success-title">
+        <div class="popup-dialog">
+            <div class="popup-dialog__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg></div>
+            <h2 id="token-success-title">Sukses</h2>
+            <p th:text="${message}">Link konfirmasi sudah dikirim ke email Anda.</p>
+            <button type="button" onclick="closePopup()" class="auth-submit">Tutup</button>
         </div>
     </div>
+
     <script src="/js/theme.js"></script>
     <script src="/js/auth.js"></script>
     <script th:inline="javascript">
-        // tampilkan popup jika ada message dari backend
         const message = /*[[${message}]]*/ "";
         if (message && message !== "") {
             document.getElementById("popupOverlay").classList.remove("hidden");
@@ -75,59 +90,49 @@
             document.getElementById("popupOverlay").classList.add("hidden");
         }
 
-        let resendCount = 0;
         let cooldown = false;
         let countdownTimer;
-
-        const link = document.getElementById("resendOtpLink");
+        const link = document.getElementById("resendAdminTokenLink");
         const countdownEl = document.getElementById("countdown");
 
-        
         link.addEventListener("click", function (e) {
-            e.preventDefault(); // cegah reload halaman
-            const params = new URLSearchParams(window.location.search);
-            const email = params.get("email");
-            console.log("Resend clicked for email:", email);
+            e.preventDefault();
+            const email = document.getElementById("adminEmail").value;
+            if (cooldown || !email) return;
 
-            if (cooldown) return;
-
-            resendCount++;
-
-
-            fetch("/admin/api/resend-token?email=" + encodeURIComponent(email), {
-                method: "POST"
+            const csrf = (document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]*)/) || [])[1];
+            fetch("/auth-adm/resend-token", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+                    ...(csrf ? { "X-XSRF-TOKEN": decodeURIComponent(csrf) } : {})
+                },
+                body: new URLSearchParams({ email })
             })
                 .then(res => res.json())
                 .then(data => {
                     alert(data.message);
+                    startCooldown(60);
                 })
                 .catch(err => console.error(err));
-
-            if (resendCount >= 3) {
-                startCooldown(5 * 60);
-            }
         });
 
         function startCooldown(seconds) {
             cooldown = true;
-
-            link.style.pointerEvents = "none"; // disable klik
-            link.style.opacity = "0.5"; // biar kelihatan nonaktif
-
+            link.style.pointerEvents = "none";
+            link.style.opacity = "0.5";
             let remaining = seconds;
             updateCountdown(remaining);
 
             countdownTimer = setInterval(() => {
                 remaining--;
                 updateCountdown(remaining);
-
                 if (remaining <= 0) {
                     clearInterval(countdownTimer);
                     cooldown = false;
-                    resendCount = 0; // reset hitungan klik
                     link.style.pointerEvents = "auto";
                     link.style.opacity = "1";
-                    link.textContent = "Kirim ulang"; // kembalikan teks
+                    link.textContent = "Kirim ulang";
                     countdownEl.textContent = "";
                 }
             }, 1000);
@@ -138,10 +143,6 @@
             const secs = seconds % 60;
             countdownEl.textContent = `Coba lagi dalam ${minutes}:${secs < 10 ? "0" : ""}${secs}`;
         }
-
-
-
     </script>
 </body>
-
 </html>
