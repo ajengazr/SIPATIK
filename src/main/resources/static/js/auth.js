@@ -117,7 +117,7 @@ if (resendLink && otpForm) {
 // Loading experience for login and account activation pages.
 (() => {
     const pageType = document.body?.dataset.authPage;
-    const supportedPages = new Set(['login', 'admin-login', 'register']);
+    const supportedPages = new Set(['login', 'admin-login', 'admin-token', 'register']);
     if (!supportedPages.has(pageType)) return;
 
     const form = document.querySelector('form[data-auth-form]');
@@ -154,6 +154,12 @@ if (resendLink && otpForm) {
             description: 'Kredensial diperiksa dan token keamanan sedang disiapkan.',
             status: 'Memproses akses admin…'
         },
+        'admin-token': {
+            badge: 'MEMVERIFIKASI TOKEN',
+            title: 'Memvalidasi token keamanan',
+            description: 'Token Anda sedang diverifikasi untuk mengakses panel admin.',
+            status: 'Memverifikasi token…'
+        },
         register: {
             badge: 'MENGAKTIFKAN AKUN',
             title: 'Mengaktifkan akun alumni',
@@ -165,6 +171,7 @@ if (resendLink && otpForm) {
     const introDescriptions = {
         login: 'Menyiapkan ruang alumni Anda.',
         'admin-login': 'Menyiapkan akses aman untuk pengelola.',
+        'admin-token': 'Menyiapkan verifikasi token admin.',
         register: 'Menyiapkan aktivasi akun alumni.'
     };
 

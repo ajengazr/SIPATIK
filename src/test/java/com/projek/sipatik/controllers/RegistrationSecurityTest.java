@@ -135,10 +135,14 @@ class RegistrationSecurityTest {
         Users ordinaryUser = active(Role.USER, "User Bukan Admin", "user-cannot-invite@example.org");
         Users candidate = candidate("Alumni Dilindungi CSRF");
 
+        // Tanpa token CSRF, permintaan ditolak dan dipulihkan ke halaman asal (redirect),
+        // bukan diproses; tanpa halaman 403 yang menyesatkan.
         mvc.perform(post("/admin/alumni/{id}/undangan", candidate.getId())
                         .with(authentication(adminAuthentication(admin))))
-                .andExpect(status().isForbidden());
+                .andExpect(status().is3xxRedirection());
+        assertThat(invitations.findByUserId(candidate.getId())).isEmpty();
 
+        // Role USER tetap ditolak meskipun membawa pasangan CSRF yang valid.
         mvc.perform(post("/admin/alumni/{id}/undangan", candidate.getId())
                         .with(authentication(userAuthentication(ordinaryUser))).with(csrf()))
                 .andExpect(status().isForbidden());

@@ -9,7 +9,7 @@
     <link rel="stylesheet" th:href="@{/css/form.css}">
     <link rel="stylesheet" th:href="@{/css/form-otp.css}">
 </head>
-<body class="auth-page">
+<body class="auth-page" data-auth-page="admin-token">
     <a class="skip-link" href="#auth-content">Lewati ke formulir</a>
     <button class="theme-toggle" type="button" aria-label="Ubah tema terang atau gelap" title="Ubah tema">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
@@ -45,7 +45,7 @@
                 <span>Gunakan token terbaru. Token lama tidak dapat dipakai setelah pengiriman ulang.</span>
             </div>
 
-            <form th:action="@{/auth-adm/verify-token}" method="post">
+            <form th:action="@{/auth-adm/verify-token}" method="post" data-auth-form>
                 <input type="hidden" name="email" id="adminEmail" th:value="${email}">
                 <div class="overlay">
                     <div class="form-group">
@@ -68,6 +68,8 @@
             </p>
         </section>
     </main>
+
+    <th:block th:replace="~{html/fragments/auth-loading :: authLoader}"></th:block>
 
     <div id="popupOverlay" class="popup-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="token-success-title">
         <div class="popup-dialog">

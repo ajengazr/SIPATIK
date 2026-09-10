@@ -173,6 +173,7 @@ public class AuthService {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
+            helper.setFrom(email);
             helper.setTo(email);
             helper.setSubject("Konfirmasi Login Anda");
 
@@ -199,7 +200,7 @@ public class AuthService {
             helper.setText(htmlContent, true); // true = enable HTML
             mailSender.send(mimeMessage);
 
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             log.error("Failed to send admin login token email", e);
         }
     }
@@ -224,13 +225,14 @@ public class AuthService {
             // nge-generate isi email dari html
             String htmlContent = templateEngine.process("html/auth/email-otp", context);
 
+            helper.setFrom(toEmail);
             helper.setTo(toEmail);
             helper.setSubject("Kode OTP Reset Password SIPATIK");
             helper.setText(htmlContent, true);
 
             javaMailSender.send(message);
 
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             log.error("Failed to send password reset email", e);
             throw new RuntimeException("Gagal mengirim email", e);
         }
